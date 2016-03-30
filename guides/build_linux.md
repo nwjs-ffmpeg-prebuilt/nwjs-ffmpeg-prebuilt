@@ -29,8 +29,7 @@
 	//install build deps
 	./src/build/install-build-deps.sh
 	
-	//Apply the ffmpeg patch to enable Proprietary Codecs
-	$(curl -fsSL https://raw.githubusercontent.com/iteufel/nwjs-ffmpeg-prebuilt/master/ffmpeg.patch) | git apply --directory src/third_party/ffmpeg -
+	export GYP_DEFINES="ffmpeg_branding=Chrome ffmpeg_component=shared_library"
 	
 	//Regenerate the gyp files
 	gclient runhooks --force

@@ -36,7 +36,7 @@
 ##Build ffmpeg.dll x64
 	//set some env
 	set DEPOT_TOOLS_WIN_TOOLCHAIN=0
-	set GYP_DEFINES=clang=0
+	set GYP_DEFINES=clang=0 ffmpeg_branding=Chrome ffmpeg_component=shared_library
 	set GYP_MSVS_VERSION=2015
 	
 	//Regenerate gyp files
@@ -48,9 +48,8 @@
 ##Build ffmpeg.dll ia32
 	//set some env
 	set DEPOT_TOOLS_WIN_TOOLCHAIN=0
-	set GYP_DEFINES=target_arch=ia32 clang=0
+	set GYP_DEFINES=target_arch=ia32 clang=0 ffmpeg_branding=Chrome ffmpeg_component=shared_library
 	set GYP_MSVS_VERSION=2015
-	
 	//Regenerate gyp files
 	gclient runhooks --force
 	
