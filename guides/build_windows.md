@@ -20,6 +20,8 @@
 	//install Window 10 SDK
 	choco install windows-sdk-10.0
 
+	//Install depot_tools
+	https://www.chromium.org/developers/how-tos/install-depot-tools
 ##Get the code
 	//create the src dir
 	mkdir -p ~/nwjs && cd ~/nwjs
@@ -29,14 +31,11 @@
 	
 	//Sync the code *This takes a while and a lot of space*
 	gclient sync --with_branch_heads --force
-	
-	//Apply the ffmpeg patch to enable Proprietary Codecs
-	$(curl -fsSL https://raw.githubusercontent.com/iteufel/nwjs-ffmpeg-prebuilt/master/ffmpeg.patch) | git apply --directory src/third_party/ffmpeg -
 
 ##Build ffmpeg.dll x64
 	//set some env
 	set DEPOT_TOOLS_WIN_TOOLCHAIN=0
-	set GYP_DEFINES=clang=0 ffmpeg_branding=Chrome ffmpeg_component=shared_library
+	set GYP_DEFINES=target_arch=x64 clang=0 ffmpeg_branding=Chrome ffmpeg_component=shared_library
 	set GYP_MSVS_VERSION=2015
 	
 	//Regenerate gyp files
@@ -50,6 +49,7 @@
 	set DEPOT_TOOLS_WIN_TOOLCHAIN=0
 	set GYP_DEFINES=target_arch=ia32 clang=0 ffmpeg_branding=Chrome ffmpeg_component=shared_library
 	set GYP_MSVS_VERSION=2015
+	
 	//Regenerate gyp files
 	gclient runhooks --force
 	

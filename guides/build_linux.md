@@ -29,7 +29,7 @@
 	//install build deps
 	./src/build/install-build-deps.sh
 	
-	export GYP_DEFINES="ffmpeg_branding=Chrome ffmpeg_component=shared_library"
+	export GYP_DEFINES="ffmpeg_branding=Chrome ffmpeg_component=shared_library target_arch=x64"
 	
 	//Regenerate the gyp files
 	gclient runhooks --force
