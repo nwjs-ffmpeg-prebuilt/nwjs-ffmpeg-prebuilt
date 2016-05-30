@@ -80,6 +80,7 @@ else:
 #install linux dependencies
 if platform.system() == 'Linux':
 	os.system('python build/linux/sysroot_scripts/install-sysroot.py --running-as-hook')
+	os.system('./build/install-build-deps.sh')
 
 os.system('python tools/clang/scripts/update.py --if-needed')
 
@@ -87,7 +88,7 @@ os.system('python tools/clang/scripts/update.py --if-needed')
 os.system('sh ./tools/gyp/gyp -I build/common.gypi --depth=. ./third_party/ffmpeg/ffmpeg.gyp')
 
 #build ffmpeg
-if target_arch == 'ia32' or platform.system() == 'Darwin':
+if target_arch == 'ia32' or platform.system() == 'Darwin' or platform.system() == 'Linux':
 	os.system('ninja -C out/Release ffmpeg')
 else:
 	os.system('ninja -C out/Release_x64 ffmpeg')
