@@ -6,6 +6,9 @@ FFMpeg prebuilt binaries and build instructions for window, linux and osx.
 - [Linux guide](guides/build_linux.md)
 - [Mac guide](guides/build_mac.md)
 
+
+Downloads [prebuilt binaries](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases).
+
 You can get the FFmpeg source code from [here](https://chromium.googlesource.com/chromium/third_party/ffmpeg).
 
 >###License and Patent Fee

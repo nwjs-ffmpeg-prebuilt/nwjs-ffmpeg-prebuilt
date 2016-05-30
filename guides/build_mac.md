@@ -18,5 +18,5 @@
 ##Build libffmpeg
 	git clone https://github.com/iteufel/nwjs-ffmpeg-prebuilt.git
 	cd nwjs-ffmpeg-prebuilt
-	python build.py
+	python build_ffmpeg.py
 	

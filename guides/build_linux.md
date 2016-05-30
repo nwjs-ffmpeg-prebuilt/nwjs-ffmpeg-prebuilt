@@ -15,7 +15,7 @@
 	cd nwjs-ffmpeg-prebuilt
 	
 	//Build ffmpeg ia32
-	sudo python build.py --target_arch=ia32
+	sudo python build_ffmpeg.py --target_arch=ia32
 	
 	//Build ffmpeg x64
-	sudo python build.py --target_arch=ia32
+	sudo python build_ffmpeg.py --target_arch=ia32
