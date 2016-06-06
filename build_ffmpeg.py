@@ -80,7 +80,7 @@ else:
 #install linux dependencies
 if platform.system() == 'Linux':
 	os.system('python build/linux/sysroot_scripts/install-sysroot.py --running-as-hook')
-	os.system('./build/install-build-deps.sh')
+	os.system('./build/install-build-deps.sh --no-prompt --no-nacl --no-chromeos-fonts --no-syms')
 
 os.system('python tools/clang/scripts/update.py --if-needed')
 
