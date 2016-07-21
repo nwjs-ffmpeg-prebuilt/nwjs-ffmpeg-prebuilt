@@ -22,7 +22,7 @@ elif platform.machine().startswith('arm'):
 else:
 	sys.exit(1)
 
-nw_version='15'
+nw_version='16'
 target_arch=host_arch
 
 for opt, arg in opts:
