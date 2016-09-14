@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import re, os, platform, sys, getopt, shutil, subprocess
+import re, os, platform, sys, getopt, shutil
 
 def usage():
   print "Usage: build.py [options]"
@@ -83,6 +83,7 @@ with open('DEPS', 'r') as f:
   deps_str = f.read()
 
 #vars
+#copied from DEPS
 min_vars = '''
 vars = {
   'chromium_git':
@@ -91,23 +92,35 @@ vars = {
 '''
 
 #deps
+deps_list = {
+  'buildtools'  : {
+    'reg' : ur'buildtools\.git@(.+)\'',
+    'repo': '/chromium/buildtools.git',
+    'path': 'src/buildtools'
+  },
+  'gyp'  : {
+    'reg' : ur'gyp\.git@(.+)\'',
+    'repo': '/external/gyp.git',
+    'path': 'src/tools/gyp'
+  },
+  'patched-yasm'  : {
+    'reg' : ur'patched-yasm\.git@(.+)\'',
+    'repo': '/chromium/deps/yasm/patched-yasm.git',
+    'path': 'src/third_party/yasm/source/patched-yasm'
+  },
+  'ffmpeg'  : {
+    'reg' : ur'ffmpeg\.git@(.+)\'',
+    'repo': '/chromium/third_party/ffmpeg',
+    'path': 'src/third_party/ffmpeg'
+  },
+}
 min_deps = []
-buildtools = grep_dep(ur'buildtools\.git@(.+)\'', '/chromium/buildtools.git', 'src/buildtools')
-gyp = grep_dep(ur'gyp\.git@(.+)\'', '/external/gyp.git', 'src/tools/gyp')
-yasm = grep_dep(ur'patched-yasm\.git@(.+)\'', '/chromium/deps/yasm/patched-yasm.git', 'src/third_party/yasm/source/patched-yasm')
-ffmpeg = grep_dep(ur'ffmpeg\.git@(.+)\'', '/chromium/third_party/ffmpeg', 'src/third_party/ffmpeg')
-if buildtools is None:
-  raise Exception('`gyp` is not found in DEPS')
-min_deps.append(buildtools)
-if gyp is None:
-  raise Exception('`gyp` is not found in DEPS')
-min_deps.append(gyp)
-if yasm is None:
-  raise Exception('`yasm` is not found in DEPS')
-min_deps.append(yasm)
-if ffmpeg is None:
-  raise Exception('`ffmpeg` is not found in DEPS')
-min_deps.append(ffmpeg)
+for k, v in deps_list.items():
+  dep = grep_dep(v['reg'], v['repo'], v['path'])
+  if dep is None:
+    raise Exception("`%s` is not found in DEPS" % k)
+  min_deps.append(dep)
+
 min_deps = '''
 deps = {
 %s
@@ -115,6 +128,7 @@ deps = {
 ''' % "\n".join(min_deps)
 
 #hooks
+#copied from DEPS
 min_hooks = '''
 hooks = [
   {
@@ -223,12 +237,10 @@ with open('DEPS', 'w') as f:
 
 #overwrite BUILD.gn
 BUILD_gn = '''
-action("dummy") {
+group("dummy") {
   deps = [
     "//third_party/ffmpeg"
   ]
-  script = "dummy"
-  outputs = ["$target_gen_dir/dummy.txt"]
 }
 '''
 shutil.move('BUILD.gn', 'BUILD.gn.bak')
@@ -243,7 +255,7 @@ if platform.system() == 'Linux':
 os.system('gclient sync --no-history')
 
 #generate ninja files
-subprocess.call(['gn', 'gen', '//out/nw', '--args=is_debug=false is_component_ffmpeg=true target_cpu="%s" is_official_build=true ffmpeg_branding="Chrome"' % target_cpu], shell=True)
+os.system('gn gen //out/nw "--args=is_debug=false is_component_ffmpeg=true target_cpu=\\\"%s\\\" is_official_build=true ffmpeg_branding=\\\"Chrome\\\""' % target_cpu)
 
 #build ffmpeg
 os.system("ninja -C out/nw ffmpeg")
