@@ -64,7 +64,10 @@ shutil.rmtree("src/out", ignore_errors=True)
 chromium_git = 'https://chromium.googlesource.com'
 #clone depot_tools
 os.system("git clone --depth=1 https://chromium.googlesource.com/chromium/tools/depot_tools.git")
-os.environ["PATH"] = os.environ["PATH"] + ":" + os.getcwd() + "/depot_tools"
+sys.path.append( os.getcwd() + "/depot_tools")
+
+if platform.system() == 'Windows' or 'CYGWIN_NT' in platform.system():
+	os.environ["DEPOT_TOOLS_WIN_TOOLCHAIN"] = '0'
 
 #create .gclient file
 os.system("gclient config --unmanaged --name=src https://github.com/nwjs/chromium.src.git@tags/nw-v" + nw_version)
