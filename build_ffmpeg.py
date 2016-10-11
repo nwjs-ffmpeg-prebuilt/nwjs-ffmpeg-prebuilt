@@ -1,9 +1,6 @@
 #!/usr/bin/python
 
-import re, os, platform, sys, getopt, shutil, io
-
-def usage():
-  print "Usage: build.py [options]"
+import re, os, platform, sys, getopt, shutil, io, argparse
 
 def grep_dep(reg, repo, dir):
   pat = re.compile(reg)
@@ -15,12 +12,6 @@ def grep_dep(reg, repo, dir):
   '%s':
     (Var(\"chromium_git\")) + '%s@%s',
 ''' % (dir, repo, head)
-
-try:
-  opts, args = getopt.getopt(sys.argv[1:], "hc", ["clean", "help", "proprietary_codecs", "target_platform=", "target_arch=", "nw_version="])
-except getopt.GetoptError:
-  usage()
-  sys.exit(2)
 
 if sys.platform.startswith('win'):
     host_platform = 'win'
@@ -45,20 +36,23 @@ target_arch = host_arch
 target_platform = host_platform
 proprietary_codecs = False
 
-for opt, arg in opts:
-  if opt in ("-h", "--help"):
-    usage()
-    sys.exit(0)
-  elif opt in ("--platform_arch"):
-    platform_arch = arg
-  elif opt in ("--target_arch"):
-    target_arch = arg
-  elif opt in ("--nw_version"):
-    nw_version = arg
-  elif opt in ("-c", "--clean"):
+parser = argparse.ArgumentParser(description='ffmpeg builder script.')
+parser.add_argument('-c','--clean', help='Clean the workspace, removes downloaded source code', required=False, action='store_true')
+parser.add_argument('-nw','--nw_version', default=nw_version, help='Build ffmpeg for the specified Nw.js version', required=False)
+parser.add_argument('-tp','--target_platform', default=target_platform, help='Target platform, win, linux, mac', required=False)
+parser.add_argument('-ta','--target_arch', default=target_arch, help='Target architecture, ia32, x64, arm64, arm', required=False)
+parser.add_argument('-pc','--proprietary_codecs', help='Build ffmpeg with proprietary codecs', required=False, action='store_true')
+args = parser.parse_args()
+
+print "Building ffmpeg with:"
+for arg, value in sorted(vars(args).items()):
+    if value:
+        print "--", arg, "=", value
+
+proprietary_codecs = args.proprietary_codecs
+
+if args.clean:
     shutil.rmtree("build", ignore_errors=True)
-  elif opt in ("--proprietary_codecs"):
-    proprietary_codecs = True
 
 if target_arch == "ia32":
   target_cpu = "x86"
