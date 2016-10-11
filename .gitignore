@@ -1,3 +1,7 @@
+/build/.gclient
+/build/.gclient_entries
+/build/depot_tools/
+/build/src/
 .DS_Store
 /chromium.src
 /depot_tools
