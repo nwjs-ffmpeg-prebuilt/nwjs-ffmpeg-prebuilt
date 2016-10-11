@@ -7,14 +7,14 @@ index cfbe54e..7e10c22 100755
        '--enable-rdft',
        '--enable-static',
 +      '--enable-nonfree',
- 
+
        # Disable features.
        '--disable-bzlib',
 @@ -320,6 +321,15 @@ def main(argv):
        '--disable-vdpau',
        '--disable-videotoolbox',
- 
-+      # PopcornTime codec
+
++      # PopcornTime codecs
 +      '--enable-decoder=aac,h264,mp3,mpeg4,hevc,ac3,aac3,mpegvideo,msmpeg4v1,msmpeg4v2,msmpeg4v3,flv,dca',
 +      '--enable-demuxer=mp3,mov,avi,flv,mp4,mpegvideo,dts,dtshd,mpegts,ogg',
 +      '--enable-parser=aac,h264,h263,mpegaudio,mpeg4video,ac3,aac3,dca,hevc,mepgvideo',

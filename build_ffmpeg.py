@@ -277,7 +277,7 @@ if proprietary_codecs:
     if not os.path.isfile('build_ffmpeg_patched.ok'):
         print "Applying codecs patch with ac3..."
         shutil.copy('../../patch/build_ffmpeg_proprietary_codecs.patch', 'third_party/ffmpeg/')
-        #apply codecs path
+        #apply codecs patch
         os.system('git apply --ignore-space-change --ignore-whitespace build_ffmpeg_proprietary_codecs.patch')
         with io.FileIO("build_ffmpeg_patched.ok", "w") as file:
             file.write("src/third_party/ffmpeg/chromium/scripts/build_ffmpeg.py already patched with proprietary codecs")
