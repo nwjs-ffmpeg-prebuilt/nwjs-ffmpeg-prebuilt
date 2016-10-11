@@ -1,13 +1,13 @@
 #FFmpeg prebuilt for NW.js
 
-FFMpeg prebuilt binaries and build instructions for window, linux and osx.  
+FFMpeg prebuilt binaries with proprietary codecs and build instructions for window, linux and osx.  
 
 - [Windows guide](guides/build_windows.md)
 - [Linux guide](guides/build_linux.md)
 - [Mac guide](guides/build_mac.md)
 
 
-Downloads [prebuilt binaries](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases).
+Downloads [prebuilt binaries](https://github.com/vzamanillo/nwjs-ffmpeg-prebuilt/releases).
 
 You can get the FFmpeg source code from [here](https://chromium.googlesource.com/chromium/third_party/ffmpeg).
 

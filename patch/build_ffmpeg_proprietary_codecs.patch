@@ -1,0 +1,28 @@
+diff --git a/chromium/scripts/build_ffmpeg.py b/chromium/scripts/build_ffmpeg.py
+index cfbe54e..7e10c22 100755
+--- a/chromium/scripts/build_ffmpeg.py
++++ b/chromium/scripts/build_ffmpeg.py
+@@ -297,6 +297,7 @@ def main(argv):
+       '--enable-fft',
+       '--enable-rdft',
+       '--enable-static',
++      '--enable-nonfree',
+ 
+       # Disable features.
+       '--disable-bzlib',
+@@ -320,6 +321,15 @@ def main(argv):
+       '--disable-vdpau',
+       '--disable-videotoolbox',
+ 
++      # PopcornTime codec
++      '--enable-decoder=aac,h264,mp3,mpeg4,hevc,ac3,aac3,mpegvideo,msmpeg4v1,msmpeg4v2,msmpeg4v3,flv,dca',
++      '--enable-demuxer=mp3,mov,avi,flv,mp4,mpegvideo,dts,dtshd,mpegts,ogg',
++      '--enable-parser=aac,h264,h263,mpegaudio,mpeg4video,ac3,aac3,dca,hevc,mepgvideo',
++
++      '--enable-decoder=flac',
++      '--enable-demuxer=flac',
++      '--enable-parser=flac',
++
+       # Common codecs.
+       '--enable-decoder=vorbis',
+       '--enable-decoder=pcm_u8,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le',
