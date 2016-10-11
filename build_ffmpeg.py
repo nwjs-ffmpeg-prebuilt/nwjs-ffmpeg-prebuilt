@@ -16,7 +16,7 @@ def grep_dep(reg, repo, dir):
     (Var(\"chromium_git\")) + '%s@%s',
 ''' % (dir, repo, head)
 
-try:                                
+try:
   opts, args = getopt.getopt(sys.argv[1:], "hc", ["clean", "help", "target_arch=", "nw_version="])
 except getopt.GetoptError:
   usage()
@@ -41,10 +41,10 @@ for opt, arg in opts:
     usage()
     sys.exit(0)
   elif opt in ("--target_arch"):
-    target_arch = arg 
+    target_arch = arg
   elif opt in ("--nw_version"):
-    nw_version = arg 
-  elif opt in ("-c", "--clean"): 
+    nw_version = arg
+  elif opt in ("-c", "--clean"):
     shutil.rmtree("build", ignore_errors=True)
 
 if target_arch == "ia32":
@@ -65,6 +65,9 @@ chromium_git = 'https://chromium.googlesource.com'
 #clone depot_tools
 os.system("git clone --depth=1 https://chromium.googlesource.com/chromium/tools/depot_tools.git")
 sys.path.append( os.getcwd() + "/depot_tools")
+
+#fix for gclient not found, seems like sys.path.append does not work but path is added
+os.environ["PATH"] += os.pathsep + os.getcwd() + "/depot_tools"
 
 if platform.system() == 'Windows' or 'CYGWIN_NT' in platform.system():
 	os.environ["DEPOT_TOOLS_WIN_TOOLCHAIN"] = '0'
