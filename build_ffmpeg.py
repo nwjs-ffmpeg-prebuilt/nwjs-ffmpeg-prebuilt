@@ -31,6 +31,8 @@ elif platform.machine().startswith('arm'):
 else:
   sys.exit(1)
 
+base_path = os.path.abspath(os.path.dirname(sys.argv[0]))
+
 nw_version = '0.17.0'
 target_arch = host_arch
 target_platform = host_platform
@@ -271,12 +273,13 @@ os.system('gclient sync --no-history')
 
 if proprietary_codecs:
     print "Building ffmpeg wiht proprietary codecs..."
+
     #going to ffmpeg folder
     os.chdir("third_party/ffmpeg")
 
     if not os.path.isfile('build_ffmpeg_patched.ok'):
         print "Applying codecs patch with ac3..."
-        shutil.copy('../../patch/build_ffmpeg_proprietary_codecs.patch', 'third_party/ffmpeg/')
+        shutil.copy(base_path + '/patch/build_ffmpeg_proprietary_codecs.patch', '.')
         #apply codecs patch
         os.system('git apply --ignore-space-change --ignore-whitespace build_ffmpeg_proprietary_codecs.patch')
         with io.FileIO("build_ffmpeg_patched.ok", "w") as file:
