@@ -17,7 +17,7 @@ def grep_dep(reg, repo, dir):
 ''' % (dir, repo, head)
 
 try:
-  opts, args = getopt.getopt(sys.argv[1:], "hc", ["clean", "help", "target_platform", "target_arch=", "nw_version="])
+  opts, args = getopt.getopt(sys.argv[1:], "hc", ["clean", "help", "proprietary_codecs", "target_platform=", "target_arch=", "nw_version="])
 except getopt.GetoptError:
   usage()
   sys.exit(2)
@@ -40,9 +40,10 @@ elif platform.machine().startswith('arm'):
 else:
   sys.exit(1)
 
-nw_version='0.17.0'
-target_arch=host_arch
-target_platform=host_platform
+nw_version = '0.17.0'
+target_arch = host_arch
+target_platform = host_platform
+proprietary_codecs = False
 
 for opt, arg in opts:
   if opt in ("-h", "--help"):
@@ -56,6 +57,8 @@ for opt, arg in opts:
     nw_version = arg
   elif opt in ("-c", "--clean"):
     shutil.rmtree("build", ignore_errors=True)
+  elif opt in ("--proprietary_codecs"):
+    proprietary_codecs = True
 
 if target_arch == "ia32":
   target_cpu = "x86"
@@ -264,35 +267,39 @@ with open('BUILD.gn', 'w') as f:
   f.write(BUILD_gn)
 
 #install linux dependencies
-if platform.system() == 'Linux' and not os.path.isfile('buid-deps.ok'):
+if platform.system() == 'Linux' and not os.path.isfile('buid_deps.ok'):
   os.system('./build/install-build-deps.sh --no-prompt --no-nacl --no-chromeos-fonts --no-syms')
-  with io.FileIO("buid-deps.ok", "w") as file:
-      file.write("Deps installed")
+  with io.FileIO("buid_deps.ok", "w") as file:
+      file.write("Build dependencies already installed")
 
 #gclient sync
 os.system('gclient sync --no-history')
 
-print "Applying codecs patch with ac3..."
-shutil.copy('../../patch/build_ffmpeg_proprietary_codecs.patch', 'third_party/ffmpeg/')
+if proprietary_codecs:
+    print "Building ffmpeg wiht proprietary codecs..."
+    #going to ffmpeg folder
+    os.chdir("third_party/ffmpeg")
 
-#going to ffmpeg folder
-os.chdir("third_party/ffmpeg")
+    if not os.path.isfile('build_ffmpeg_patched.ok'):
+        print "Applying codecs patch with ac3..."
+        shutil.copy('../../patch/build_ffmpeg_proprietary_codecs.patch', 'third_party/ffmpeg/')
+        #apply codecs path
+        os.system('git apply --ignore-space-change --ignore-whitespace build_ffmpeg_proprietary_codecs.patch')
+        with io.FileIO("build_ffmpeg_patched.ok", "w") as file:
+            file.write("src/third_party/ffmpeg/chromium/scripts/build_ffmpeg.py already patched with proprietary codecs")
 
-#apply codecs path
-os.system('git apply --ignore-space-change --ignore-whitespace build_ffmpeg_proprietary_codecs.patch')
+    print "Building ffmpeg..."
+    #build ffmpeg
+    os.system('./chromium/scripts/build_ffmpeg.py {0} {1}'.format(target_platform,target_arch))
+    #copy the new generated ffmpeg config
+    print "Copying new ffmpeg configuration..."
+    os.system('./chromium/scripts/copy_config.sh')
+    print "Creating a GYP include file for building FFmpeg from source..."
+    #generate the ffmpeg configuration
+    os.system('./chromium/scripts/generate_gyp.py')
 
-print "Building ffmpeg..."
-#build ffmpeg
-os.system('./chromium/scripts/build_ffmpeg.py {0} {1}'.format(target_platform,target_arch))
-#copy the new generated ffmpeg config
-print "Copying new ffmpeg configuration..."
-os.system('./chromium/scripts/copy_config.sh')
-print "Creating a GYP include file for building FFmpeg from source..."
-#generate the ffmpeg configuration
-os.system('./chromium/scripts/generate_gyp.py')
-
-#back to src
-os.chdir("../..")
+    #back to src
+    os.chdir("../..")
 
 #generate ninja files
 os.system('gn gen //out/nw "--args=is_debug=false is_component_ffmpeg=true target_cpu=\\\"%s\\\" is_official_build=true ffmpeg_branding=\\\"Chrome\\\""' % target_cpu)
