@@ -33,20 +33,19 @@ else:
 
 base_path = os.path.abspath(os.path.dirname(sys.argv[0]))
 
-nw_version = '0.17.0'
+nw_version = '0.18.0'
 target_arch = host_arch
-target_platform = host_platform
 proprietary_codecs = False
 
 parser = argparse.ArgumentParser(description='ffmpeg builder script.')
 parser.add_argument('-c','--clean', help='Clean the workspace, removes downloaded source code', required=False, action='store_true')
 parser.add_argument('-nw','--nw_version', default=nw_version, help='Build ffmpeg for the specified Nw.js version', required=False)
-parser.add_argument('-tp','--target_platform', default=target_platform, help='Target platform, win, linux, mac', required=False)
-parser.add_argument('-ta','--target_arch', default=target_arch, help='Target architecture, ia32, x64, arm64, arm', required=False)
+parser.add_argument('-ta','--target_arch', default=target_arch, help='Target architecture, ia32, x64', required=False)
 parser.add_argument('-pc','--proprietary_codecs', help='Build ffmpeg with proprietary codecs', required=False, action='store_true')
 args = parser.parse_args()
 
 print "Building ffmpeg with:"
+print "--", "Host platform", host_platform
 for arg, value in sorted(vars(args).items()):
     if value:
         print "--", arg, "=", value
@@ -287,7 +286,7 @@ if proprietary_codecs:
 
     print "Building ffmpeg..."
     #build ffmpeg
-    os.system('./chromium/scripts/build_ffmpeg.py {0} {1}'.format(target_platform,target_arch))
+    os.system('./chromium/scripts/build_ffmpeg.py {0} {1}'.format(host_platform, target_arch))
     #copy the new generated ffmpeg config
     print "Copying new ffmpeg configuration..."
     os.system('./chromium/scripts/copy_config.sh')
