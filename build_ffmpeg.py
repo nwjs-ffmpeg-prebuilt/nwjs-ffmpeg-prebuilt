@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import re, os, platform, sys, getopt, shutil, io, argparse
+import re, os, platform, sys, getopt, shutil, io, argparse, json, urllib2
 
 def grep_dep(reg, repo, dir):
   pat = re.compile(reg)
@@ -33,13 +33,19 @@ else:
 
 base_path = os.path.abspath(os.path.dirname(sys.argv[0]))
 
-nw_version = '0.18.0'
+# We always build ffmpeg for the latest stable
+try:
+    versions = json.load(urllib2.urlopen('http://nwjs.io/versions.json'))
+    nw_version = versions["stable"]
+except URLError:
+    nw_version = 'v0.18.0'
+
 target_arch = host_arch
 proprietary_codecs = False
 
 parser = argparse.ArgumentParser(description='ffmpeg builder script.')
 parser.add_argument('-c','--clean', help='Clean the workspace, removes downloaded source code', required=False, action='store_true')
-parser.add_argument('-nw','--nw_version', default=nw_version, help='Build ffmpeg for the specified Nw.js version', required=False)
+parser.add_argument('-nw','--nw_version', help='Build ffmpeg for the specified Nw.js version', required=False)
 parser.add_argument('-ta','--target_arch', default=target_arch, help='Target architecture, ia32, x64', required=False)
 parser.add_argument('-pc','--proprietary_codecs', help='Build ffmpeg with proprietary codecs', required=False, action='store_true')
 args = parser.parse_args()
@@ -50,15 +56,18 @@ for arg, value in sorted(vars(args).items()):
     if value:
         print "--", arg, "=", value
 
-proprietary_codecs = args.proprietary_codecs
-
 if args.clean:
     shutil.rmtree("build", ignore_errors=True)
+
+if args.nw_version:
+    nw_version = "v" + args.nw_version
 
 if target_arch == "ia32":
   target_cpu = "x86"
 else:
   target_cpu = target_arch
+
+proprietary_codecs = args.proprietary_codecs
 
 try:
   os.mkdir("build")
@@ -81,14 +90,15 @@ if platform.system() == 'Windows' or 'CYGWIN_NT' in platform.system():
 	os.environ["DEPOT_TOOLS_WIN_TOOLCHAIN"] = '0'
 
 #create .gclient file
-os.system("gclient config --unmanaged --name=src https://github.com/nwjs/chromium.src.git@tags/nw-v" + nw_version)
+os.system("gclient config --unmanaged --name=src https://github.com/nwjs/chromium.src.git@tags/nw-" + nw_version)
 
 #clone chromium.src
-os.system("git clone --depth=1 -b nw-v" + nw_version + " --single-branch https://github.com/nwjs/chromium.src.git src")
+print "Cloning nw-" + nw_version
+os.system("git clone --depth=1 -b nw-" + nw_version + " --single-branch https://github.com/nwjs/chromium.src.git src")
 
 #overwrite DEPS file
 os.chdir("src")
-os.system("git reset --hard tags/nw-v" + nw_version)
+os.system("git reset --hard tags/nw-" + nw_version)
 
 shutil.rmtree("DPES.bak", ignore_errors=True)
 shutil.rmtree("BUILD.gn.bak", ignore_errors=True)
