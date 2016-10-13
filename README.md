@@ -8,7 +8,7 @@ build_ffmpeg.py [-h] [-c] [-nw NW_VERSION] [-ta TARGET_ARCH] [-pc]
 ###### Arguments explanied:
 -  *-h, --help* : Show the help message and exit
 -  *-c, --clean* : Clean the workspace, removes downloaded source code
--  *-nw NW_VERSION, --nw_version NW_VERSION* : Build ffmpeg for the specified Nw.js version
+-  *-nw NW_VERSION, --nw_version NW_VERSION* : Build ffmpeg for the specified Nw.js version (latest from http://nwjs.io/versions.json if not specified)
 -  *-ta TARGET_ARCH, --target_arch TARGET_ARCH* : Target architecture, ia32, x64
 -  *-pc, --proprietary_codecs* : Build ffmpeg with proprietary codecs applied from  [build_ffmpeg.py patch](https://github.com/vzamanillo/nwjs-ffmpeg-prebuilt/blob/master/patch/build_ffmpeg_proprietary_codecs.patch#L17)
 
