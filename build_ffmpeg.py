@@ -50,8 +50,7 @@ parser.add_argument('-ta','--target_arch', default=target_arch, help='Target arc
 parser.add_argument('-pc','--proprietary_codecs', help='Build ffmpeg with proprietary codecs', required=False, action='store_true')
 args = parser.parse_args()
 
-print "Building ffmpeg for:"
-print host_platform
+print "Building ffmpeg for " + host_platform + ": "
 for arg, value in sorted(vars(args).items()):
     if value:
         print "--", arg, "=", value
@@ -93,7 +92,7 @@ if platform.system() == 'Windows' or 'CYGWIN_NT' in platform.system():
 os.system("gclient config --unmanaged --name=src https://github.com/nwjs/chromium.src.git@tags/nw-" + nw_version)
 
 #clone chromium.src
-print "Cloning nw-" + nw_version
+print "Cloning source code for nw-" + nw_version
 os.system("git clone --depth=1 -b nw-" + nw_version + " --single-branch https://github.com/nwjs/chromium.src.git src")
 
 #overwrite DEPS file
