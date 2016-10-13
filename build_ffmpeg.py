@@ -44,8 +44,8 @@ parser.add_argument('-ta','--target_arch', default=target_arch, help='Target arc
 parser.add_argument('-pc','--proprietary_codecs', help='Build ffmpeg with proprietary codecs', required=False, action='store_true')
 args = parser.parse_args()
 
-print "Building ffmpeg with:"
-print "--", "Host platform", host_platform
+print "Building ffmpeg for:"
+print host_platform
 for arg, value in sorted(vars(args).items()):
     if value:
         print "--", arg, "=", value
