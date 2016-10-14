@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import re, os, platform, sys, getopt, shutil, io, argparse, json, urllib2
+import re, os, platform, sys, getopt, shutil, io, argparse, json, urllib2, subprocess
 
 def grep_dep(reg, repo, dir):
   pat = re.compile(reg)
@@ -79,7 +79,7 @@ shutil.rmtree("src/out", ignore_errors=True)
 
 chromium_git = 'https://chromium.googlesource.com'
 #clone depot_tools
-os.system("git clone --depth=1 https://chromium.googlesource.com/chromium/tools/depot_tools.git")
+os.system('git clone --depth=1 https://chromium.googlesource.com/chromium/tools/depot_tools.git')
 sys.path.append(os.getcwd() + "/depot_tools")
 
 #fix for gclient not found, seems like sys.path.append does not work but path is added
@@ -89,15 +89,15 @@ if platform.system() == 'Windows' or 'CYGWIN_NT' in platform.system():
 	os.environ["DEPOT_TOOLS_WIN_TOOLCHAIN"] = '0'
 
 #create .gclient file
-os.system("gclient config --unmanaged --name=src https://github.com/nwjs/chromium.src.git@tags/nw-" + nw_version)
+subprocess.check_call('gclient config --unmanaged --name=src https://github.com/nwjs/chromium.src.git@tags/nw-' + nw_version, shell=True)
 
 #clone chromium.src
 print "Cloning source code for nw-" + nw_version
-os.system("git clone --depth=1 -b nw-" + nw_version + " --single-branch https://github.com/nwjs/chromium.src.git src")
+os.system('git clone --depth=1 -b nw-' + nw_version + ' --single-branch https://github.com/nwjs/chromium.src.git src')
 
 #overwrite DEPS file
 os.chdir("src")
-os.system("git reset --hard tags/nw-" + nw_version)
+os.system('git reset --hard tags/nw-' + nw_version)
 
 shutil.rmtree("DPES.bak", ignore_errors=True)
 shutil.rmtree("BUILD.gn.bak", ignore_errors=True)
@@ -295,19 +295,19 @@ if proprietary_codecs:
 
     print "Building ffmpeg..."
     #build ffmpeg
-    os.system('./chromium/scripts/build_ffmpeg.py {0} {1}'.format(host_platform, target_arch))
+    subprocess.check_call('./chromium/scripts/build_ffmpeg.py {0} {1}'.format(host_platform, target_arch), shell=True)
     #copy the new generated ffmpeg config
     print "Copying new ffmpeg configuration..."
-    os.system('./chromium/scripts/copy_config.sh')
+    subprocess.call('./chromium/scripts/copy_config.sh', shell=True)
     print "Creating a GYP include file for building FFmpeg from source..."
     #generate the ffmpeg configuration
-    os.system('./chromium/scripts/generate_gyp.py')
+    subprocess.check_call('./chromium/scripts/generate_gyp.py', shell=True)
 
     #back to src
     os.chdir("../..")
 
 #generate ninja files
-os.system('gn gen //out/nw "--args=is_debug=false is_component_ffmpeg=true target_cpu=\\\"%s\\\" is_official_build=true ffmpeg_branding=\\\"Chrome\\\""' % target_cpu)
+subprocess.check_call('gn gen //out/nw "--args=is_debug=false is_component_ffmpeg=true target_cpu=\\\"%s\\\" is_official_build=true ffmpeg_branding=\\\"Chrome\\\""' % target_cpu, shell=True)
 
 #build ffmpeg
-os.system("ninja -C out/nw ffmpeg")
+subprocess.check_call("ninja -C out/nw ffmpeg", shell=True)
