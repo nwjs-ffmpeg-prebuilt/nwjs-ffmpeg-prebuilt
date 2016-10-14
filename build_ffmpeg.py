@@ -50,7 +50,12 @@ parser.add_argument('-ta','--target_arch', default=target_arch, help='Target arc
 parser.add_argument('-pc','--proprietary_codecs', help='Build ffmpeg with proprietary codecs', required=False, action='store_true')
 args = parser.parse_args()
 
+if platform.system() == 'Linux' and hasattr(platform, "linux_distribution"):
+    (distro, os_version, codename) = platform.linux_distribution()
+    print 'Distribution details: ', distro, os_version, codename
+
 print "Building ffmpeg for " + host_platform + ": "
+
 for arg, value in sorted(vars(args).items()):
     if value:
         print "--", arg, "=", value
