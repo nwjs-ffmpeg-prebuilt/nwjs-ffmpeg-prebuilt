@@ -341,33 +341,39 @@ def generate_build_and_deps_files():
         f.write(BUILD_gn)
 
 
-def build_with_proprietary_codecs():
-
-    print 'Building ffmpeg wiht proprietary codecs...'
+def check_build_with_proprietary_codecs():
 
     # going to ffmpeg folder
     os.chdir('third_party/ffmpeg')
 
-    if not os.path.isfile('build_ffmpeg_patched.ok'):
-        print 'Applying codecs patch with ac3...'
-        shutil.copy(base_path + '/patch/build_ffmpeg_proprietary_codecs.patch', '.')
-        # apply codecs patch
-        os.system('git apply --ignore-space-change --ignore-whitespace build_ffmpeg_proprietary_codecs.patch')
-        with io.FileIO('build_ffmpeg_patched.ok', 'w') as file:
-            file.write('src/third_party/ffmpeg/chromium/scripts/build_ffmpeg.py already patched with proprietary codecs')
+    if proprietary_codecs:
+        print 'Building ffmpeg wiht proprietary codecs...'
+        if not os.path.isfile('build_ffmpeg_patched.ok'):
+            print 'Applying codecs patch with ac3...'
+            shutil.copy(base_path + '/patch/build_ffmpeg_proprietary_codecs.patch', '.')
+            # apply codecs patch
+            os.system('git apply --ignore-space-change --ignore-whitespace build_ffmpeg_proprietary_codecs.patch')
+            with io.FileIO('build_ffmpeg_patched.ok', 'w') as file:
+                file.write('src/third_party/ffmpeg/chromium/scripts/build_ffmpeg.py already patched with proprietary codecs')
 
-    print 'Building ffmpeg...'
-    # build ffmpeg
-    subprocess.check_call('./chromium/scripts/build_ffmpeg.py {0} {1}'.format(host_platform, target_arch), shell=True)
-    # copy the new generated ffmpeg config
-    print 'Copying new ffmpeg configuration...'
-    subprocess.call('./chromium/scripts/copy_config.sh', shell=True)
-    print 'Creating a GYP include file for building FFmpeg from source...'
-    # generate the ffmpeg configuration
-    subprocess.check_call('./chromium/scripts/generate_gyp.py', shell=True)
+        print 'Building ffmpeg...'
+        # build ffmpeg
+        subprocess.check_call('./chromium/scripts/build_ffmpeg.py {0} {1}'.format(host_platform, target_arch), shell=True)
+        # copy the new generated ffmpeg config
+        print 'Copying new ffmpeg configuration...'
+        subprocess.call('./chromium/scripts/copy_config.sh', shell=True)
+        print 'Creating a GYP include file for building FFmpeg from source...'
+        # generate the ffmpeg configuration
+        subprocess.check_call('./chromium/scripts/generate_gyp.py', shell=True)
+    else:
+        if os.path.isfile('build_ffmpeg_patched.ok'):
+            print 'Restoring ffmpeg configuration to defaults...'
+            os.system('git clean -df')
+            os.system('git checkout -- .')
 
     # back to src
     os.chdir('../..')
+
 
 host_platform = get_host_platform()
 target_arch = get_host_architecture()
@@ -396,8 +402,7 @@ install_build_deps()
 print 'Syncing with gclient...'
 os.system('gclient sync --no-history')
 
-if proprietary_codecs:
-    build_with_proprietary_codecs()
+check_build_with_proprietary_codecs()
 
 print 'Generating ninja files...'
 subprocess.check_call('gn gen //out/nw "--args=is_debug=false is_component_ffmpeg=true target_cpu=\\\"%s\\\" is_official_build=true ffmpeg_branding=\\\"Chrome\\\""' % target_cpu, shell=True)
