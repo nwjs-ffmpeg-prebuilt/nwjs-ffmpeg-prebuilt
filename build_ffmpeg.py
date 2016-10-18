@@ -81,6 +81,7 @@ def main():
         subprocess.check_call('ninja -C out/nw ffmpeg', shell=True)
     except:
         print traceback.format_exc()
+        sys.exit(1)
 
 
 def parse_args():
