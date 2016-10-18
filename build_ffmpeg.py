@@ -13,43 +13,82 @@ import urllib2
 import subprocess
 import textwrap
 
-base_path = os.path.abspath(os.path.dirname(sys.argv[0]))
+BASE_PATH = os.path.abspath(os.path.dirname(sys.argv[0]))
 proprietary_codecs = False
 
 
-def parse_commandline_args():
-
+def main():
     global nw_version
-    global target_cpu
+    global host_platform
+    global target_arch
     global proprietary_codecs
 
+    nw_version = get_latest_stable_nwjs()
+    host_platform = get_host_platform()
+    target_arch = get_host_architecture()
+
+    try:
+        args = parse_args()
+        if args.clean:
+            response = raw_input('Are you sure you want to delete your workspace? (y/n):').lower()
+            if response == 'y':
+                print 'Cleaning workspace...'
+                shutil.rmtree('build', ignore_errors=True)
+            else:
+                print 'Skipping workspace cleaning...'
+
+        if args.nw_version:
+            print 'Setting nw version to ' + args.nw_version
+            nw_version = "v" + args.nw_version
+
+        if target_arch == 'ia32':
+            target_cpu = 'x86'
+        else:
+            target_cpu = target_arch
+
+        proprietary_codecs = args.proprietary_codecs
+
+        print 'Building ffmpeg for {0} on {1} {2}, proprietary_codecs = {3}'.format(nw_version, host_platform, target_arch, proprietary_codecs)
+
+        create_build_directory()
+
+        clean_output_directory()
+
+        os.chdir('build')
+
+        setup_chromium_depot_tools()
+
+        clone_chromium_source_code()
+
+        os.chdir('src')
+
+        reset_chromium_src_to_nw_version()
+
+        generate_build_and_deps_files()
+
+        install_build_deps()
+
+        print 'Syncing with gclient...'
+        os.system('gclient sync --no-history')
+
+        check_build_with_proprietary_codecs()
+
+        print 'Generating ninja files...'
+        subprocess.check_call('gn gen //out/nw "--args=is_debug=false is_component_ffmpeg=true target_cpu=\\\"%s\\\" is_official_build=true ffmpeg_branding=\\\"Chrome\\\""' % target_cpu, shell=True)
+
+        print 'Starting ninja for building ffmpeg...'
+        subprocess.check_call('ninja -C out/nw ffmpeg', shell=True)
+    except AssertionError as e:
+        return e.message
+
+
+def parse_args():
     parser = argparse.ArgumentParser(description='ffmpeg builder script.')
     parser.add_argument('-c', '--clean', help='Clean the workspace, removes downloaded source code', required=False, action='store_true')
     parser.add_argument('-nw', '--nw_version', help='Build ffmpeg for the specified Nw.js version', required=False)
     parser.add_argument('-ta', '--target_arch', help='Target architecture, ia32, x64', required=False)
     parser.add_argument('-pc', '--proprietary_codecs', help='Build ffmpeg with proprietary codecs', required=False, action='store_true')
-    args = parser.parse_args()
-
-    """for arg, value in sorted(vars(args).items()):
-    if value:
-        print "--", arg, "=", value"""
-
-    if args.clean:
-        print 'Cleaning workspace...'
-        shutil.rmtree('build', ignore_errors=True)
-
-    if args.nw_version:
-        print 'Setting nw version to ' + args.nw_version
-        nw_version = "v" + args.nw_version
-
-    if target_arch == 'ia32':
-        target_cpu = 'x86'
-    else:
-        target_cpu = target_arch
-
-    proprietary_codecs = args.proprietary_codecs
-
-    print 'Building ffmpeg for {0} on {1} {2}, proprietary_codecs = {3}'.format(nw_version, host_platform, target_arch, proprietary_codecs)
+    return parser.parse_args()
 
 
 def grep_dep(reg, repo, dir, deps_str):
@@ -350,7 +389,7 @@ def check_build_with_proprietary_codecs():
         print 'Building ffmpeg wiht proprietary codecs...'
         if not os.path.isfile('build_ffmpeg_patched.ok'):
             print 'Applying codecs patch with ac3...'
-            shutil.copy(base_path + '/patch/build_ffmpeg_proprietary_codecs.patch', '.')
+            shutil.copy(BASE_PATH + '/patch/build_ffmpeg_proprietary_codecs.patch', '.')
             # apply codecs patch
             os.system('git apply --ignore-space-change --ignore-whitespace build_ffmpeg_proprietary_codecs.patch')
             with io.FileIO('build_ffmpeg_patched.ok', 'w') as file:
@@ -375,37 +414,5 @@ def check_build_with_proprietary_codecs():
     os.chdir('../..')
 
 
-host_platform = get_host_platform()
-target_arch = get_host_architecture()
-nw_version = get_latest_stable_nwjs()
-
-parse_commandline_args()
-
-create_build_directory()
-
-clean_output_directory()
-
-os.chdir('build')
-
-setup_chromium_depot_tools()
-
-clone_chromium_source_code()
-
-os.chdir('src')
-
-reset_chromium_src_to_nw_version()
-
-generate_build_and_deps_files()
-
-install_build_deps()
-
-print 'Syncing with gclient...'
-os.system('gclient sync --no-history')
-
-check_build_with_proprietary_codecs()
-
-print 'Generating ninja files...'
-subprocess.check_call('gn gen //out/nw "--args=is_debug=false is_component_ffmpeg=true target_cpu=\\\"%s\\\" is_official_build=true ffmpeg_branding=\\\"Chrome\\\""' % target_cpu, shell=True)
-
-print 'Starting ninja for building ffmpeg...'
-subprocess.check_call('ninja -C out/nw ffmpeg', shell=True)
+if __name__ == '__main__':
+    sys.exit(main())
