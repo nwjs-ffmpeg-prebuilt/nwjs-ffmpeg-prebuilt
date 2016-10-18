@@ -12,6 +12,7 @@ import json
 import urllib2
 import subprocess
 import textwrap
+import traceback
 
 BASE_PATH = os.path.abspath(os.path.dirname(sys.argv[0]))
 proprietary_codecs = False
@@ -78,8 +79,10 @@ def main():
 
         print 'Starting ninja for building ffmpeg...'
         subprocess.check_call('ninja -C out/nw ffmpeg', shell=True)
-    except AssertionError as e:
-        return e.message
+    except:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+        print ''.join('!! ' + line for line in lines)  # Log it or whatever here
 
 
 def parse_args():
