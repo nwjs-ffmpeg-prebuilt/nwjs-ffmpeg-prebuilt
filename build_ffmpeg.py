@@ -80,9 +80,7 @@ def main():
         print 'Starting ninja for building ffmpeg...'
         subprocess.check_call('ninja -C out/nw ffmpeg', shell=True)
     except:
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
-        print ''.join('!! ' + line for line in lines)  # Log it or whatever here
+        print traceback.format_exc()
 
 
 def parse_args():
