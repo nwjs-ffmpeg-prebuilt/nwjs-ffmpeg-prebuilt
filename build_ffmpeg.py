@@ -14,6 +14,8 @@ import subprocess
 import textwrap
 import traceback
 
+from subprocess import *
+
 BASE_PATH = os.path.abspath(os.path.dirname(sys.argv[0]))
 proprietary_codecs = False
 
@@ -79,9 +81,12 @@ def main():
 
         print 'Starting ninja for building ffmpeg...'
         subprocess.check_call('ninja -C out/nw ffmpeg', shell=True)
+    except KeyboardInterrupt:
+        print "\n\nShutdown requested... exiting"
+    except (SystemExit, CalledProcessError) as e:
+        sys.exit(e)
     except:
-        print traceback.format_exc()
-        sys.exit(1)
+        sys.exit(3)
 
 
 def parse_args():
