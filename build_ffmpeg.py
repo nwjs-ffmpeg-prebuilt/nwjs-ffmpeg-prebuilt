@@ -44,14 +44,20 @@ def main():
             print 'Setting nw version to ' + args.nw_version
             nw_version = "v" + args.nw_version
 
+        if args.target_arch:
+            target_arch = args.target_arch
+
         if target_arch == 'ia32':
             target_cpu = 'x86'
         else:
             target_cpu = target_arch
 
         proprietary_codecs = args.proprietary_codecs
+        if proprietary_codecs and platform.system() == 'Windows' and not 'CYGWIN_NT' in platform.system():
+            print 'Script needs to be executed under CygWin to build FFmpeg \nwith proprietary codecs enabled on Windows environments, \nread https://github.com/iteufel/nwjs-ffmpeg-prebuilt/blob/master/guides/build_windows.md\nExiting...'
+            sys.exit(1)
 
-        print 'Building ffmpeg for {0} on {1} {2}, proprietary_codecs = {3}'.format(nw_version, host_platform, target_arch, proprietary_codecs)
+        print 'Building ffmpeg for {0} on {1} for {2}, proprietary_codecs = {3}'.format(nw_version, host_platform, target_cpu, proprietary_codecs)
 
         create_build_directory()
 
@@ -78,6 +84,10 @@ def main():
 
         print 'Generating ninja files...'
         subprocess.check_call('gn gen //out/nw "--args=is_debug=false is_component_ffmpeg=true target_cpu=\\\"%s\\\" is_official_build=true ffmpeg_branding=\\\"Chrome\\\""' % target_cpu, shell=True)
+
+        if sys.platform.startswith('win') or 'CYGWIN_NT' in platform.system():
+            print 'Applying fix for error LNK2001: unresolved external symbol _ff_w64_guid_data'
+            fix_external_symbol_ff_w64_guid_data()
 
         print 'Starting ninja for building ffmpeg...'
         subprocess.check_call('ninja -C out/nw ffmpeg', shell=True)
@@ -111,7 +121,7 @@ def grep_dep(reg, repo, dir, deps_str):
 
 
 def get_host_platform():
-    if sys.platform.startswith('win'):
+    if sys.platform.startswith('win') or 'CYGWIN_NT' in platform.system():
         host_platform = 'win'
     elif sys.platform.startswith('linux'):
         host_platform = 'linux'
@@ -393,16 +403,21 @@ def check_build_with_proprietary_codecs():
     os.chdir('third_party/ffmpeg')
 
     if proprietary_codecs:
-        print 'Building ffmpeg wiht proprietary codecs...'
+        print 'Building ffmpeg with proprietary codecs...'
         if not os.path.isfile('build_ffmpeg_patched.ok'):
             print 'Applying codecs patch with ac3...'
-            shutil.copy(BASE_PATH + '/patch/build_ffmpeg_proprietary_codecs.patch', '.')
+            shutil.copy(BASE_PATH + '/patch/build_ffmpeg_proprietary_codecs.patch', os.getcwd())
             # apply codecs patch
             os.system('git apply --ignore-space-change --ignore-whitespace build_ffmpeg_proprietary_codecs.patch')
             with io.FileIO('build_ffmpeg_patched.ok', 'w') as file:
                 file.write('src/third_party/ffmpeg/chromium/scripts/build_ffmpeg.py already patched with proprietary codecs')
 
-        print 'Building ffmpeg...'
+        if sys.platform.startswith('win') or 'CYGWIN_NT' in platform.system():
+            print 'Copying Cygwin wrapper...'
+            shutil.copy(os.getcwd() + '/chromium/scripts/cygwin-wrapper', '/usr/local/bin/cygwin-wrapper')
+
+        print 'Starting build...'
+
         # build ffmpeg
         subprocess.check_call('./chromium/scripts/build_ffmpeg.py {0} {1}'.format(host_platform, target_arch), shell=True)
         # copy the new generated ffmpeg config
@@ -419,6 +434,36 @@ def check_build_with_proprietary_codecs():
 
     # back to src
     os.chdir('../..')
+
+def replace_in_file(file_name, search_string, replace_string):
+    filedata = None
+    with open(file_name, 'r') as file :
+      filedata = file.read()
+
+    filedata = filedata.replace(search_string, replace_string)
+
+    with open(file_name, 'w') as file :
+      file.write(filedata)
+
+
+def fix_external_symbol_ff_w64_guid_data():
+    # https://bugs.chromium.org/p/chromium/issues/detail?id=264459
+
+    os.chdir('third_party/ffmpeg')
+
+    shutil.copyfile('ffmpeg_generated.gni', 'ffmpeg_generated.gni.bak')
+    shutil.copyfile('ffmpeg_generated.gypi', 'ffmpeg_generated.gypi.bak')
+    replace = '''"libavformat/vorbiscomment.c",
+    "libavformat/w64.c",'''
+    replace_in_file('ffmpeg_generated.gni', '"libavformat/vorbiscomment.c",', replace)
+
+    replace = ''''libavformat/vorbiscomment.c',
+          'libavformat/w64.c','''
+    replace_in_file('ffmpeg_generated.gypi', "'libavformat/vorbiscomment.c',", replace)
+
+    # back to src
+    os.chdir('../..')
+
 
 
 if __name__ == '__main__':
