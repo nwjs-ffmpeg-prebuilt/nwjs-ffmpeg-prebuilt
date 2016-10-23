@@ -82,10 +82,6 @@ def main():
 
         check_build_with_proprietary_codecs()
 
-        if platform.system() == 'Windows' or 'CYGWIN_NT' in platform.system():
-            print 'Applying fix for error LNK2001: unresolved external symbol _ff_w64_guid_data'
-            fix_external_symbol_ff_w64_guid_data()
-
         print 'Generating ninja files...'
         subprocess.check_call('gn gen //out/nw "--args=is_debug=false is_component_ffmpeg=true target_cpu=\\\"%s\\\" is_official_build=true ffmpeg_branding=\\\"Chrome\\\""' % target_cpu, shell=True)
 
@@ -425,6 +421,10 @@ def check_build_with_proprietary_codecs():
         print 'Creating a GYP include file for building FFmpeg from source...'
         # generate the ffmpeg configuration
         subprocess.check_call('./chromium/scripts/generate_gyp.py', shell=True)
+
+        if platform.system() == 'Windows' or 'CYGWIN_NT' in platform.system():
+            print 'Applying fix for error LNK2001: unresolved external symbol _ff_w64_guid_data'
+            fix_external_symbol_ff_w64_guid_data()
     else:
         if os.path.isfile('build_ffmpeg_patched.ok'):
             print 'Restoring ffmpeg configuration to defaults...'
