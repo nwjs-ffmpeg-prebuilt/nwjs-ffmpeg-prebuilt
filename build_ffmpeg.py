@@ -400,8 +400,8 @@ def check_build_with_proprietary_codecs():
     if proprietary_codecs:
         print 'Building ffmpeg with proprietary codecs...'
         if not os.path.isfile('build_ffmpeg_patched.ok'):
-            print 'Applying codecs patch with ac3...'
-            shutil.copy(BASE_PATH + '/patch/build_ffmpeg_proprietary_codecs.patch', os.getcwd())
+            print 'Applying codecs patch with ac3 for {0}...'.format(host_platform)
+            shutil.copy(BASE_PATH + '/patch/' + host_platform + '/build_ffmpeg_proprietary_codecs.patch', os.getcwd())
             # apply codecs patch
             os.system('git apply --ignore-space-change --ignore-whitespace build_ffmpeg_proprietary_codecs.patch')
             with io.FileIO('build_ffmpeg_patched.ok', 'w') as file:

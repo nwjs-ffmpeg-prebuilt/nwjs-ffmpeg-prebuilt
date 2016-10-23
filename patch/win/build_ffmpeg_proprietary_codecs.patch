@@ -17,9 +17,9 @@ index 5b478be..14c6f99 100755
 -      '--enable-decoder=aac,h264,mp3',
 -      '--enable-demuxer=aac,mp3,mov',
 -      '--enable-parser=aac,h264,mpegaudio',
-+    '--enable-decoder=aac,h264,mp3,eac3,ac3,hevc,mpeg4,mpegvideo,mp2,mp1,flac',
++    '--enable-decoder=aac,h264,mp3,mpeg4,hevc,ac3,eac3,mpegvideo,mp2,mp1,flac',
 +    '--enable-demuxer=aac,mp3,mov,dtshd,dts,avi,mpegvideo,m4v,h264,vc1,flac',
-+    '--enable-parser=aac,h264,mpegaudio,mpeg4video,mpegvideo,ac3,h261,vc1,h263,flac',
++    '--enable-parser=aac,h264,mpegaudio,h263,mpeg4video,mpegvideo,ac3,aac3,h261,vc1,flac',
    ])
 
    # ChromiumOS specific configuration.
