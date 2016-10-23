@@ -93,10 +93,9 @@ def main():
         subprocess.check_call('ninja -C out/nw ffmpeg', shell=True)
     except KeyboardInterrupt:
         print "\n\nShutdown requested... exiting"
-    except (SystemExit, CalledProcessError) as e:
-        sys.exit(e)
-    except:
-        sys.exit(3)
+    except Exception:
+        print traceback.format_exc()
+        sys.exit(1)
 
 
 def parse_args():
