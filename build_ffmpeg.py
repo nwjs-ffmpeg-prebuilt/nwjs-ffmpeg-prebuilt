@@ -82,7 +82,7 @@ def main():
 
         check_build_with_proprietary_codecs()
 
-        if sys.platform.startswith('win') or 'CYGWIN_NT' in platform.system():
+        if platform.system() == 'Windows' or 'CYGWIN_NT' in platform.system():
             print 'Applying fix for error LNK2001: unresolved external symbol _ff_w64_guid_data'
             fix_external_symbol_ff_w64_guid_data()
 
@@ -121,11 +121,11 @@ def grep_dep(reg, repo, dir, deps_str):
 
 
 def get_host_platform():
-    if sys.platform.startswith('win') or 'CYGWIN_NT' in platform.system():
+    if platform.system() == 'Windows' or 'CYGWIN_NT' in platform.system():
         host_platform = 'win'
-    elif sys.platform.startswith('linux'):
+    elif platform.system() == 'Linux':
         host_platform = 'linux'
-    elif sys.platform.startswith('darwin'):
+    elif platform.system() == 'Darwin':
         host_platform = 'mac'
 
     return host_platform
@@ -412,7 +412,7 @@ def check_build_with_proprietary_codecs():
             with io.FileIO('build_ffmpeg_patched.ok', 'w') as file:
                 file.write('src/third_party/ffmpeg/chromium/scripts/build_ffmpeg.py already patched with proprietary codecs')
 
-        if sys.platform.startswith('win') or 'CYGWIN_NT' in platform.system():
+        if platform.system() == 'Windows' or 'CYGWIN_NT' in platform.system():
             print 'Copying Cygwin wrapper...'
             shutil.copy(os.getcwd() + '/chromium/scripts/cygwin-wrapper', '/usr/local/bin/cygwin-wrapper')
 
