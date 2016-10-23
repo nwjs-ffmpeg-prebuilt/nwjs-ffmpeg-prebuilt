@@ -20,7 +20,7 @@
 	//Install VisualStudio
 	choco install visualstudio2015community -packageParameters "--Features MDDCPlusPlus,ToolsForWin81WP80WP81,VCMFCLibraries"
 
-##Build ffmpeg.dll (WHITOUT proprietary codecs)
+##Build ffmpeg.dll (WITHOUT proprietary codecs)
 
 This is the default behaviour, does not require additional steps, just run it and tadaaaa :tada:...
 
@@ -39,11 +39,9 @@ The build procedure for Windows is a little bit complex and require additional s
 
 * Download and install the latest CygWin with the following packages :
 
-	```yasm, make, diffutils, pkg-config, git.```.
+	```yasm, make, diffutils, pkg-config, git```.
 
-	You can do it with the typical installation package manager or from the command line with a simple command :
-
-	```setup-x86_64.exe -q -P yasm, make, diffutils, pkg-config, git``` (do not install python, this is important, CygWin will use the default installed Python on Windows machine)
+	You can do it with the typical CygWin installation package manager.
 
 * Setup the building environment: assuming you have installed VS2015 with choco in the previous steps, open a Windows console (CMD.exe) and type
 
@@ -71,6 +69,7 @@ The build procedure for Windows is a little bit complex and require additional s
 	```
  	mv /usr/bin/link.exe /usr/bin/link.exe.1 (to avoid conflicts with MSVC linker)
   git clone https://github.com/iteufel/nwjs-ffmpeg-prebuilt.git
+
 	python build_ffmpeg.py -pc (default host architecture)
 	or
 	python build_ffmpeg.py -ta [ia32|x64] -pc

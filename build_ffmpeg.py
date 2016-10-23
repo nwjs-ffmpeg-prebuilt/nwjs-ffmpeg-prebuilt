@@ -82,12 +82,12 @@ def main():
 
         check_build_with_proprietary_codecs()
 
-        print 'Generating ninja files...'
-        subprocess.check_call('gn gen //out/nw "--args=is_debug=false is_component_ffmpeg=true target_cpu=\\\"%s\\\" is_official_build=true ffmpeg_branding=\\\"Chrome\\\""' % target_cpu, shell=True)
-
         if sys.platform.startswith('win') or 'CYGWIN_NT' in platform.system():
             print 'Applying fix for error LNK2001: unresolved external symbol _ff_w64_guid_data'
             fix_external_symbol_ff_w64_guid_data()
+
+        print 'Generating ninja files...'
+        subprocess.check_call('gn gen //out/nw "--args=is_debug=false is_component_ffmpeg=true target_cpu=\\\"%s\\\" is_official_build=true ffmpeg_branding=\\\"Chrome\\\""' % target_cpu, shell=True)
 
         print 'Starting ninja for building ffmpeg...'
         subprocess.check_call('ninja -C out/nw ffmpeg', shell=True)
