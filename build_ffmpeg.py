@@ -54,7 +54,7 @@ def main():
 
         proprietary_codecs = args.proprietary_codecs
         if proprietary_codecs and platform.system() == 'Windows' and not 'CYGWIN_NT' in platform.system():
-            print 'Script needs to be executed under CygWin to build FFmpeg \nwith proprietary codecs enabled on Windows environments, \nread https://github.com/iteufel/nwjs-ffmpeg-prebuilt/blob/master/guides/build_windows.md\nExiting...'
+            print 'Script needs to be executed under CygWin to build FFmpeg \nwith proprietary codecs on Windows environments, \nread https://github.com/iteufel/nwjs-ffmpeg-prebuilt/blob/master/guides/build_windows.md\nExiting...'
             sys.exit(1)
 
         print 'Building ffmpeg for {0} on {1} for {2}, proprietary_codecs = {3}'.format(nw_version, host_platform, target_cpu, proprietary_codecs)
@@ -407,7 +407,7 @@ def check_build_with_proprietary_codecs():
             with io.FileIO('build_ffmpeg_patched.ok', 'w') as file:
                 file.write('src/third_party/ffmpeg/chromium/scripts/build_ffmpeg.py already patched with proprietary codecs')
 
-        if platform.system() == 'Windows' or 'CYGWIN_NT' in platform.system():
+        if 'CYGWIN_NT' in platform.system():
             print 'Copying Cygwin wrapper...'
             shutil.copy(os.getcwd() + '/chromium/scripts/cygwin-wrapper', '/usr/local/bin/cygwin-wrapper')
 
@@ -422,7 +422,7 @@ def check_build_with_proprietary_codecs():
         # generate the ffmpeg configuration
         subprocess.check_call('./chromium/scripts/generate_gyp.py', shell=True)
 
-        if platform.system() == 'Windows' or 'CYGWIN_NT' in platform.system():
+        if 'CYGWIN_NT' in platform.system():
             print 'Applying fix for error LNK2001: unresolved external symbol _ff_w64_guid_data'
             fix_external_symbol_ff_w64_guid_data()
     else:
