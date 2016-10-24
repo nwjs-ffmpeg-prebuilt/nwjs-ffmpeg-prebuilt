@@ -37,6 +37,11 @@ This is the default behaviour, does not require additional steps, just run it an
 
 The build procedure for Windows is a little bit complex and require additional steps to generate the FFmpeg library. Unfortunately we can not generate the library natively, we need to use a CygWin environment and do a few tricks:
 
+* Clone the script
+	```
+	git clone https://github.com/iteufel/nwjs-ffmpeg-prebuilt.git
+	```
+
 * Download and install the latest CygWin with the following packages :
 
 	```yasm, make, diffutils, pkg-config, git```.
@@ -62,16 +67,26 @@ The build procedure for Windows is a little bit complex and require additional s
 
 	The CygWin console will be shown.
 
-	Don't close the console.
 
 * From the CygWin console:
 
 	```
- 	mv /usr/bin/link.exe /usr/bin/link.exe.1 (to avoid conflicts with MSVC linker)
-  git clone https://github.com/iteufel/nwjs-ffmpeg-prebuilt.git
+  $ cd /cygdrive/drive/path-to-nwjs-ffmpeg-prebuilt
+	```
+	where ```drive``` is your main drive and ```path-to-nwjs-ffmpeg-prebuilt``` is the path where you cloned the nwjs-ffmpeg-prebuilt script, an example
 
-	python build_ffmpeg.py -pc (default host architecture)
+	```
+	$ cd /cygdrive/c/dev/nwjs-ffmpeg-prebuilt
+	```
+	then run the script with
+	```
+	$ python build_ffmpeg.py -pc (default host architecture)
+	```
+
 	or
-	python build_ffmpeg.py -ta [ia32|x64] -pc
-  ```
-If you want to build for different architectures you must close CygWin and close the Windows CMD console, and repeat the above process in order to set the building environment values for the desired architecture.
+
+	```
+	$ python build_ffmpeg.py -ta [ia32|x64] -pc
+	```
+
+If you want to build for different architectures you must close CygWin and close the Windows CMD console, and repeat the above process in order to setup the building environment values for the desired architecture.
