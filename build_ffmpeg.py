@@ -410,13 +410,11 @@ def check_build_with_proprietary_codecs():
 
     if proprietary_codecs:
         print 'Building ffmpeg with proprietary codecs...'
-        if not os.path.isfile('build_ffmpeg_patched.ok'):
+        if not os.path.isfile('build_ffmpeg_proprietary_codecs.patch'):
             print 'Applying codecs patch with ac3 for {0}...'.format(host_platform)
             shutil.copy(BASE_PATH + '/patch/' + host_platform + '/build_ffmpeg_proprietary_codecs.patch', os.getcwd())
             # apply codecs patch
             os.system('git apply --ignore-space-change --ignore-whitespace build_ffmpeg_proprietary_codecs.patch')
-            with io.FileIO('build_ffmpeg_patched.ok', 'w') as file:
-                file.write('src/third_party/ffmpeg/chromium/scripts/build_ffmpeg.py already patched with proprietary codecs')
 
         cygwin_linking_setup()
 
@@ -435,7 +433,7 @@ def check_build_with_proprietary_codecs():
             print 'Applying fix for error LNK2001: unresolved external symbol _ff_w64_guid_data'
             fix_external_symbol_ff_w64_guid_data()
     else:
-        if os.path.isfile('build_ffmpeg_patched.ok'):
+        if os.path.isfile('build_ffmpeg_proprietary_codecs.patch'):
             print 'Restoring ffmpeg configuration to defaults...'
             os.system('git clean -df')
             os.system('git checkout -- .')
