@@ -392,6 +392,17 @@ def generate_build_and_deps_files():
         f.write(BUILD_gn)
 
 
+def cygwin_linking_setup():
+    if 'CYGWIN_NT' in platform.system():
+        if os.path.isfile('/usr/bin/link.exe'):
+            print 'Overriding CygWin linker with MSVC linker...'
+            shutil.move('/usr/bin/link.exe', '/usr/bin/link.exe.1')
+
+        if not os.path.isfile('/usr/local/bin/cygwin-wrapper'):
+            print 'Copying Cygwin wrapper...'
+            shutil.copy(os.getcwd() + '/chromium/scripts/cygwin-wrapper', '/usr/local/bin/cygwin-wrapper')
+
+
 def check_build_with_proprietary_codecs():
 
     # going to ffmpeg folder
@@ -407,9 +418,7 @@ def check_build_with_proprietary_codecs():
             with io.FileIO('build_ffmpeg_patched.ok', 'w') as file:
                 file.write('src/third_party/ffmpeg/chromium/scripts/build_ffmpeg.py already patched with proprietary codecs')
 
-        if 'CYGWIN_NT' in platform.system():
-            print 'Copying Cygwin wrapper...'
-            shutil.copy(os.getcwd() + '/chromium/scripts/cygwin-wrapper', '/usr/local/bin/cygwin-wrapper')
+        cygwin_linking_setup()
 
         print 'Starting build...'
 
