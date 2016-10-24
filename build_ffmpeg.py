@@ -456,9 +456,6 @@ def replace_in_file(file_name, search_string, replace_string):
 
 def fix_external_symbol_ff_w64_guid_data():
     # https://bugs.chromium.org/p/chromium/issues/detail?id=264459
-
-    os.chdir('third_party/ffmpeg')
-
     shutil.copyfile('ffmpeg_generated.gni', 'ffmpeg_generated.gni.bak')
     shutil.copyfile('ffmpeg_generated.gypi', 'ffmpeg_generated.gypi.bak')
     replace = '''"libavformat/vorbiscomment.c",
@@ -468,10 +465,6 @@ def fix_external_symbol_ff_w64_guid_data():
     replace = ''''libavformat/vorbiscomment.c',
           'libavformat/w64.c','''
     replace_in_file('ffmpeg_generated.gypi', "'libavformat/vorbiscomment.c',", replace)
-
-    # back to src
-    os.chdir('../..')
-
 
 
 if __name__ == '__main__':
