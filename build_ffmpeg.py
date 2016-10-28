@@ -17,12 +17,20 @@ import zipfile
 
 from subprocess import *
 
-BASE_PATH = os.path.abspath(os.path.dirname(sys.argv[0]))
-PATH_RELEASES =  os.path.join(BASE_PATH, 'releases')
-proprietary_codecs = False
-
+PATH_BASE = os.path.abspath(os.path.dirname(sys.argv[0]))
+PATH_BUILD = os.path.join(PATH_BASE, 'build')
+PATH_DEPOT_TOOLS = os.path.join(PATH_BUILD, 'depot_tools')
+PATH_SRC = os.path.join(PATH_BASE, 'build', 'src')
+PATH_SRC_BUILD = os.path.join(PATH_SRC, 'build')
+PATH_THIRD_PARTY_FFMPEG = os.path.join(PATH_SRC, 'third_party', 'ffmpeg')
+PATH_OUT = os.path.join(PATH_SRC, 'out')
+PATH_LIBRARY_OUT = os.path.join(PATH_OUT, 'nw')
+PATH_RELEASES =  os.path.join(PATH_BASE, 'releases')
 
 def main():
+
+    proprietary_codecs = False
+
     nw_version = get_latest_stable_nwjs()
     host_platform = get_host_platform()
     target_arch = get_host_architecture()
@@ -56,17 +64,13 @@ def main():
 
         print 'Building ffmpeg for {0} on {1} for {2}, proprietary_codecs = {3}'.format(nw_version, host_platform, target_cpu, proprietary_codecs)
 
-        create_directory('build')
+        create_directory(PATH_BUILD)
 
         clean_output_directory()
-
-        os.chdir('build')
 
         setup_chromium_depot_tools(nw_version)
 
         clone_chromium_source_code(nw_version)
-
-        os.chdir('src')
 
         reset_chromium_src_to_nw_version(nw_version)
 
@@ -74,18 +78,15 @@ def main():
 
         install_build_deps()
 
-        print 'Syncing with gclient...'
-        os.system('gclient sync --no-history')
+        gclient_sync()
 
         check_build_with_proprietary_codecs(proprietary_codecs, host_platform, target_arch)
 
-        print 'Generating ninja files...'
-        subprocess.check_call('gn gen //out/nw "--args=is_debug=false is_component_ffmpeg=true target_cpu=\\\"%s\\\" is_official_build=true ffmpeg_branding=\\\"Chrome\\\""' % target_cpu, shell=True)
+        build(target_cpu)
 
-        print 'Starting ninja for building ffmpeg...'
-        subprocess.check_call('ninja -C out/nw ffmpeg', shell=True)
+        zip_release_output_library(nw_version, host_platform, target_arch,  os.path.join(PATH_LIBRARY_OUT, get_host_platform_library_path(host_platform)), PATH_RELEASES)
 
-        zip_output_library(nw_version, host_platform, target_arch, os.getcwd() + "/out/nw/" + get_host_platform_library_ext(host_platform))
+        print 'DONE!!'
 
     except KeyboardInterrupt:
         print "\n\nShutdown requested... exiting"
@@ -141,16 +142,16 @@ def get_host_architecture():
 
     return host_arch
 
-def get_host_platform_library_ext(host_platform):
+
+def get_host_platform_library_path(host_platform):
     if host_platform == 'win' or 'CYGWIN_NT' in platform.system():
-        host_platform_library_ext = 'ffmpeg.dll'
+        host_platform_library_name = 'ffmpeg.dll'
     elif host_platform == 'linux':
-        host_platform_library_ext = 'libffmpeg.so'
+        host_platform_library_name = os.path.join('lib', 'libffmpeg.so')
     elif host_platform == 'mac':
-        host_platform_library_ext = 'libffmpeg.dylib'
+        host_platform_library_name = 'libffmpeg.dylib'
 
-    return host_platform_library_ext
-
+    return host_platform_library_name
 
 
 def get_latest_stable_nwjs():
@@ -175,18 +176,19 @@ def create_directory(directory):
 
 def clean_output_directory():
     print 'Cleaning output directory...'
-    shutil.rmtree('build/src/out', ignore_errors=True)
+    shutil.rmtree(PATH_OUT, ignore_errors=True)
 
 
 def setup_chromium_depot_tools(nw_version):
-    if not os.path.isdir(os.getcwd() + '/depot_tools/.git'):
+    os.chdir(PATH_BUILD)
+    if not os.path.isdir(os.path.join(PATH_DEPOT_TOOLS, '.git')):
         print 'Cloning Chromium depot tools in {0}...'.format(os.getcwd())
         os.system('git clone --depth=1 https://chromium.googlesource.com/chromium/tools/depot_tools.git')
 
-    sys.path.append(os.getcwd() + '/depot_tools')
+    sys.path.append(PATH_DEPOT_TOOLS)
     # fix for gclient not found, seems like sys.path.append does not work but
     # path is added
-    os.environ["PATH"] += os.pathsep + os.getcwd() + "/depot_tools"
+    os.environ["PATH"] += os.pathsep + PATH_DEPOT_TOOLS
     if platform.system() == 'Windows' or 'CYGWIN_NT' in platform.system():
         os.environ["DEPOT_TOOLS_WIN_TOOLCHAIN"] = '0'
 
@@ -195,12 +197,14 @@ def setup_chromium_depot_tools(nw_version):
 
 
 def clone_chromium_source_code(nw_version):
+    os.chdir(PATH_BUILD)
     print 'Cloning Chromium source code for nw-{0} in {1}'.format(nw_version, os.getcwd())
     os.system('git clone --depth=1 -b nw-{0} --single-branch {1} src'.format(
         nw_version, 'https://github.com/nwjs/chromium.src.git'))
 
 
 def reset_chromium_src_to_nw_version(nw_version):
+    os.chdir(PATH_SRC)
     print 'Hard source code reset to nw {0} specified version'.format(nw_version)
     os.system('git reset --hard tags/nw-{0}'.format(nw_version))
 
@@ -360,11 +364,26 @@ def get_min_hooks():
 
 
 def install_build_deps():
-    # install linux dependencies
+    os.chdir(PATH_SRC_BUILD)
     if platform.system() == 'Linux' and not os.path.isfile('buid_deps.ok'):
-        os.system('./build/install-build-deps.sh --no-prompt --no-nacl --no-chromeos-fonts --no-syms')
+        print 'Installing build dependencies...'
+        os.system('./install-build-deps.sh --no-prompt --no-nacl --no-chromeos-fonts --no-syms')
         with io.FileIO('buid_deps.ok', 'w') as file:
             file.write('Build dependencies already installed')
+
+
+def gclient_sync():
+    os.chdir(PATH_SRC)
+    print 'Syncing with gclient...'
+    os.system('gclient sync --no-history')
+
+
+def build(target_cpu):
+    os.chdir(PATH_SRC)
+    print 'Generating ninja files...'
+    subprocess.check_call('gn gen //out/nw "--args=is_debug=false is_component_ffmpeg=true target_cpu=\\\"%s\\\" is_official_build=true ffmpeg_branding=\\\"Chrome\\\""' % target_cpu, shell=True)
+    print 'Starting ninja for building ffmpeg...'
+    subprocess.check_call('ninja -C out/nw ffmpeg', shell=True)
 
 
 def delete_file(file_name):
@@ -376,6 +395,7 @@ def delete_file(file_name):
 
 
 def generate_build_and_deps_files():
+    os.chdir(PATH_SRC)
     print 'Cleaning previous DEPS and BUILD.gn backup files...'
 
     delete_file("DEPS.bak")
@@ -418,13 +438,14 @@ def cygwin_linking_setup():
 def check_build_with_proprietary_codecs(proprietary_codecs, host_platform, target_arch):
 
     # going to ffmpeg folder
-    os.chdir('third_party/ffmpeg')
+    os.chdir(PATH_THIRD_PARTY_FFMPEG)
 
     if proprietary_codecs:
         print 'Building ffmpeg with proprietary codecs...'
         if not os.path.isfile('build_ffmpeg_proprietary_codecs.patch'):
             print 'Applying codecs patch with ac3 for {0}...'.format(host_platform)
-            shutil.copy(BASE_PATH + '/patch/' + host_platform + '/build_ffmpeg_proprietary_codecs.patch', os.getcwd())
+            # os.path.join
+            shutil.copy(os.path.join(PATH_BASE, 'patch', host_platform, 'build_ffmpeg_proprietary_codecs.patch'), os.getcwd())
             # apply codecs patch
             os.system('git apply --ignore-space-change --ignore-whitespace build_ffmpeg_proprietary_codecs.patch')
 
@@ -450,8 +471,6 @@ def check_build_with_proprietary_codecs(proprietary_codecs, host_platform, targe
             os.system('git clean -df')
             os.system('git checkout -- .')
 
-    # back to src
-    os.chdir('../..')
 
 def replace_in_file(file_name, search_string, replace_string):
     filedata = None
@@ -477,11 +496,11 @@ def fix_external_symbol_ff_w64_guid_data():
     replace_in_file('ffmpeg_generated.gypi', "'libavformat/vorbiscomment.c',", replace)
 
 
-def zip_output_library(nw_version, host_platform, target_arch, output_library_path):
-    create_directory(PATH_RELEASES)
+def zip_release_output_library(nw_version, host_platform, target_arch, output_library_path, output_release_path):
+    create_directory(output_release_path)
+    print 'Creating release zip...'
     if os.path.isfile(output_library_path):
-        print 'Creating release zip...'
-        with zipfile.ZipFile(os.path.join(PATH_RELEASES, '{0}-{1}-{2}.zip'.format(nw_version, host_platform, target_arch)), 'w', zipfile.ZIP_DEFLATED) as release_zip:
+        with zipfile.ZipFile(os.path.join(output_release_path, '{0}-{1}-{2}.zip'.format(nw_version, host_platform, target_arch)), 'w', zipfile.ZIP_DEFLATED) as release_zip:
             release_zip.write(output_library_path, os.path.basename(output_library_path))
             release_zip.close()
     else:
