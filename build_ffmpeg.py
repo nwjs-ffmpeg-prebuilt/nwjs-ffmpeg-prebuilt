@@ -13,10 +13,12 @@ import urllib2
 import subprocess
 import textwrap
 import traceback
+import zipfile
 
 from subprocess import *
 
 BASE_PATH = os.path.abspath(os.path.dirname(sys.argv[0]))
+PATH_RELEASES =  os.path.join(BASE_PATH, 'releases')
 proprietary_codecs = False
 
 
@@ -54,7 +56,7 @@ def main():
 
         print 'Building ffmpeg for {0} on {1} for {2}, proprietary_codecs = {3}'.format(nw_version, host_platform, target_cpu, proprietary_codecs)
 
-        create_build_directory()
+        create_directory('build')
 
         clean_output_directory()
 
@@ -82,6 +84,9 @@ def main():
 
         print 'Starting ninja for building ffmpeg...'
         subprocess.check_call('ninja -C out/nw ffmpeg', shell=True)
+
+        zip_output_library(nw_version, host_platform, target_arch, os.getcwd() + "/out/nw/" + get_host_platform_library_ext(host_platform))
+
     except KeyboardInterrupt:
         print "\n\nShutdown requested... exiting"
     except Exception:
@@ -136,6 +141,17 @@ def get_host_architecture():
 
     return host_arch
 
+def get_host_platform_library_ext(host_platform):
+    if host_platform == 'win' or 'CYGWIN_NT' in platform.system():
+        host_platform_library_ext = 'ffmpeg.dll'
+    elif host_platform == 'linux':
+        host_platform_library_ext = 'libffmpeg.so'
+    elif host_platform == 'mac':
+        host_platform_library_ext = 'libffmpeg.dylib'
+
+    return host_platform_library_ext
+
+
 
 def get_latest_stable_nwjs():
     # We always build ffmpeg for the latest stable
@@ -149,11 +165,12 @@ def get_latest_stable_nwjs():
     return nw_version
 
 
-def create_build_directory():
+def create_directory(directory):
+    print 'Creating {0} directory...'.format(directory)
     try:
-        os.mkdir('build')
+        os.mkdir(directory)
     except OSError:
-        print 'Build directory is already created, skipping...'
+        print '{0} directory already exists, skipping...'.format(directory)
 
 
 def clean_output_directory():
@@ -458,6 +475,17 @@ def fix_external_symbol_ff_w64_guid_data():
     replace = ''''libavformat/vorbiscomment.c',
           'libavformat/w64.c','''
     replace_in_file('ffmpeg_generated.gypi', "'libavformat/vorbiscomment.c',", replace)
+
+
+def zip_output_library(nw_version, host_platform, target_arch, output_library_path):
+    create_directory(PATH_RELEASES)
+    if os.path.isfile(output_library_path):
+        print 'Creating release zip...'
+        with zipfile.ZipFile(os.path.join(PATH_RELEASES, '{0}-{1}-{2}.zip'.format(nw_version, host_platform, target_arch)), 'w', zipfile.ZIP_DEFLATED) as release_zip:
+            release_zip.write(output_library_path, os.path.basename(output_library_path))
+            release_zip.close()
+    else:
+        print 'WARNING: There is no release file library in {0}...'.format(output_library_path)
 
 
 if __name__ == '__main__':
