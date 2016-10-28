@@ -21,11 +21,6 @@ proprietary_codecs = False
 
 
 def main():
-    global nw_version
-    global host_platform
-    global target_arch
-    global proprietary_codecs
-
     nw_version = get_latest_stable_nwjs()
     host_platform = get_host_platform()
     target_arch = get_host_architecture()
@@ -65,13 +60,13 @@ def main():
 
         os.chdir('build')
 
-        setup_chromium_depot_tools()
+        setup_chromium_depot_tools(nw_version)
 
-        clone_chromium_source_code()
+        clone_chromium_source_code(nw_version)
 
         os.chdir('src')
 
-        reset_chromium_src_to_nw_version()
+        reset_chromium_src_to_nw_version(nw_version)
 
         generate_build_and_deps_files()
 
@@ -80,7 +75,7 @@ def main():
         print 'Syncing with gclient...'
         os.system('gclient sync --no-history')
 
-        check_build_with_proprietary_codecs()
+        check_build_with_proprietary_codecs(proprietary_codecs, host_platform, target_arch)
 
         print 'Generating ninja files...'
         subprocess.check_call('gn gen //out/nw "--args=is_debug=false is_component_ffmpeg=true target_cpu=\\\"%s\\\" is_official_build=true ffmpeg_branding=\\\"Chrome\\\""' % target_cpu, shell=True)
@@ -166,7 +161,7 @@ def clean_output_directory():
     shutil.rmtree('build/src/out', ignore_errors=True)
 
 
-def setup_chromium_depot_tools():
+def setup_chromium_depot_tools(nw_version):
     if not os.path.isdir(os.getcwd() + '/depot_tools/.git'):
         print 'Cloning Chromium depot tools in {0}...'.format(os.getcwd())
         os.system('git clone --depth=1 https://chromium.googlesource.com/chromium/tools/depot_tools.git')
@@ -182,13 +177,13 @@ def setup_chromium_depot_tools():
     subprocess.check_call('gclient config --unmanaged --name=src https://github.com/nwjs/chromium.src.git@tags/nw-{0}'.format(nw_version), shell=True)
 
 
-def clone_chromium_source_code():
+def clone_chromium_source_code(nw_version):
     print 'Cloning Chromium source code for nw-{0} in {1}'.format(nw_version, os.getcwd())
     os.system('git clone --depth=1 -b nw-{0} --single-branch {1} src'.format(
         nw_version, 'https://github.com/nwjs/chromium.src.git'))
 
 
-def reset_chromium_src_to_nw_version():
+def reset_chromium_src_to_nw_version(nw_version):
     print 'Hard source code reset to nw {0} specified version'.format(nw_version)
     os.system('git reset --hard tags/nw-{0}'.format(nw_version))
 
@@ -403,7 +398,7 @@ def cygwin_linking_setup():
             shutil.copy(os.getcwd() + '/chromium/scripts/cygwin-wrapper', '/usr/local/bin/cygwin-wrapper')
 
 
-def check_build_with_proprietary_codecs():
+def check_build_with_proprietary_codecs(proprietary_codecs, host_platform, target_arch):
 
     # going to ffmpeg folder
     os.chdir('third_party/ffmpeg')
