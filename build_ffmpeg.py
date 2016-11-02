@@ -183,8 +183,9 @@ def get_latest_stable_nwjs():
         versions = json.load(urllib2.urlopen(nwjs_io_url))
         nw_version = versions['stable']
     except URLError:
-        nw_version = '0.18.0'
-        print_error('Error fetching ' + nwjs_io_url + ' URL, fall back to NW.js version ' + nw_version)
+        print_error('Error fetching ' + nwjs_io_url + ' URL, please, set the desired NW.js version for building FFmepg using the argument -nw or --nw_version')
+        sys.exit(1)
+
     return nw_version
 
 
