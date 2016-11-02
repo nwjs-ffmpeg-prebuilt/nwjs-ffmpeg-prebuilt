@@ -47,6 +47,8 @@ def main():
     nw_version = get_latest_stable_nwjs()
     host_platform = get_host_platform()
     target_arch = get_host_architecture()
+    target_cpu = target_arch
+    platform_release_name = get_platform_release_name(host_platform)
 
     try:
         args = parse_args()
@@ -60,15 +62,13 @@ def main():
 
         if args.nw_version:
             print_info('Setting nw version to ' + args.nw_version)
-            nw_version = "v" + args.nw_version
+            nw_version = args.nw_version
 
         if args.target_arch:
             target_arch = args.target_arch
 
         if target_arch == 'ia32':
             target_cpu = 'x86'
-        else:
-            target_cpu = target_arch
 
         proprietary_codecs = args.proprietary_codecs
         if proprietary_codecs and platform.system() == 'Windows' and not 'CYGWIN_NT' in platform.system():
@@ -97,7 +97,7 @@ def main():
 
         build(target_cpu)
 
-        zip_release_output_library(nw_version, host_platform, target_arch,  os.path.join(PATH_LIBRARY_OUT, get_host_platform_library_path(host_platform)), PATH_RELEASES)
+        zip_release_output_library(nw_version, platform_release_name, target_arch, get_out_library_path(host_platform), PATH_RELEASES)
 
         print_ok('DONE!!')
 
@@ -156,15 +156,24 @@ def get_host_architecture():
     return host_arch
 
 
-def get_host_platform_library_path(host_platform):
+def get_out_library_path(host_platform):
     if host_platform == 'win' or 'CYGWIN_NT' in platform.system():
-        host_platform_library_name = 'ffmpeg.dll'
+        out_library_path = os.path.join(PATH_LIBRARY_OUT, 'ffmpeg.dll')
     elif host_platform == 'linux':
-        host_platform_library_name = os.path.join('lib', 'libffmpeg.so')
+        out_library_path = os.path.join(PATH_LIBRARY_OUT, 'lib', 'libffmpeg.so')
     elif host_platform == 'mac':
-        host_platform_library_name = 'libffmpeg.dylib'
+        out_library_path = os.path.join(PATH_LIBRARY_OUT, 'libffmpeg.dylib')
 
-    return host_platform_library_name
+    return out_library_path
+
+
+def get_platform_release_name(host_platform):
+    if host_platform == 'mac':
+        platform_release_name = 'osx'
+    else:
+        platform_release_name = host_platform
+
+    return platform_release_name
 
 
 def get_latest_stable_nwjs():
@@ -174,7 +183,7 @@ def get_latest_stable_nwjs():
         versions = json.load(urllib2.urlopen(nwjs_io_url))
         nw_version = versions['stable']
     except URLError:
-        nw_version = 'v0.18.0'
+        nw_version = '0.18.0'
         print_error('Error fetching ' + nwjs_io_url + ' URL, fall back to NW.js version ' + nw_version)
     return nw_version
 
@@ -206,20 +215,20 @@ def setup_chromium_depot_tools(nw_version):
         os.environ["DEPOT_TOOLS_WIN_TOOLCHAIN"] = '0'
 
     print_info('Creating .gclient file...')
-    subprocess.check_call('gclient config --unmanaged --name=src https://github.com/nwjs/chromium.src.git@tags/nw-{0}'.format(nw_version), shell=True)
+    subprocess.check_call('gclient config --unmanaged --name=src https://github.com/nwjs/chromium.src.git@tags/nw-v{0}'.format(nw_version), shell=True)
 
 
 def clone_chromium_source_code(nw_version):
     os.chdir(PATH_BUILD)
     print_info('Cloning Chromium source code for nw-{0} in {1}'.format(nw_version, os.getcwd()))
-    os.system('git clone --depth=1 -b nw-{0} --single-branch {1} src'.format(
+    os.system('git clone --depth=1 -b nw-v{0} --single-branch {1} src'.format(
         nw_version, 'https://github.com/nwjs/chromium.src.git'))
 
 
 def reset_chromium_src_to_nw_version(nw_version):
     os.chdir(PATH_SRC)
     print_info('Hard source code reset to nw {0} specified version'.format(nw_version))
-    os.system('git reset --hard tags/nw-{0}'.format(nw_version))
+    os.system('git reset --hard tags/nw-v{0}'.format(nw_version))
 
 
 def get_min_deps(deps_str):
@@ -509,15 +518,15 @@ def fix_external_symbol_ff_w64_guid_data():
     replace_in_file('ffmpeg_generated.gypi', "'libavformat/vorbiscomment.c',", replace)
 
 
-def zip_release_output_library(nw_version, host_platform, target_arch, output_library_path, output_release_path):
+def zip_release_output_library(nw_version, platform_release_name, target_arch, out_library_path, output_release_path):
     create_directory(output_release_path)
     print_info('Creating release zip...')
-    if os.path.isfile(output_library_path):
-        with zipfile.ZipFile(os.path.join(output_release_path, '{0}-{1}-{2}.zip'.format(nw_version, host_platform, target_arch)), 'w', zipfile.ZIP_DEFLATED) as release_zip:
-            release_zip.write(output_library_path, os.path.basename(output_library_path))
+    if os.path.isfile(out_library_path):
+        with zipfile.ZipFile(os.path.join(output_release_path, '{0}-{1}-{2}.zip'.format(nw_version, platform_release_name, target_arch)), 'w', zipfile.ZIP_DEFLATED) as release_zip:
+            release_zip.write(out_library_path, os.path.basename(out_library_path))
             release_zip.close()
     else:
-        print_warning('There is no release file library in {0}...'.format(output_library_path))
+        print_warning('There is no release file library in {0}...'.format(out_library_path))
 
 
 #following from Python cookbook, #475186
