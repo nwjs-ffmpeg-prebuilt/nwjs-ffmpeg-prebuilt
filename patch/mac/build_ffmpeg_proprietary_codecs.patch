@@ -1,16 +1,8 @@
 diff --git a/chromium/scripts/build_ffmpeg.py b/chromium/scripts/build_ffmpeg.py
-index cfbe54e..9432f56 100755
+index 5b478be..deb253b 100755
 --- a/chromium/scripts/build_ffmpeg.py
 +++ b/chromium/scripts/build_ffmpeg.py
-@@ -297,6 +297,7 @@ def main(argv):
-       '--enable-fft',
-       '--enable-rdft',
-       '--enable-static',
-+      '--enable-nonfree',
-
-       # Disable features.
-       '--disable-bzlib',
-@@ -532,9 +533,9 @@ def main(argv):
+@@ -551,9 +551,9 @@ def main(argv):
 
    # Google Chrome & ChromeOS specific configuration.
    configure_flags['Chrome'].extend([
