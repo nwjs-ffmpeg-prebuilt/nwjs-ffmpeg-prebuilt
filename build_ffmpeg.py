@@ -483,7 +483,7 @@ def check_build_with_proprietary_codecs(proprietary_codecs, host_platform, targe
         subprocess.call('./chromium/scripts/copy_config.sh', shell=True)
         print_info('Creating a GYP include file for building FFmpeg from source...')
         # generate the ffmpeg configuration
-        subprocess.check_call('./chromium/scripts/generate_gyp.py', shell=True)
+        subprocess.check_call('./chromium/scripts/generate_gn.py', shell=True)
 
         if 'CYGWIN_NT' in platform.system():
             print_info('Applying fix for error LNK2001: unresolved external symbol _ff_w64_guid_data')
@@ -509,14 +509,9 @@ def replace_in_file(file_name, search_string, replace_string):
 def fix_external_symbol_ff_w64_guid_data():
     # https://bugs.chromium.org/p/chromium/issues/detail?id=264459
     shutil.copyfile('ffmpeg_generated.gni', 'ffmpeg_generated.gni.bak')
-    shutil.copyfile('ffmpeg_generated.gypi', 'ffmpeg_generated.gypi.bak')
     replace = '''"libavformat/vorbiscomment.c",
     "libavformat/w64.c",'''
     replace_in_file('ffmpeg_generated.gni', '"libavformat/vorbiscomment.c",', replace)
-
-    replace = ''''libavformat/vorbiscomment.c',
-          'libavformat/w64.c','''
-    replace_in_file('ffmpeg_generated.gypi', "'libavformat/vorbiscomment.c',", replace)
 
 
 def zip_release_output_library(nw_version, platform_release_name, target_arch, out_library_path, output_release_path):
