@@ -366,22 +366,6 @@ def get_min_hooks():
         'name':
           'gn_linux64'
       },
-      {
-        'action': [
-          'download_from_google_storage',
-          '--no_resume',
-          '--platform=darwin',
-          '--no_auth',
-          '--bucket',
-          'chromium-libcpp',
-          '-s',
-          'src/third_party/libc++-static/libc++.a.sha1'
-        ],
-        'pattern':
-          '.',
-        'name':
-          'libcpp_mac'
-      },
     ]
     ''')
 
