@@ -97,7 +97,7 @@ def main():
 
         build(target_cpu)
 
-        zip_release_output_library(nw_version, platform_release_name, target_arch, get_out_library_path(host_platform), PATH_RELEASES)
+        zip_release_output_library(nw_version, platform_release_name, target_arch, proprietary_codecs, get_out_library_path(host_platform), PATH_RELEASES)
 
         print_ok('DONE!!')
 
@@ -498,11 +498,14 @@ def fix_external_symbol_ff_w64_guid_data():
     replace_in_file('ffmpeg_generated.gni', '"libavformat/vorbiscomment.c",', replace)
 
 
-def zip_release_output_library(nw_version, platform_release_name, target_arch, out_library_path, output_release_path):
+def zip_release_output_library(nw_version, platform_release_name, target_arch, proprietary_codecs, out_library_path, output_release_path):
     create_directory(output_release_path)
     print_info('Creating release zip...')
+    pc = ''
+    if proprietary_codecs:
+        pc = '-custom'
     if os.path.isfile(out_library_path):
-        with zipfile.ZipFile(os.path.join(output_release_path, '{0}-{1}-{2}.zip'.format(nw_version, platform_release_name, target_arch)), 'w', zipfile.ZIP_DEFLATED) as release_zip:
+        with zipfile.ZipFile(os.path.join(output_release_path, '{0}-{1}-{2}{3}.zip'.format(nw_version, platform_release_name, target_arch, pc)), 'w', zipfile.ZIP_DEFLATED) as release_zip:
             release_zip.write(out_library_path, os.path.basename(out_library_path))
             release_zip.close()
     else:
