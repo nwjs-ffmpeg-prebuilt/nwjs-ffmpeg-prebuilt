@@ -178,7 +178,7 @@ def get_platform_release_name(host_platform):
 
 def get_latest_stable_nwjs():
     # We always build ffmpeg for the latest stable
-    nwjs_io_url = 'http://nwjs.io/versions.json'
+    nwjs_io_url = 'https://nwjs.io/versions.json'
     try:
         versions = json.load(urllib2.urlopen(nwjs_io_url))
         nw_version = versions['stable'][1:]
