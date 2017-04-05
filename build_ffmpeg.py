@@ -51,7 +51,7 @@ def main():
     platform_release_name = get_platform_release_name(host_platform)
     
     if platform.system() == 'Linux':
-      os.environ["LLVM_DOWNLOAD_GOLD_PLUGIN"] = 1
+      os.environ["LLVM_DOWNLOAD_GOLD_PLUGIN"] = "1"
     
     try:
         args = parse_args()
