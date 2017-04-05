@@ -533,7 +533,7 @@ def has_colours(stream):
 def print_message(color, message_type, message):
     if has_colours(sys.stdout):
         print (color + message_type + COLOR_NORMAL + message)
-    else:
+    elif get_host_platform() == "win":
         if color == COLOR_OK:
             windows_color = COLOR_OK_WINDOWS
         elif color == COLOR_ERROR:
@@ -543,6 +543,8 @@ def print_message(color, message_type, message):
         elif color == COLOR_WARNING:
             windows_color = COLOR_WARNING_WINDOWS
         print_windows_message (windows_color, message_type + message)
+    else:
+      print (message_type + message)
 
 
 def print_windows_message(colour, message):
