@@ -1,15 +1,15 @@
-#Build FFmpeg (Linux)
+# Build FFmpeg (Linux)
 
-##Requirements
+## Requirements
 
 - 3GB of free space
 - Ubuntu 14.04.4 or higher
 
-##Install deps
+## Install deps
 	//Install Git
 	apt-get update && apt-get install git
 
-##Build libffmpeg
+## Build libffmpeg
 
 	git clone https://github.com/iteufel/nwjs-ffmpeg-prebuilt.git
 	cd nwjs-ffmpeg-prebuilt
