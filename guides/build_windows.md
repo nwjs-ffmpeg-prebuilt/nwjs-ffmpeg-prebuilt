@@ -1,11 +1,11 @@
-#Build FFmpeg (Windows)
+# Build FFmpeg (Windows)
 
-##Requirements
+## Requirements
 
 - 3GB of free space
 - Windows 7/8.1/10
 
-##Install deps
+## Install deps
 	//Open a cmd as Admin
 
 	//install chocolatey
@@ -20,7 +20,7 @@
 	//Install VisualStudio
 	choco install visualstudio2015community -packageParameters "--Features MDDCPlusPlus,ToolsForWin81WP80WP81,VCMFCLibraries"
 
-##Build ffmpeg.dll (WITHOUT proprietary codecs)
+## Build ffmpeg.dll (WITHOUT proprietary codecs)
 
 This is the default behaviour, does not require additional steps, just run it and tadaaaa :tada:...
 
@@ -33,7 +33,7 @@ This is the default behaviour, does not require additional steps, just run it an
 	//Build ffmpeg x64
 	python build_ffmpeg.py --target_arch=x64
 
-##Build ffmpeg.dll (WITH proprietary codecs)
+## Build ffmpeg.dll (WITH proprietary codecs)
 
 The build procedure for Windows is a little bit complex and require additional steps to generate the FFmpeg library. Unfortunately we can not generate the library natively, we need to use a CygWin environment and do a few tricks:
 
