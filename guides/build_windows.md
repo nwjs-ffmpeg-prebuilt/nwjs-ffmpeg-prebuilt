@@ -18,7 +18,13 @@
 	choco install python
 
 	//Install VisualStudio
-	choco install visualstudio2015community -packageParameters "--Features MDDCPlusPlus,ToolsForWin81WP80WP81,VCMFCLibraries"
+	choco install visualstudio2015community -packageParameters "--Features MDDCPlusPlus,VCMFCLibraries,Windows10_ToolsAndSDKV12"
+	
+	// Debugging Tools for Windows 
+	choco install windbg
+	
+	//Download & Install Windows 10 SDK (ver. 10.0.14393.795)
+	https://go.microsoft.com/fwlink/p/?LinkId=838916
 
 ## Build ffmpeg.dll (WITHOUT proprietary codecs)
 
