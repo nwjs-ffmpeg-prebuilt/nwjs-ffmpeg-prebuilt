@@ -370,6 +370,9 @@ def get_min_hooks():
           'gn_linux64'
       },
     ]
+    recursedeps = [
+      'src/buildtools'
+    ]
     ''')
 
 
