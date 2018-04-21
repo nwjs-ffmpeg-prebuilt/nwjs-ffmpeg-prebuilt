@@ -238,11 +238,11 @@ def reset_chromium_src_to_nw_version(nw_version):
 def get_min_deps(deps_str):
     # deps
     deps_list = {
-        'buildtools': {
-            'reg': ur'buildtools\.git@(.+)\'',
-            'repo': '/chromium/buildtools.git',
-            'path': 'src/buildtools'
-        },
+      'buildtools': {
+          'reg': ur'buildtools\.git@(.+)\'',
+          'repo': '/chromium/buildtools.git',
+          'path': 'src/buildtools'
+      },
       'gyp': {
           'reg': ur'gyp\.git@(.+)\'',
           'repo': '/external/gyp.git',
@@ -257,6 +257,11 @@ def get_min_deps(deps_str):
           'reg': ur'ffmpeg\.git@(.+)\'',
           'repo': '/chromium/third_party/ffmpeg',
           'path': 'src/third_party/ffmpeg'
+      },
+      'angle': {
+          'reg': ur'angle\.git@(.+)\'',
+          'repo': '/angle/angle.git',
+          'path': 'src/third_party/angle'
       },
     }
     min_deps_list = []
@@ -293,12 +298,27 @@ def get_min_hooks():
         'action': [
           'python',
           'src/build/linux/sysroot_scripts/install-sysroot.py',
-          '--running-as-hook'
+          '--arch=x86'
         ],
         'pattern':
           '.',
         'name':
-          'sysroot'
+          'sysroot_x86',
+        'condition':
+          'checkout_linux and (checkout_x86 or checkout_x64)'
+      },
+      {
+        'action': [
+          'python',
+          'src/build/linux/sysroot_scripts/install-sysroot.py',
+          '--arch=x64'
+        ],
+        'pattern':
+          '.',
+        'name':
+          'sysroot_x64',
+        'condition':
+          'checkout_linux and checkout_x64'
       },
       {
         'action': [
@@ -308,7 +328,9 @@ def get_min_hooks():
         'pattern':
           '.',
         'name':
-          'mac_toolchain'
+          'mac_toolchain',
+        'condition':
+          'checkout_ios or checkout_mac'
       },
       {
         'action': [
@@ -325,7 +347,6 @@ def get_min_hooks():
         'action': [
           'download_from_google_storage',
           '--no_resume',
-          '--platform=win32',
           '--no_auth',
           '--bucket',
           'chromium-gn',
@@ -335,13 +356,14 @@ def get_min_hooks():
         'pattern':
           '.',
         'name':
-          'gn_win'
+          'gn_win',
+        'condition':
+          'host_os == "win"'
       },
       {
         'action': [
           'download_from_google_storage',
           '--no_resume',
-          '--platform=darwin',
           '--no_auth',
           '--bucket',
           'chromium-gn',
@@ -351,13 +373,14 @@ def get_min_hooks():
         'pattern':
           '.',
         'name':
-          'gn_mac'
+          'gn_mac',
+        'condition':
+          'host_os == "mac"'
       },
       {
         'action': [
           'download_from_google_storage',
           '--no_resume',
-          '--platform=linux*',
           '--no_auth',
           '--bucket',
           'chromium-gn',
@@ -367,7 +390,9 @@ def get_min_hooks():
         'pattern':
           '.',
         'name':
-          'gn_linux64'
+          'gn_linux64',
+        'condition':
+          'host_os == "linux"'
       },
     ]
     recursedeps = [
