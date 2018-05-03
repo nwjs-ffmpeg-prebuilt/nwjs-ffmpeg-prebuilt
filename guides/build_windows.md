@@ -6,25 +6,29 @@
 - Windows 7/8.1/10
 
 ## Install deps
-	//Open a cmd as Admin
+### Open a **cmd** as Admin
 
-	//install chocolatey
+#### Install chocolatey
 	@powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))" && SET PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin
 
-	//Install git
+#### Install Git
 	choco install git
 
-	//Install python
+#### Install python
 	choco install python
+	pip install pywin32
 
-	//Install VisualStudio
-	choco install visualstudio2015community -packageParameters "--Features MDDCPlusPlus,VCMFCLibraries,Windows10_ToolsAndSDKV12"
-	
-	// Debugging Tools for Windows 
+#### Install VisualStudio 2017
+[Download Visualstudio 2017](https://docs.microsoft.com/en-us/visualstudio/install/use-command-line-parameters-to-install-visual-studio)
+> As of September, 2017 (R503915) Chromium requires Visual Studio 2017 update 3.x to build.  
+The clang-cl compiler is used but Visual Studio's header files, libraries, and some tools are required.  
+Visual Studio Community Edition should work if its license is appropriate for you.  
+You must install the “**Desktop development with C++**” component and the “**MFC and ATL support***” sub-component.  
+
+> You must have the version **10.0.15063 Windows 10 SDK** installed. This can be installed separately or by checking the appropriate box in the Visual Studio Installer.
+
+#### Debugging Tools for Windows 
 	choco install windbg
-	
-	//Download & Install Windows 10 SDK (ver. 10.0.14393.795)
-	https://go.microsoft.com/fwlink/p/?LinkId=838916
 
 ## Build ffmpeg.dll (WITHOUT proprietary codecs)
 

@@ -217,6 +217,7 @@ def setup_chromium_depot_tools(nw_version):
     os.environ["PATH"] += os.pathsep + PATH_DEPOT_TOOLS
     if platform.system() == 'Windows' or 'CYGWIN_NT' in platform.system():
         os.environ["DEPOT_TOOLS_WIN_TOOLCHAIN"] = '0'
+        os.environ["GYP_MSVS_VERSION"] = '2017'
 
     print_info('Creating .gclient file...')
     subprocess.check_call('gclient config --unmanaged --name=src https://github.com/nwjs/chromium.src.git@tags/nw-v{0}'.format(nw_version), shell=True)
