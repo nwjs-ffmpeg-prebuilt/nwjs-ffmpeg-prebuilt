@@ -220,47 +220,47 @@ def setup_chromium_depot_tools(nw_version):
         os.environ["GYP_MSVS_VERSION"] = '2017'
 
     print_info('Creating .gclient file...')
-    subprocess.check_call('gclient config --unmanaged --name=src https://github.com/nwjs/chromium.src.git@tags/nw-v{0}'.format(nw_version), shell=True)
+    subprocess.check_call('gclient config --unmanaged --name=src https://github.com/nwjs/chromium.src.git@branches/{0}'.format(nw_version), shell=True)
 
 
 def clone_chromium_source_code(nw_version):
     os.chdir(PATH_BUILD)
-    print_info('Cloning Chromium source code for nw-{0} in {1}'.format(nw_version, os.getcwd()))
-    os.system('git clone --depth=1 -b nw-v{0} --single-branch {1} src'.format(
+    print_info('Cloning Chromium source code for {0} in {1}'.format(nw_version, os.getcwd()))
+    os.system('git clone --depth=1 -b {0} --single-branch {1} src'.format(
         nw_version, 'https://github.com/nwjs/chromium.src.git'))
 
 
 def reset_chromium_src_to_nw_version(nw_version):
     os.chdir(PATH_SRC)
     print_info('Hard source code reset to nw {0} specified version'.format(nw_version))
-    os.system('git reset --hard tags/nw-v{0}'.format(nw_version))
+    os.system('git reset --hard {0}'.format(nw_version))
 
 
 def get_min_deps(deps_str):
     # deps
     deps_list = {
       'buildtools': {
-          'reg': ur'buildtools\.git@(.+)\'',
+          'reg': ur"buildtools_revision':\s*'(.+)'",
           'repo': '/chromium/buildtools.git',
           'path': 'src/buildtools'
       },
       'gyp': {
-          'reg': ur'gyp\.git@(.+)\'',
+          'reg': ur"gyp.git.+@'.+'(.+)'",
           'repo': '/external/gyp.git',
           'path': 'src/tools/gyp'
       },
       'patched-yasm': {
-          'reg': ur'patched-yasm\.git@(.+)\'',
+          'reg': ur"patched-yasm.git.+@'.+'(.+)'",
           'repo': '/chromium/deps/yasm/patched-yasm.git',
           'path': 'src/third_party/yasm/source/patched-yasm'
       },
       'ffmpeg': {
-          'reg': ur'ffmpeg\.git@(.+)\'',
+          'reg': ur"ffmpeg.git.+@'.+'(.+)'",
           'repo': '/chromium/third_party/ffmpeg',
           'path': 'src/third_party/ffmpeg'
       },
       'angle': {
-          'reg': ur'angle\.git@(.+)\'',
+          'reg': ur"angle_revision':\s*'(.+)'",
           'repo': '/angle/angle.git',
           'path': 'src/third_party/angle'
       },
@@ -268,6 +268,7 @@ def get_min_deps(deps_str):
     min_deps_list = []
     for k, v in deps_list.items():
         dep = grep_dep(v['reg'], v['repo'], v['path'], deps_str)
+        print dep
         if dep is None:
             raise Exception("`%s` is not found in DEPS" % k)
         min_deps_list.append(dep)
