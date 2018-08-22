@@ -27,9 +27,6 @@ You must install the “**Desktop development with C++**” component and the �
 
 > You must have the version **10.0.15063 Windows 10 SDK** installed. This can be installed separately or by checking the appropriate box in the Visual Studio Installer.
 
-#### Debugging Tools for Windows 
-	choco install windbg
-
 ## Build ffmpeg.dll (WITHOUT proprietary codecs)
 
 This is the default behaviour, does not require additional steps, just run it and tadaaaa :tada:...
