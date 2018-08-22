@@ -1,5 +1,12 @@
 # FFmpeg prebuilt for NW.js
+
+#### Linux
 [![Build Status](https://travis-ci.org/iteufel/nwjs-ffmpeg-prebuilt.svg?branch=master)](https://travis-ci.org/iteufel/nwjs-ffmpeg-prebuilt)
+#### macOS
+...
+#### Windows
+[![Build status](https://ci.appveyor.com/api/projects/status/nfnn60p44w62swic/branch/master?svg=true)](https://ci.appveyor.com/project/iteufel/nwjs-ffmpeg-prebuilt/branch/master)
+
 
 FFMpeg prebuilt binaries with proprietary codecs and build instructions for window, linux and osx.
 

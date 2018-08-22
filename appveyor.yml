@@ -1,0 +1,14 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+install:
+- cmd: >-
+    choco install -y python2
+
+    pip install pywin32
+build_script:
+- cmd: >-
+    python build_ffmpeg.py --target_arch x64
+
+    python build_ffmpeg.py --target_arch ia32
+artifacts:
+- path: releases/*.zip
