@@ -346,6 +346,18 @@ def get_min_hooks():
       },
       {
         'action': [
+          'python',
+          'src/chrome/android/profiles/update_afdo_profile.py'
+        ],
+        'pattern':
+          '.',
+        'name':
+          'update_afdo_profile',
+        'condition':
+          'checkout_linux'
+      },
+      {
+        'action': [
           'download_from_google_storage',
           '--no_resume',
           '--no_auth',
