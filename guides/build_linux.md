@@ -3,7 +3,7 @@
 ## Requirements
 
 - 3GB of free space
-- Ubuntu 14.04.4 or higher
+- Ubuntu 16.04.5 or higher
 
 ## Install deps
 	//Install Git
@@ -19,3 +19,8 @@
 	
 	//Build ffmpeg x64
 	sudo python build_ffmpeg.py --target_arch=x64
+
+## Known Problems
+
+If you have issues building FFmpeg for ia32: [crbug.com/786760](https://crbug.com/786760).  
+To fix this you can remove `HAVE_EBP_AVAILABLE` from `build/src/third_party/ffmpeg/BUILD.gn`
