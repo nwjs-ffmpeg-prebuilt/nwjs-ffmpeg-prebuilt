@@ -98,6 +98,8 @@ def main():
 
         check_build_with_proprietary_codecs(proprietary_codecs, host_platform, target_arch)
 
+        patch_linux_sanitizer_ia32(target_cpu)
+
         build(target_cpu)
 
         zip_release_output_library(nw_version, platform_release_name, target_arch, proprietary_codecs, get_out_library_path(host_platform), PATH_RELEASES)
@@ -109,6 +111,18 @@ def main():
     except Exception:
         print_error (traceback.format_exc())
         sys.exit(1)
+
+
+def patch_linux_sanitizer_ia32(target_cpu):
+    host_platform = get_host_platform()
+    if host_platform == 'linux':
+        oldpath = os.getcwd()
+        os.chdir(PATH_THIRD_PARTY_FFMPEG)
+        os.system('git reset --hard')
+        if target_cpu == 'x86':
+            shutil.copy(os.path.join(PATH_BASE, 'patch', host_platform, 'sanitizer_ia32.patch'), os.getcwd())
+            os.system('git apply --ignore-space-change --ignore-whitespace sanitizer_ia32.patch')
+        os.chdir(oldpath)
 
 
 def parse_args():
