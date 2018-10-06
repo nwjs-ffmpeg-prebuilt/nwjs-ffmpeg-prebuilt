@@ -278,6 +278,11 @@ def get_min_deps(deps_str):
           'repo': '/angle/angle.git',
           'path': 'src/third_party/angle'
       },
+      'android_tools': {
+          'reg': ur"android_tools.git'.*'(.+)'",
+          'repo': '/android_tools.git',
+          'path': 'src/third_party/android_tools'
+      }
     }
     min_deps_list = []
     for k, v in deps_list.items():
@@ -293,15 +298,11 @@ def get_min_deps(deps_str):
     ''') % "\n".join(min_deps_list)
 
 
-def get_min_vars():
+def get_min_vars(deps_str):
     # vars
-    # copied from DEPS
-    return textwrap.dedent('''
-    vars = {
-      'chromium_git':
-        'https://chromium.googlesource.com',
-    }
-    ''')
+    regex = r"(.+?)deps\s+="
+    matches = re.search(regex, deps_str, re.MULTILINE | re.IGNORECASE | re.DOTALL)
+    return textwrap.dedent(matches.group(1))
 
 
 def get_min_hooks():
@@ -363,12 +364,9 @@ def get_min_hooks():
           'python',
           'src/chrome/android/profiles/update_afdo_profile.py'
         ],
-        'pattern':
-          '.',
-        'name':
-          'update_afdo_profile',
-        'condition':
-          'checkout_linux'
+        'pattern': '.',
+        'condition': 'checkout_android or checkout_linux',
+        'name': 'Fetch Android AFDO profile'
       },
       {
         'action': [
@@ -472,7 +470,7 @@ def generate_build_and_deps_files():
     print_info('Backing up and overwriting DEPS...')
     shutil.move('DEPS', 'DEPS.bak')
     with open('DEPS', 'w') as f:
-        f.write("%s\n%s\n%s" % (get_min_vars(), get_min_deps(deps_str), get_min_hooks()))
+        f.write("%s\n%s\n%s" % (get_min_vars(deps_str), get_min_deps(deps_str), get_min_hooks()))
 
     print_info('Backing up and overwriting BUILD.gn...')
     shutil.move('BUILD.gn', 'BUILD.gn.bak')
