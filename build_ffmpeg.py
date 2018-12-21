@@ -72,23 +72,25 @@ def main():
 
         if target_arch == 'ia32':
             target_cpu = 'x86'
-
+        
         proprietary_codecs = args.proprietary_codecs
         if proprietary_codecs and platform.system() == 'Windows' and not 'CYGWIN_NT' in platform.system():
-            print_warning('Script needs to be executed under CygWin to build FFmpeg \nwith proprietary codecs on Windows environments, \nread https://github.com/iteufel/nwjs-ffmpeg-prebuilt/blob/master/guides/build_windows.md\nExiting...')
+            print_warning('Script needs to be executed under CygWin to build FFmpeg \nwith proprietary codecs on Windows environments, \nread https://github.com/nwjs/nwjs-ffmpeg-prebuilt/blob/master/guides/build_windows.md\nExiting...')
             sys.exit(1)
 
         print_info('Building ffmpeg for {0} on {1} for {2}, proprietary_codecs = {3}'.format(nw_version, host_platform, target_cpu, proprietary_codecs))
+
+        isVersion = bool(re.match(r"\d+\.\d+\.\d+", nw_version))
 
         create_directory(PATH_BUILD)
 
         clean_output_directory()
 
-        setup_chromium_depot_tools(nw_version)
+        setup_chromium_depot_tools(nw_version, isVersion)
 
-        clone_chromium_source_code(nw_version)
+        clone_chromium_source_code(nw_version, isVersion)
 
-        reset_chromium_src_to_nw_version(nw_version)
+        reset_chromium_src_to_nw_version(nw_version, isVersion)
 
         generate_build_and_deps_files()
 
@@ -219,7 +221,7 @@ def clean_output_directory():
     shutil.rmtree(PATH_OUT, ignore_errors=True)
 
 
-def setup_chromium_depot_tools(nw_version):
+def setup_chromium_depot_tools(nw_version, isVersion = True):
     os.chdir(PATH_BUILD)
     if not os.path.isdir(os.path.join(PATH_DEPOT_TOOLS, '.git')):
         print_info('Cloning Chromium depot tools in {0}...'.format(os.getcwd()))
@@ -234,20 +236,28 @@ def setup_chromium_depot_tools(nw_version):
         os.environ["GYP_MSVS_VERSION"] = '2017'
 
     print_info('Creating .gclient file...')
-    subprocess.check_call('gclient config --unmanaged --name=src https://github.com/nwjs/chromium.src.git@tags/nw-v{0}'.format(nw_version), shell=True)
+    if(isVersion):
+      subprocess.check_call('gclient config --unmanaged --name=src https://github.com/nwjs/chromium.src.git@tags/nw-v{0}'.format(nw_version), shell=True)
+    else:
+      subprocess.check_call('gclient config --unmanaged --name=src https://github.com/nwjs/chromium.src.git@tree/{0}'.format(nw_version), shell=True)
 
 
-def clone_chromium_source_code(nw_version):
+def clone_chromium_source_code(nw_version, isVersion = True):
     os.chdir(PATH_BUILD)
     print_info('Cloning Chromium source code for nw-{0} in {1}'.format(nw_version, os.getcwd()))
-    os.system('git clone --depth=1 -b nw-v{0} --single-branch {1} src'.format(
-        nw_version, 'https://github.com/nwjs/chromium.src.git'))
+    if isVersion:
+      os.system('git clone --depth=1 -b nw-v{0} --single-branch {1} src'.format(nw_version, 'https://github.com/nwjs/chromium.src.git'))
+    else:
+      os.system('git clone --depth=1 -b {0} --single-branch {1} src'.format(nw_version, 'https://github.com/nwjs/chromium.src.git'))
 
 
-def reset_chromium_src_to_nw_version(nw_version):
+def reset_chromium_src_to_nw_version(nw_version, isVersion = True):
     os.chdir(PATH_SRC)
-    print_info('Hard source code reset to nw {0} specified version'.format(nw_version))
-    os.system('git reset --hard tags/nw-v{0}'.format(nw_version))
+    if isVersion:
+      print_info('Hard source code reset to nw {0} specified version'.format(nw_version))
+      os.system('git reset --hard tags/nw-v{0}'.format(nw_version))
+    else:
+      os.system('git reset --hard')
 
 
 def get_min_deps(deps_str):
@@ -418,6 +428,16 @@ def get_min_hooks():
           'gn_linux64',
         'condition':
           'host_os == "linux"'
+      },
+      {
+        'name': 'lastchange',
+        'pattern': '.',
+        'action': ['python', 'src/build/util/lastchange.py', '-o', 'src/build/util/LASTCHANGE'],
+      },
+      {
+        'name': 'gpu_lists_version',
+        'pattern': '.',
+        'action': ['python', 'src/build/util/lastchange.py', '-m', 'GPU_LISTS_VERSION', '--revision-id-only', '--header', 'src/gpu/config/gpu_lists_version.h'],
       },
     ]
     recursedeps = [

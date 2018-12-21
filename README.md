@@ -16,7 +16,7 @@ build_ffmpeg.py [-h] [-c] [-nw NW_VERSION] [-ta TARGET_ARCH] [-pc]
 ###### Arguments explanied:
 -  *-h, --help* : Show the help message and exit
 -  *-c, --clean* : Clean the workspace, removes downloaded source code
--  *-nw NW_VERSION, --nw_version NW_VERSION* : Build ffmpeg for the specified Nw.js version (latest from http://nwjs.io/versions.json if not specified)
+-  *-nw NW_VERSION, --nw_version NW_VERSION* : Build ffmpeg for the specified Nw.js version (latest from http://nwjs.io/versions.json if not specified) or branch
 -  *-ta TARGET_ARCH, --target_arch TARGET_ARCH* : Target architecture, ia32, x64
 -  *-pc, --proprietary_codecs* : Build ffmpeg with proprietary codecs applied from  the specific platform [patch](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/tree/master/patch)
 
