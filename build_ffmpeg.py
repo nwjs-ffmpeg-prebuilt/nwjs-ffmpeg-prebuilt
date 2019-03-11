@@ -136,8 +136,8 @@ def parse_args():
     return parser.parse_args()
 
 
-def grep_dep(reg, repo, dir, deps_str):
-    pat = re.compile(reg)
+def grep_dep(reg, repo, dir, deps_str, opts):
+    pat = re.compile(reg, opts)
     found = re.search(pat, deps_str)
     if found is None:
         return None
@@ -266,37 +266,49 @@ def get_min_deps(deps_str):
       'buildtools': {
           'reg': ur"buildtools_revision':\s*'(.+)'",
           'repo': '/chromium/buildtools.git',
-          'path': 'src/buildtools'
+          'path': 'src/buildtools',
+          'opts': re.IGNORECASE
       },
       'gyp': {
           'reg': ur"gyp.git.+@'.+'(.+)'",
           'repo': '/external/gyp.git',
-          'path': 'src/tools/gyp'
+          'path': 'src/tools/gyp',
+          'opts': re.IGNORECASE
       },
       'patched-yasm': {
           'reg': ur"patched-yasm.git.+@'.+'(.+)'",
           'repo': '/chromium/deps/yasm/patched-yasm.git',
-          'path': 'src/third_party/yasm/source/patched-yasm'
+          'path': 'src/third_party/yasm/source/patched-yasm',
+          'opts': re.IGNORECASE
       },
       'ffmpeg': {
           'reg': ur"ffmpeg.git.+@'.+'(.+)'",
           'repo': '/chromium/third_party/ffmpeg',
-          'path': 'src/third_party/ffmpeg'
+          'path': 'src/third_party/ffmpeg',
+          'opts': re.IGNORECASE
       },
       'angle': {
           'reg': ur"angle_revision':\s*'(.+)'",
           'repo': '/angle/angle.git',
-          'path': 'src/third_party/angle'
+          'path': 'src/third_party/angle',
+          'opts': re.IGNORECASE
       },
       'android_tools': {
           'reg': ur"android_tools.git'.*'(.+)'",
           'repo': '/android_tools.git',
-          'path': 'src/third_party/android_tools'
+          'path': 'src/third_party/android_tools',
+          'opts': re.IGNORECASE
+      },
+      'nasm': {
+          'reg': ur"nasm.git'.*?'(.{40})'",
+          'repo': '/chromium/deps/nasm.git',
+          'path': 'src/third_party/nasm',
+          'opts':  re.MULTILINE | re.IGNORECASE | re.DOTALL
       }
     }
     min_deps_list = []
     for k, v in deps_list.items():
-        dep = grep_dep(v['reg'], v['repo'], v['path'], deps_str)
+        dep = grep_dep(v['reg'], v['repo'], v['path'], deps_str, v['opts'])
         if dep is None:
             raise Exception("`%s` is not found in DEPS" % k)
         min_deps_list.append(dep)
