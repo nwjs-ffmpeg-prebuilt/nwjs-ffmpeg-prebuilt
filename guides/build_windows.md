@@ -15,7 +15,7 @@
 	choco install git
 
 #### Install python
-	choco install python
+	choco install python2
 	pip install pywin32
 
 #### Install VisualStudio 2017
@@ -25,7 +25,7 @@ The clang-cl compiler is used but Visual Studio's header files, libraries, and s
 Visual Studio Community Edition should work if its license is appropriate for you.  
 You must install the “**Desktop development with C++**” component and the “**MFC and ATL support***” sub-component.  
 
-> You must have the version **10.0.15063 Windows 10 SDK** installed. This can be installed separately or by checking the appropriate box in the Visual Studio Installer.
+> You must have the version **10.0.17134 Windows 10 SDK** installed. This can be installed separately or by checking the appropriate box in the Visual Studio Installer.
 
 ## Build ffmpeg.dll (WITHOUT proprietary codecs)
 

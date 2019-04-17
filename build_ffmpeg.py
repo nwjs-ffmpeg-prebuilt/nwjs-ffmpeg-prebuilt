@@ -304,6 +304,12 @@ def get_min_deps(deps_str):
           'repo': '/chromium/deps/nasm.git',
           'path': 'src/third_party/nasm',
           'opts':  re.MULTILINE | re.IGNORECASE | re.DOTALL
+      },
+      'xz': {
+          'reg': ur"xz.git.+@'.+'(.+)'",
+          'repo': '/chromium/deps/xz.git',
+          'path': 'src/chrome/installer/mac/third_party/xz/xz',
+          'opts': re.IGNORECASE
       }
     }
     min_deps_list = []
@@ -312,6 +318,20 @@ def get_min_deps(deps_str):
         if dep is None:
             raise Exception("`%s` is not found in DEPS" % k)
         min_deps_list.append(dep)
+
+    # Not nice but fix for mac
+    min_deps_list.append('''
+      'src/tools/clang/dsymutil': {
+        'packages': [
+          {
+            'package': 'chromium/llvm-build-tools/dsymutil',
+            'version': 'kykIT8m8YzNqqLP2xFGBTuo0ZtU9lom3BwiStWleyWkC',
+          }
+        ],
+        'condition': 'checkout_mac',
+        'dep_type': 'cipd',
+      },
+    ''')
 
     return textwrap.dedent('''
     deps = {
@@ -359,22 +379,15 @@ def get_min_hooks():
           'checkout_linux and checkout_x64'
       },
       {
-        'action': [
-          'python',
-          'src/build/mac_toolchain.py'
-        ],
-        'pattern':
-          '.',
-        'name':
-          'mac_toolchain',
-        'condition':
-          'checkout_ios or checkout_mac'
+          'name': 'mac_toolchain',
+          'pattern': '.',
+          'condition': 'checkout_ios or checkout_mac',
+          'action': ['python', 'src/build/mac_toolchain.py'],
       },
       {
         'action': [
           'python',
-          'src/tools/clang/scripts/update.py',
-          '--if-needed'
+          'src/tools/clang/scripts/update.py'
         ],
         'pattern':
           '.',
@@ -440,6 +453,30 @@ def get_min_hooks():
           'gn_linux64',
         'condition':
           'host_os == "linux"'
+      },
+      {
+        'name': 'clang_format_mac',
+        'pattern': '.',
+        'condition': 'host_os == "mac"',
+        'action': [ 'python',
+                    'src/third_party/depot_tools/download_from_google_storage.py',
+                    '--no_resume',
+                    '--no_auth',
+                    '--bucket', 'chromium-clang-format',
+                    '-s', 'src/buildtools/mac/clang-format.sha1',
+        ],
+      },
+      {
+        'name': 'rc_mac',
+        'pattern': '.',
+        'condition': 'checkout_win and host_os == "mac"',
+        'action': [ 'python',
+                    'src/third_party/depot_tools/download_from_google_storage.py',
+                    '--no_resume',
+                    '--no_auth',
+                    '--bucket', 'chromium-browser-clang/rc',
+                    '-s', 'src/build/toolchain/win/rc/mac/rc.sha1',
+        ],
       },
       {
         'name': 'lastchange',
