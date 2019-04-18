@@ -385,6 +385,13 @@ def get_min_hooks():
           'action': ['python', 'src/build/mac_toolchain.py'],
       },
       {
+        # Update the Windows toolchain if necessary.  Must run before 'clang' below.
+        'name': 'win_toolchain',
+        'pattern': '.',
+        'condition': 'checkout_win',
+        'action': ['python', 'src/build/vs_toolchain.py', 'update', '--force'],
+      },
+      {
         'action': [
           'python',
           'src/tools/clang/scripts/update.py'
@@ -464,6 +471,19 @@ def get_min_hooks():
                     '--no_auth',
                     '--bucket', 'chromium-clang-format',
                     '-s', 'src/buildtools/mac/clang-format.sha1',
+        ],
+      },
+        # Pull rc binaries using checked-in hashes.
+      {
+        'name': 'rc_win',
+        'pattern': '.',
+        'condition': 'checkout_win and host_os == "win"',
+        'action': [ 'python',
+                'src/third_party/depot_tools/download_from_google_storage.py',
+                '--no_resume',
+                '--no_auth',
+                '--bucket', 'chromium-browser-clang/rc',
+                '-s', 'src/build/toolchain/win/rc/win/rc.exe.sha1',
         ],
       },
       {
