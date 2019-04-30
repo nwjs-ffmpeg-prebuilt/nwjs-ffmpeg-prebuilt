@@ -42,8 +42,6 @@ COLOR_WARNING_WINDOWS = 14
 
 def main():
 
-    proprietary_codecs = False
-
     nw_version = get_latest_stable_nwjs()
     host_platform = get_host_platform()
     target_arch = get_host_architecture()
@@ -73,12 +71,8 @@ def main():
         if target_arch == 'ia32':
             target_cpu = 'x86'
         
-        proprietary_codecs = args.proprietary_codecs
-        if proprietary_codecs and platform.system() == 'Windows' and not 'CYGWIN_NT' in platform.system():
-            print_warning('Script needs to be executed under CygWin to build FFmpeg \nwith proprietary codecs on Windows environments, \nread https://github.com/nwjs/nwjs-ffmpeg-prebuilt/blob/master/guides/build_windows.md\nExiting...')
-            sys.exit(1)
 
-        print_info('Building ffmpeg for {0} on {1} for {2}, proprietary_codecs = {3}'.format(nw_version, host_platform, target_cpu, proprietary_codecs))
+        print_info('Building ffmpeg for {0} on {1} for {2}'.format(nw_version, host_platform, target_cpu))
 
         isVersion = bool(re.match(r"\d+\.\d+\.\d+", nw_version))
 
@@ -98,13 +92,11 @@ def main():
 
         gclient_sync()
 
-        check_build_with_proprietary_codecs(proprietary_codecs, host_platform, target_arch)
-
         patch_linux_sanitizer_ia32(target_cpu)
 
         build(target_cpu)
 
-        zip_release_output_library(nw_version, platform_release_name, target_arch, proprietary_codecs, get_out_library_path(host_platform), PATH_RELEASES)
+        zip_release_output_library(nw_version, platform_release_name, target_arch, get_out_library_path(host_platform), PATH_RELEASES)
 
         print_ok('DONE!!')
 
@@ -130,9 +122,8 @@ def patch_linux_sanitizer_ia32(target_cpu):
 def parse_args():
     parser = argparse.ArgumentParser(description='ffmpeg builder script.')
     parser.add_argument('-c', '--clean', help='Clean the workspace, removes downloaded source code', required=False, action='store_true')
-    parser.add_argument('-nw', '--nw_version', help='Build ffmpeg for the specified Nw.js version', required=False)
+    parser.add_argument('-nw', '--nw_version', help='Build ffmpeg for the specified Nw.js version or Branche', required=False)
     parser.add_argument('-ta', '--target_arch', help='Target architecture, ia32, x64', required=False)
-    parser.add_argument('-pc', '--proprietary_codecs', help='Build ffmpeg with proprietary codecs', required=False, action='store_true')
     return parser.parse_args()
 
 
@@ -263,12 +254,6 @@ def reset_chromium_src_to_nw_version(nw_version, isVersion = True):
 def get_min_deps(deps_str):
     # deps
     deps_list = {
-      'buildtools': {
-          'reg': ur"buildtools_revision':\s*'(.+)'",
-          'repo': '/chromium/buildtools.git',
-          'path': 'src/buildtools',
-          'opts': re.IGNORECASE
-      },
       'gyp': {
           'reg': ur"gyp.git.+@'.+'(.+)'",
           'repo': '/external/gyp.git',
@@ -309,6 +294,18 @@ def get_min_deps(deps_str):
           'reg': ur"xz.git.+@'.+'(.+)'",
           'repo': '/chromium/deps/xz.git',
           'path': 'src/chrome/installer/mac/third_party/xz/xz',
+          'opts': re.IGNORECASE
+      },
+      'libcxx': {
+          'reg': ur"libcxx_revision.*\"(.+)\"",
+          'repo': '/chromium/llvm-project/libcxx.git',
+          'path': 'src/buildtools/third_party/libc++/trunk',
+          'opts': re.IGNORECASE
+      },
+      'libcxxabi': {
+          'reg': ur"libcxxabi_revision.*\"(.+)\"",
+          'repo': '/chromium/llvm-project/libcxxabi.git',
+          'path': 'src/buildtools/third_party/libc++abi/trunk',
           'opts': re.IGNORECASE
       }
     }
@@ -576,81 +573,11 @@ def generate_build_and_deps_files():
         f.write(BUILD_gn)
 
 
-def cygwin_linking_setup():
-    if 'CYGWIN_NT' in platform.system():
-        if os.path.isfile('/usr/bin/link.exe'):
-            print_info('Overriding CygWin linker with MSVC linker...')
-            shutil.move('/usr/bin/link.exe', '/usr/bin/link.exe.1')
-
-        if not os.path.isfile('/usr/local/bin/cygwin-wrapper'):
-            print_info('Copying Cygwin wrapper...')
-            shutil.copy(os.getcwd() + '/chromium/scripts/cygwin-wrapper', '/usr/local/bin/cygwin-wrapper')
-
-
-def check_build_with_proprietary_codecs(proprietary_codecs, host_platform, target_arch):
-
-    # going to ffmpeg folder
-    os.chdir(PATH_THIRD_PARTY_FFMPEG)
-
-    if proprietary_codecs:
-        print_info('Building ffmpeg with proprietary codecs...')
-        if not os.path.isfile('build_ffmpeg_proprietary_codecs.patch'):
-            print_info('Applying codecs patch with ac3 for {0}...'.format(host_platform))
-            # os.path.join
-            shutil.copy(os.path.join(PATH_BASE, 'patch', host_platform, 'build_ffmpeg_proprietary_codecs.patch'), os.getcwd())
-            # apply codecs patch
-            os.system('git apply --ignore-space-change --ignore-whitespace build_ffmpeg_proprietary_codecs.patch')
-
-        cygwin_linking_setup()
-
-        print_info('Starting build...')
-
-        # build ffmpeg
-        subprocess.check_call('./chromium/scripts/build_ffmpeg.py {0} {1}'.format(host_platform, target_arch), shell=True)
-        # copy the new generated ffmpeg config
-        print_info('Copying new ffmpeg configuration...')
-        subprocess.call('./chromium/scripts/copy_config.sh', shell=True)
-        print_info('Creating a GYP include file for building FFmpeg from source...')
-        # generate the ffmpeg configuration
-        subprocess.check_call('./chromium/scripts/generate_gn.py', shell=True)
-
-        if 'CYGWIN_NT' in platform.system():
-            print_info('Applying fix for error LNK2001: unresolved external symbol _ff_w64_guid_data')
-            fix_external_symbol_ff_w64_guid_data()
-    else:
-        if os.path.isfile('build_ffmpeg_proprietary_codecs.patch'):
-            print_info('Restoring ffmpeg configuration to defaults...')
-            os.system('git clean -df')
-            os.system('git checkout -- .')
-
-
-def replace_in_file(file_name, search_string, replace_string):
-    filedata = None
-    with open(file_name, 'r') as file :
-      filedata = file.read()
-
-    filedata = filedata.replace(search_string, replace_string)
-
-    with open(file_name, 'w') as file :
-      file.write(filedata)
-
-
-def fix_external_symbol_ff_w64_guid_data():
-    # https://bugs.chromium.org/p/chromium/issues/detail?id=264459
-    shutil.copyfile('ffmpeg_generated.gni', 'ffmpeg_generated.gni.bak')
-    replace = '''"libavformat/vorbiscomment.c",
-    "libavformat/w64.c",'''
-    replace_in_file('ffmpeg_generated.gni', '"libavformat/vorbiscomment.c",', replace)
-
-
-def zip_release_output_library(nw_version, platform_release_name, target_arch, proprietary_codecs, out_library_path, output_release_path):
+def zip_release_output_library(nw_version, platform_release_name, target_arch, out_library_path, output_release_path):
     create_directory(output_release_path)
     print_info('Creating release zip...')
-    pc = ''
-    if proprietary_codecs:
-        pc = '-custom'
     if os.path.isfile(out_library_path):
-        with zipfile.ZipFile(os.path.join(output_release_path, '{0}-{1}-{2}{3}.zip'.format(nw_version, platform_release_name, target_arch, pc)), 'w', zipfile.ZIP_DEFLATED) as release_zip:
+        with zipfile.ZipFile(os.path.join(output_release_path, '{0}-{1}-{2}{3}.zip'.format(nw_version, platform_release_name, target_arch, '')), 'w', zipfile.ZIP_DEFLATED) as release_zip:
             release_zip.write(out_library_path, os.path.basename(out_library_path))
             release_zip.close()
     else:

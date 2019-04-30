@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- 3GB of free space
+- 10GB of free space
 - OSX 10.11.x
 
 ## Install deps

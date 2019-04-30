@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- 3GB of free space
+- 10GB of free space
 - Ubuntu 16.04.5 or higher
 
 ## Install deps

@@ -1,0 +1,4 @@
+{
+  "subdir": "src/tools/clang/dsymutil",
+  "package_name": "chromium/llvm-build-tools/dsymutil"
+}
