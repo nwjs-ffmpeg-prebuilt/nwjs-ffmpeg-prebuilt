@@ -1,7 +1,7 @@
 # FFmpeg prebuilt for NW.js
 
 
-FFMpeg prebuilt binaries with proprietary codecs and build instructions for window, linux and macos.
+FFmpeg prebuilt binaries with proprietary codecs and build instructions for window, linux and macos.
 
 
 ### Downloads (v0.38.1)
