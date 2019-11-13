@@ -4,10 +4,10 @@
 FFmpeg prebuilt binaries with proprietary codecs and build instructions for Window, Linux and macOS.
 
 
-### Downloads (v0.41.2)
-- Linux: [32bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.41.2/0.41.2-linux-ia32.zip) / [64bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.41.2/0.41.2-linux-x64.zip)
-- Windows: [32bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.41.2/0.41.2-win-ia32.zip) / [64bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.41.2/0.41.2-win-x64.zip)
-- Mac: [64bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.41.2/0.41.2-osx-x64.zip)
+### Downloads (v0.42.4)
+- Linux: [32bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.42.4/0.42.4-linux-ia32.zip) / [64bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.42.4/0.42.4-linux-x64.zip)
+- Windows: [32bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.42.4/0.42.4-win-ia32.zip) / [64bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.42.4/0.42.4-win-x64.zip)
+- Mac: [64bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.42.4/0.42.4-osx-x64.zip)
 
 ### Build
 
