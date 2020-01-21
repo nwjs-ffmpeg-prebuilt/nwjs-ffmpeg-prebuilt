@@ -14,12 +14,14 @@ program
 program.parse(process.argv);
 
 function execAsync(code, ...a) {
+    console.log(process.env.PATH)
     return new Promise((resolve) => {
         const proc = spawn(code, a, {
             stdio: 'inherit',
             shell: true,
             env: {
-                ...process.env
+                ...process.env,
+                Path: process.env.PATH
             } 
         });
         proc.addListener('exit', resolve);
