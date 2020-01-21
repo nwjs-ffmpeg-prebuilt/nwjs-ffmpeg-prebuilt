@@ -4,22 +4,22 @@
 FFmpeg prebuilt binaries with proprietary codecs and build instructions for Window, Linux and macOS.
 
 
-### Downloads (v0.39.2)
-- Linux: [32bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.39.2/0.39.2-linux-ia32.zip) / [64bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.39.2/0.39.2-linux-x64.zip)
-- Windows: [32bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.39.2/0.39.2-win-ia32.zip) / [64bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.39.2/0.39.2-win-x64.zip)
-- Mac: [64bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.39.2/0.39.2-osx-x64.zip)
+### Downloads (v0.43.6)
+- Linux: [32bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.43.6/0.43.6-linux-ia32.zip) / [64bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.43.6/0.43.6-linux-x64.zip)
+- Windows: [32bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.43.6/0.43.6-win-ia32.zip) / [64bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.43.6/0.43.6-win-x64.zip)
+- Mac: [64bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.43.6/0.43.6-osx-x64.zip)
 
 ### Build
 
 #### Usage:
 
-build_ffmpeg.py [-h] [-c] [-nw NW_VERSION] [-ta TARGET_ARCH]
+node build[-h] [-c] [--version NW_VERSION] [--arch TARGET_ARCH]
 ##### Arguments explanied:
 
 -  *-h, --help* : Show the help message and exit
 -  *-c, --clean* : Clean the workspace, removes downloaded source code
--  *-nw NW_VERSION, --nw_version NW_VERSION* : Build ffmpeg for the specified Nw.js version (latest from http://nwjs.io/versions.json if not specified) or branch
--  *-ta TARGET_ARCH, --target_arch TARGET_ARCH* : Target architecture, ia32, x64
+-  *-v NW_VERSION, --version NW_VERSION* : Build ffmpeg for the specified Nw.js version (latest from http://nwjs.io/versions.json if not specified) or branch
+-  *-a TARGET_ARCH, --arch TARGET_ARCH* : Target architecture, x86, x64
 
 #### Specific guides:
 

@@ -13,10 +13,11 @@
 	/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 	
 	//Install Git & python
-	brew update && brew install git python
+	brew update && brew install git python node
 
 ## Build libffmpeg
 	git clone https://github.com/iteufel/nwjs-ffmpeg-prebuilt.git
 	cd nwjs-ffmpeg-prebuilt
-	python build_ffmpeg.py
+	npm i
+	node build
 	

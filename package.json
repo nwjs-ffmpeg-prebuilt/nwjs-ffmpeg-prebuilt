@@ -6,6 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": {
+    "build-ffmpeg": "./index.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/iteufel/nwjs-ffmpeg-prebuilt.git"
@@ -20,6 +23,6 @@
     "commander": "^4.1.0",
     "fs-extra": "^8.1.0",
     "got": "^10.2.2",
-    "jszip": "^3.2.2"
+    "yazl": "^2.5.1"
   }
 }

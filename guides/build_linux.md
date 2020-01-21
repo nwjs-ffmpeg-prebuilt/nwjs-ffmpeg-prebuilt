@@ -4,21 +4,20 @@
 
 - 10GB of free space
 - Ubuntu 16.04.5 or higher
-
-## Install deps
-	//Install Git
-	apt-get update && apt-get install git
+- Git
+- node
 
 ## Build libffmpeg
 
 	git clone https://github.com/iteufel/nwjs-ffmpeg-prebuilt.git
 	cd nwjs-ffmpeg-prebuilt
+	npm i
 	
-	//Build ffmpeg ia32
-	sudo python build_ffmpeg.py --target_arch=ia32
+	//Build ffmpeg x86
+	sudo node build --arch x86
 	
 	//Build ffmpeg x64
-	sudo python build_ffmpeg.py --target_arch=x64
+	sudo node build --arch x64
 
 ## Known Problems
 
