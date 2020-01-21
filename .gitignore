@@ -4,3 +4,6 @@
 /build/src/
 .DS_Store
 /releases
+/node_modules
+/build
+.idea/
