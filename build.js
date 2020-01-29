@@ -1,17 +1,25 @@
 #!/usr/bin/env node
-const { spawn } = require('child_process');
+const {spawn} = require('child_process');
 const fs = require('fs-extra');
 const path = require('path');
 const got = require('got');
 const program = require('commander');
-const yazl = require("yazl");
-const outDir = path.join(process.cwd(), 'build', 'out');
+const yazl = require('yazl');
+const stream = require('stream');
+const {promisify} = require('util');
+const pipeline = promisify(stream.pipeline);
+
 program
     .option('-a, --arch [arch]', 'Target architecture, ia32, x64', 'x64')
-    .option('-v, --version [version]', 'Build ffmpeg for the specified Nw.js version or Branch', false)
-    .option('-c, --clean', 'Clean the workspace, removes downloaded source code');
+    .option('-v, --version [version]', 'Build FFmpeg for the specified NW.js version or Branch', false)
+    .option('-c, --clean', 'Clean the workspace, removes downloaded source code')
+    .option('-d, --download', 'Download Prebuild binaries.')
+    .option('--get-download-url', 'Get Download Url for Prebuild binaries.')
+    .option('-p, --platform [platform]', 'Download platform, darwin, win, linux', process.platform)
+    .option('-o, --out [out]', 'Output Directory', path.join(process.cwd(), 'build', 'out'));
 
 program.parse(process.argv);
+const outDir = program.out;
 
 function execAsync(code, ...a) {
     return new Promise((resolve) => {
@@ -21,31 +29,76 @@ function execAsync(code, ...a) {
             env: {
                 ...process.env,
                 Path: process.env.PATH
-            } 
+            }
         });
         proc.addListener('exit', resolve);
     });
 }
 
+async function setupLinux() {
+    await execAsync(`./build/install-build-deps.sh`, `--no-prompt`, `--no-nacl`, `--no-chromeos-fonts`, `--no-syms`);
+}
+
+async function setupMac() {
+}
+
+async function setupWin() {
+}
+
 async function main() {
     const pkg = await got('https://nwjs.io/versions.json').json();
     const nwVersion = program.version || pkg['stable'];
-    const version = pkg.versions.find(e => e.version === nwVersion);
-    const chromiumVersion = version['components']['chromium'];
-    console.log(`Building Chromium ${chromiumVersion} (${nwVersion}).`);
-    if(program.clean) {
-        // TODO: implement clean
+    const version = pkg.versions.find(e => e.version.includes(nwVersion));
+    if (!version) {
+        console.error(`NW.js version ${nwVersion} could not be found.`);
+        process.exit(1);
     }
+    const chromiumVersion = version['components']['chromium'];
+    let libName = null;
+    let zipName = null;
+    const platform = program.platform || process.platform;
+    if (platform === 'darwin') {
+        libName = 'libffmpeg.dylib';
+        zipName = `${version.version}-osx-${program.arch}.zip`.slice(1);
+    } else if (platform.includes('win')) {
+        libName = 'ffmpeg.dll';
+        zipName = `${version.version}-win-${program.arch}.zip`.slice(1);
+    } else if (platform === 'linux') {
+        libName = 'libffmpeg.so';
+        zipName = `${version.version}-linux-${program.arch}.zip`.slice(1);
+    } else {
+        console.error('Platform not supported');
+        process.exit(1);
+    }
+    const downloadUrl = `https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/${version.version.slice(1)}/${zipName}`;
+    if (program.getDownloadUrl) {
+        process.stdout.write(downloadUrl);
+        process.exit(0);
+    }
+
     await fs.ensureDir(outDir);
+    if (program.download) {
+        console.log(`Downloading NW.js ${version.version} - FFmpeg - (Chromium ${chromiumVersion})`);
+        await pipeline(
+            got.stream(downloadUrl),
+            fs.createWriteStream(path.join(outDir, zipName))
+        );
+        return;
+    }
+    console.log(`Building NW.js ${version.version} - FFmpeg - (Chromium ${chromiumVersion})`);
     await fs.ensureDir('./build');
+    if (program.clean) {
+        console.log('Cleaning build Directory');
+        await fs.emptyDir('./build');
+    }
     process.chdir('./build');
     if (!(await fs.pathExists('./depot_tools'))) {
         await execAsync('git', 'clone', 'https://chromium.googlesource.com/chromium/tools/depot_tools.git');
     }
-    if (process.platform === 'win32') {
+    if (platform.includes('win')) {
         process.env.DEPOT_TOOLS_WIN_TOOLCHAIN = '0';
         process.env.PATH = `${process.env.PATH};${path.resolve('./depot_tools')}`;
-    }else {
+    } else {
         process.env.PATH = `${process.env.PATH}:${path.resolve('./depot_tools')}`;
     }
     await fs.ensureDir('./chromium');
@@ -65,50 +118,42 @@ solutions = [
         "custom_vars": {},
     },
 ]
-        `.trim()
+        `.trim();
         await fs.writeFile('.gclient', gclient);
         await execAsync('git', 'clone', 'https://chromium.googlesource.com/chromium/src.git', '--branch', chromiumVersion, '--single-branch', '--depth', 1);
     }
     process.chdir('./src');
-    if(hasSrc) {
+    if (hasSrc) {
         await execAsync('git', 'fetch', 'https://chromium.googlesource.com/chromium/src.git', `+refs/tags/${chromiumVersion}`, '--depth', 1);
     }
 
     await execAsync('git', 'reset', '--hard', `tags/${chromiumVersion}`);
 
     if (process.platform === 'linux') {
-        await execAsync(`./build/install-build-deps.sh`, `--no-prompt`, `--no-nacl`, `--no-chromeos-fonts`, `--no-syms`);
+        await setupLinux();
+    } else if (process.platform === 'darwin') {
+        await setupMac();
+    } else if (platform.includes('win')) {
+        await setupWin();
     }
-    
+
     await execAsync('gclient', 'sync', '--with_branch_heads');
     if (program.arch === 'ia32') {
         await execAsync('gn', 'gen', 'out/Default', '--args="is_debug=false is_component_ffmpeg=true is_official_build=true target_cpu=\\"x86\\" ffmpeg_branding=\\"Chrome\\""');
     } else {
         await execAsync('gn', 'gen', 'out/Default', '--args="is_debug=false is_component_ffmpeg=true is_official_build=true target_cpu=\\"x64\\" ffmpeg_branding=\\"Chrome\\""');
     }
-    let libName = null;
-    let zipName = null;
-    if (process.platform === 'darwin') {
-        libName = 'libffmpeg.dylib';
-        zipName = `${nwVersion}-osx-${program.arch}.zip`;
-    } else if (process.platform === 'win32') {
-        libName = 'ffmpeg.dll';
-        zipName = `${nwVersion}-win-${program.arch}.zip`;
-    }else if (process.platform === 'linux') {
-        libName = 'libffmpeg.so';
-        zipName = `${nwVersion}-linux-${program.arch}.zip`;
-    }
-    await execAsync('autoninja', '-C', 'out/Default', libName)
-    zipName=zipName.slice(1);
-    const zipfile = new yazl.ZipFile();
-    zipfile.addFile(`out/Default/${libName}`, libName);
-    
-    zipfile.outputStream.pipe(fs.createWriteStream(path.resolve(outDir, zipName))).on("close", () => {
+    await execAsync('autoninja', '-C', 'out/Default', libName);
+    const zipFile = new yazl.ZipFile();
+    zipFile.addFile(`out/Default/${libName}`, libName);
+
+    zipFile.outputStream.pipe(fs.createWriteStream(path.resolve(outDir, zipName))).on("close", () => {
         console.log(zipName);
     });
-    zipfile.end();
+    zipFile.end();
 }
 
 main().catch((e) => {
     console.error(e);
+    process.exit(1);
 });

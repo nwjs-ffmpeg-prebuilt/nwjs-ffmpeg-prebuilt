@@ -3,7 +3,7 @@
 ## Requirements
 
 - 10GB of free space
-- OSX 10.11.x
+- OSX 10.13.x
 
 ## Install deps
 	//Install Xcode comandline tools
@@ -21,3 +21,5 @@
 	npm i
 	node build
 	
+####Or
+    npx nwjs-ffmpeg-prebuilt

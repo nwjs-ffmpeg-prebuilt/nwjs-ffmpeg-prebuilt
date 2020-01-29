@@ -14,12 +14,18 @@ FFmpeg prebuilt binaries with proprietary codecs and build instructions for Wind
 #### Usage:
 
 node build[-h] [-c] [--version NW_VERSION] [--arch TARGET_ARCH]
+or
+npx nwjs-ffmpeg-prebuilt [-h] [-c] [-d] [--get-download-url] [--version NW_VERSION] [--arch TARGET_ARCH]
 ##### Arguments explanied:
 
 -  *-h, --help* : Show the help message and exit
 -  *-c, --clean* : Clean the workspace, removes downloaded source code
--  *-v NW_VERSION, --version NW_VERSION* : Build ffmpeg for the specified Nw.js version (latest from http://nwjs.io/versions.json if not specified) or branch
+-  *-v NW_VERSION, --version NW_VERSION* : Build ffmpeg for the specified Nw.js version (latest from http://nwjs.io/versions.json if not specified)
 -  *-a TARGET_ARCH, --arch TARGET_ARCH* : Target architecture, x86, x64
+-  *-d, --download* : Download Prebuild binaries.
+-  *-p, --platform* : Download platform, darwin, win, linux
+-  *--get-download-url* : Get Download Url for Prebuild binaries
+-  *-o, --out* : Output Directory
 
 #### Specific guides:
 

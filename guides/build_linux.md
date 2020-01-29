@@ -8,6 +8,14 @@
 - node
 
 ## Build libffmpeg
+	
+	//Build ffmpeg x86
+	npx nwjs-ffmpeg-prebuilt --arch x86
+	
+	//Build ffmpeg x86
+	npx nwjs-ffmpeg-prebuilt --arch x64
+
+#### Or
 
 	git clone https://github.com/iteufel/nwjs-ffmpeg-prebuilt.git
 	cd nwjs-ffmpeg-prebuilt
@@ -18,6 +26,7 @@
 	
 	//Build ffmpeg x64
 	sudo node build --arch x64
+
 
 ## Known Problems
 
