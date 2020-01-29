@@ -118,6 +118,7 @@ solutions = [
         "custom_vars": {},
     },
 ]
+${platform === 'arm' ? 'target_cpu=["arm"]' : ''}
         `.trim();
         await fs.writeFile('.gclient', gclient);
         await execAsync('git', 'clone', 'https://chromium.googlesource.com/chromium/src.git', '--branch', chromiumVersion, '--single-branch', '--depth', 1);
@@ -130,7 +131,8 @@ solutions = [
     await execAsync('git', 'reset', '--hard', `tags/${chromiumVersion}`);
 
     if (process.platform === 'linux') {
-        await setupLinux();
+        await setupLinux(program.arch === 'arm');
+
     } else if (process.platform === 'darwin') {
         await setupMac();
     } else if (platform.includes('win')) {
@@ -140,8 +142,10 @@ solutions = [
     await execAsync('gclient', 'sync', '--with_branch_heads');
     if (program.arch === 'ia32') {
         await execAsync('gn', 'gen', 'out/Default', '--args="is_debug=false is_component_ffmpeg=true is_official_build=true target_cpu=\\"x86\\" ffmpeg_branding=\\"Chrome\\""');
-    } else {
+    } else if (program.arch === 'x64') {
         await execAsync('gn', 'gen', 'out/Default', '--args="is_debug=false is_component_ffmpeg=true is_official_build=true target_cpu=\\"x64\\" ffmpeg_branding=\\"Chrome\\""');
+    }else if (program.arch === 'arm') {
+        await execAsync('gn', 'gen', 'out/Default', '--args="is_debug=false is_component_ffmpeg=true is_official_build=true target_cpu=\\"arm\\" ffmpeg_branding=\\"Chrome\\""');
     }
     await execAsync('autoninja', '-C', 'out/Default', libName);
     const zipFile = new yazl.ZipFile();
