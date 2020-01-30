@@ -5,7 +5,7 @@ FFmpeg prebuilt binaries with proprietary codecs and build instructions for Wind
 
 
 ### Downloads (v0.43.6)
-- Linux: [32bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.43.6/0.43.6-linux-ia32.zip) / [64bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.43.6/0.43.6-linux-x64.zip)
+- Linux: [32bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.43.6/0.43.6-linux-ia32.zip) / [64bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.43.6/0.43.6-linux-x64.zip) / [arm](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.43.6/0.43.6-linux-arm.zip)
 - Windows: [32bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.43.6/0.43.6-win-ia32.zip) / [64bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.43.6/0.43.6-win-x64.zip)
 - Mac: [64bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.43.6/0.43.6-osx-x64.zip)
 
@@ -21,7 +21,7 @@ npx nwjs-ffmpeg-prebuilt [-h] [-c] [-d] [--get-download-url] [--version NW_VERSI
 -  *-h, --help* : Show the help message and exit
 -  *-c, --clean* : Clean the workspace, removes downloaded source code
 -  *-v NW_VERSION, --version NW_VERSION* : Build ffmpeg for the specified Nw.js version (latest from http://nwjs.io/versions.json if not specified)
--  *-a TARGET_ARCH, --arch TARGET_ARCH* : Target architecture, x86, x64
+-  *-a TARGET_ARCH, --arch TARGET_ARCH* : Target architecture, x86, x64, arm
 -  *-d, --download* : Download Prebuild binaries.
 -  *-p, --platform* : Download platform, darwin, win, linux
 -  *--get-download-url* : Get Download Url for Prebuild binaries
