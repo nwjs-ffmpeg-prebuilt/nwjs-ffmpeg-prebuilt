@@ -60,7 +60,7 @@ async function main() {
     if (platform === 'darwin') {
         libName = 'libffmpeg.dylib';
         zipName = `${version.version}-osx-${program.arch}.zip`.slice(1);
-    } else if (platform.includes('win')) {
+    } else if (platform === 'win32' || platform === 'win') {
         libName = 'ffmpeg.dll';
         zipName = `${version.version}-win-${program.arch}.zip`.slice(1);
     } else if (platform === 'linux') {
@@ -95,7 +95,7 @@ async function main() {
     if (!(await fs.pathExists('./depot_tools'))) {
         await execAsync('git', 'clone', 'https://chromium.googlesource.com/chromium/tools/depot_tools.git');
     }
-    if (platform.includes('win')) {
+    if (platform === 'win32' || platform === 'win') {
         process.env.DEPOT_TOOLS_WIN_TOOLCHAIN = '0';
         process.env.PATH = `${process.env.PATH};${path.resolve('./depot_tools')}`;
     } else {
@@ -135,7 +135,7 @@ ${platform === 'arm' ? 'target_cpu=["arm"]' : ''}
 
     } else if (process.platform === 'darwin') {
         await setupMac();
-    } else if (platform.includes('win')) {
+    } else if (platform === 'win32' || platform === 'win') {
         await setupWin();
     }
 
