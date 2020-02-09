@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build-win:
+    runs-on: windows-latest
+    steps:
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      - uses: actions/checkout@v2
+      - name: npm install, build and test
+        run: |
+          npm install
+          node build --arch x64
+          node build --arch ia32
+      - name: Upload the artifacts
+        uses: skx/github-action-publish-binaries@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: 'build/out/*.zip'
+
+  build-macos:
+    runs-on: macos
+    steps:
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      - uses: actions/checkout@v2
+      - name: npm install, build and test
+        run: |
+          npm install
+          node build
+      - name: Upload the artifacts
+        uses: skx/github-action-publish-binaries@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: 'build/out/*.zip'
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      - uses: actions/checkout@v2
+      - name: npm install, build and test
+        run: |
+          npm install
+          node build --arch x64
+          node build --arch ia32
+          node build --arch arm
+      - name: Upload the artifacts
+        uses: skx/github-action-publish-binaries@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: 'build/out/*.zip'
