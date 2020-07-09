@@ -141,11 +141,11 @@ ${platform === 'arm' ? 'target_cpu=["arm"]' : ''}
 
     await execAsync('gclient', 'sync', '--with_branch_heads');
     if (program.arch === 'ia32') {
-        await execAsync('gn', 'gen', 'out/Default', '--args="is_debug=false is_component_ffmpeg=true is_official_build=true target_cpu=\\"x86\\" ffmpeg_branding=\\"Chrome\\""');
+        await execAsync('gn', 'gen', 'out/Default', '--args="is_debug=false enable_nacl=false is_component_ffmpeg=true proprietary_codecs=true is_official_build=true target_cpu=\\"x86\\" ffmpeg_branding=\\"Chrome\\""');
     } else if (program.arch === 'x64') {
-        await execAsync('gn', 'gen', 'out/Default', '--args="is_debug=false is_component_ffmpeg=true is_official_build=true target_cpu=\\"x64\\" ffmpeg_branding=\\"Chrome\\""');
-    }else if (program.arch === 'arm') {
-        await execAsync('gn', 'gen', 'out/Default', '--args="is_debug=false is_component_ffmpeg=true is_official_build=true target_cpu=\\"arm\\" ffmpeg_branding=\\"Chrome\\""');
+        await execAsync('gn', 'gen', 'out/Default', '--args="is_debug=false enable_nacl=false is_component_ffmpeg=true proprietary_codecs=true is_official_build=true target_cpu=\\"x64\\" ffmpeg_branding=\\"Chrome\\""');
+    } else if (program.arch === 'arm') {
+        await execAsync('gn', 'gen', 'out/Default', '--args="is_debug=false enable_nacl=false is_component_ffmpeg=true proprietary_codecs=true is_official_build=true target_cpu=\\"arm\\" ffmpeg_branding=\\"Chrome\\""');
     }
     await execAsync('autoninja', '-C', 'out/Default', libName);
     const zipFile = new yazl.ZipFile();
