@@ -2,7 +2,7 @@ name: CI
 
 on:
   release:
-    types: [created]
+    types: [created, push]
 
 jobs:
   build-win:
@@ -19,11 +19,10 @@ jobs:
           node build --arch x64
           node build --arch ia32
       - name: Upload the artifacts
-        uses: skx/github-action-publish-binaries@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/upload-artifact@v2
         with:
-          args: 'build/out/*.zip'
+          name: win
+          path: 'build/out/*.zip'
 
   build-macos:
     runs-on: macos
@@ -38,11 +37,10 @@ jobs:
           npm install
           node build
       - name: Upload the artifacts
-        uses: skx/github-action-publish-binaries@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/upload-artifact@v2
         with:
-          args: 'build/out/*.zip'
+          name: mac
+          path: 'build/out/*.zip'
 
   build-linux:
     runs-on: ubuntu-latest
@@ -57,10 +55,8 @@ jobs:
           npm install
           node build --arch x64
           node build --arch ia32
-          node build --arch arm
       - name: Upload the artifacts
-        uses: skx/github-action-publish-binaries@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/upload-artifact@v2
         with:
-          args: 'build/out/*.zip'
+          name: linux
+          path: 'build/out/*.zip'
