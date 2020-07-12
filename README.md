@@ -5,10 +5,8 @@
 FFmpeg prebuilt binaries with proprietary codecs and build instructions for Window, Linux and macOS.
 
 
-### Downloads (v0.44.1)
-- Linux: [32bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.44.1/0.44.1-linux-ia32.zip) / [64bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.44.1/0.44.1-linux-x64.zip) / [arm](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.44.1/0.44.1-linux-arm.zip)
-- Windows: [32bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.44.1/0.44.1-win-ia32.zip) / [64bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.44.1/0.44.1-win-x64.zip)
-- Mac: [64bit](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.44.1/0.44.1-osx-x64.zip)
+### Downloads
+Download can be found [here](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases)
 
 ### Build
 
