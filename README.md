@@ -6,7 +6,7 @@ FFmpeg prebuilt binaries with proprietary codecs and build instructions for Wind
 
 
 ### Downloads
-Download can be found [here](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases)
+Downloads can be found [here](https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases)
 
 ### Build
 
