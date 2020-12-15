@@ -2,8 +2,8 @@
 
 ## Requirements
 
-- 10GB of free space
-- OSX 10.13.x
+- 15GB of free space
+- A 64-bit Intel Mac running 10.15.4+.
 
 ## Install deps
 	//Install Xcode comandline tools

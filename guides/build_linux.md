@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- 10GB of free space
+- 15GB of free space
 - Ubuntu 16.04.5 or higher
 - Git
 - node
