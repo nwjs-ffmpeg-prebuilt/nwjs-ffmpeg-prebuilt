@@ -132,7 +132,6 @@ ${platform === 'arm' ? 'target_cpu=["arm"]' : ''}
 
     if (process.platform === 'linux') {
         await setupLinux(program.arch === 'arm');
-
     } else if (process.platform === 'darwin') {
         await setupMac();
     } else if (platform === 'win32' || platform === 'win') {
@@ -146,6 +145,8 @@ ${platform === 'arm' ? 'target_cpu=["arm"]' : ''}
         await execAsync('gn', 'gen', 'out/Default', '--args="chrome_pgo_phase=0 is_debug=false enable_nacl=false is_component_ffmpeg=true proprietary_codecs=true is_official_build=true target_cpu=\\"x64\\" ffmpeg_branding=\\"Chrome\\""');
     } else if (program.arch === 'arm') {
         await execAsync('gn', 'gen', 'out/Default', '--args="chrome_pgo_phase=0 is_debug=false enable_nacl=false is_component_ffmpeg=true proprietary_codecs=true is_official_build=true target_cpu=\\"arm\\" ffmpeg_branding=\\"Chrome\\""');
+    } else if (program.arch === 'arm64') {
+        await execAsync('gn', 'gen', 'out/Default', '--args="chrome_pgo_phase=0 is_debug=false enable_nacl=false is_component_ffmpeg=true proprietary_codecs=true is_official_build=true target_cpu=\\"arm64\\" ffmpeg_branding=\\"Chrome\\""');
     }
     await execAsync('autoninja', '-C', 'out/Default', libName);
     const zipFile = new yazl.ZipFile();
