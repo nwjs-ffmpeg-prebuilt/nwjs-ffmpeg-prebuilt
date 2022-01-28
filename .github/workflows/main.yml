@@ -11,6 +11,8 @@ jobs:
   build-win:
     runs-on: windows-latest
     steps:
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
