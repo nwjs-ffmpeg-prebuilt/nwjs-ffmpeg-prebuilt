@@ -18,8 +18,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: Copy to C drive
         run: cp D:\a C:\ -Recurse
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
+#      - name: Setup tmate session
+#        uses: mxschmitt/action-tmate@v3
       - name: npm install, build and test
         working-directory: "C:/a/${{ github.event.repository.name }}/${{ github.event.repository.name }}"
         run: |
