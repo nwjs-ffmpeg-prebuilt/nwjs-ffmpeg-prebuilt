@@ -18,10 +18,12 @@ jobs:
 #      - uses: actions/checkout@v2
       - name: clone repo
         run: |
-          git clone git@github.com:zkrige/nwjs-ffmpeg-prebuilt.git c:\nwjs-ffmpeg-prebuilt
+          mkdir c:/nwjs-ffmpeg-prebuilt
+          git clone git@github.com:zkrige/nwjs-ffmpeg-prebuilt.git c:/nwjs-ffmpeg-prebuilt
           c:
-          cd \nwjs-ffmpeg-prebuilt
+          cd /nwjs-ffmpeg-prebuilt
       - name: npm install, build and test
+        working-directory: C:/nwjs-ffmpeg-prebuilt
         run: |
           npm install
           node build --arch x64
