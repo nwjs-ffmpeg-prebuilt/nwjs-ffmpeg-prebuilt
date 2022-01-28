@@ -16,8 +16,14 @@ jobs:
         with:
           node-version: '12.x'
       - uses: actions/checkout@v2
+      - name: Copy to C drive
+        run: cp D:\a C:\ -Recurse
+#      - name: Setup tmate session
+#        uses: mxschmitt/action-tmate@v3
       - name: npm install, build and test
+        working-directory: "C:/a/${{ github.event.repository.name }}/${{ github.event.repository.name }}"
         run: |
+          pwd
           npm install
           node build --arch x64
           node build --arch ia32
@@ -25,7 +31,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: win
-          path: 'build/out/*.zip'
+          path: 'c:/a/**/build/out/*.zip'
 
   build-macos:
     runs-on: macos-latest
