@@ -11,8 +11,6 @@ jobs:
   build-win:
     runs-on: windows-latest
     steps:
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
@@ -20,8 +18,10 @@ jobs:
       - uses: actions/checkout@v2
       - name: Copy to C drive
         run: cp D:\a C:\ -Recurse
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
       - name: npm install, build and test
-        working-directory: "C:\\a\\${{ github.event.repository.name }}\\${{ github.event.repository.name }}"
+        working-directory: "C:/a/${{ github.event.repository.name }}/${{ github.event.repository.name }}"
         run: |
           pwd
           npm install
