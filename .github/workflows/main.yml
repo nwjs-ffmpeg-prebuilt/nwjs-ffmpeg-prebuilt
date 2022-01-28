@@ -15,15 +15,11 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '12.x'
-#      - uses: actions/checkout@v2
-      - name: clone repo
-        run: |
-          mkdir c:/nwjs-ffmpeg-prebuilt
-          git clone git@github.com:zkrige/nwjs-ffmpeg-prebuilt.git c:/nwjs-ffmpeg-prebuilt
-          c:
-          cd /nwjs-ffmpeg-prebuilt
+      - uses: actions/checkout@v2
+      - name: Copy to C drive
+        run: cp D:\a C:\ -Recurse
       - name: npm install, build and test
-        working-directory: C:/nwjs-ffmpeg-prebuilt
+        working-directory: "C:\\a\\${{ github.event.repository.name }}\\${{ github.event.repository.name }}"
         run: |
           npm install
           node build --arch x64
@@ -32,7 +28,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: win
-          path: 'build/out/*.zip'
+          path: 'c:/a/**/build/out/*.zip'
 
   build-macos:
     runs-on: macos-latest
