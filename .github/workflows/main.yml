@@ -21,6 +21,7 @@ jobs:
       - name: npm install, build and test
         working-directory: "C:\\a\\${{ github.event.repository.name }}\\${{ github.event.repository.name }}"
         run: |
+          pwd
           npm install
           node build --arch x64
           node build --arch ia32
