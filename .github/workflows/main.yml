@@ -15,7 +15,12 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '12.x'
-      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v2
+      - name: clone repo
+        run: |
+          git clone git@github.com:zkrige/nwjs-ffmpeg-prebuilt.git c:\nwjs-ffmpeg-prebuilt
+          c:
+          cd \nwjs-ffmpeg-prebuilt
       - name: npm install, build and test
         run: |
           npm install
