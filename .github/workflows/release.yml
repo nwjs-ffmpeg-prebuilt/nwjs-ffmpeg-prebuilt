@@ -3,7 +3,7 @@ name: Tagged Release
 on:
   push:
     tags:
-      - "v*"
+      - "*"
 
 jobs:
   tagged-release:
@@ -19,4 +19,6 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           files: |
-            artifacts/**/*.zip
+            linux/**/*.zip
+            mac/**/*.zip
+            win/**/*.zip
