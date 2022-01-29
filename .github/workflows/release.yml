@@ -9,11 +9,11 @@ jobs:
   tagged-release:
     name: "Tagged Release"
     runs-on: "ubuntu-latest"
-
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: dawidd6/action-download-artifact@v2.16.0
         with:
-          path: artifacts
+          workflow: main.yml
+          workflow_conclusion: success
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
