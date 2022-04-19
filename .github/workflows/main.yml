@@ -75,15 +75,39 @@ jobs:
     name: "Build Release"
     runs-on: "ubuntu-latest"
     steps:
-      - uses: dawidd6/action-download-artifact@v2.16.0
+      - uses: actions/upload-artifact@v2
         with:
-          workflow: main.yml
-          workflow_conclusion: success
-      - uses: "marvinpinto/action-automatic-releases@latest"
+          name: win
+          working-directory: win
+      - uses: actions/upload-artifact@v2
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          prerelease: false
-          files: |
-            linux/**/*.zip
-            mac/**/*.zip
-            win/**/*.zip
+          name: linux
+          working-directory: linux
+      - uses: actions/upload-artifact@v2
+        with:
+          name: mac
+          working-directory: mac
+      - name: Upload windows binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: win/*.zip
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
+      - name: Upload mac binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: mac/*.zip
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
+      - name: Upload linux binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: linux/*.zip
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
