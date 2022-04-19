@@ -78,20 +78,25 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: win
-          working-directory: win
+          path: release/win
       - uses: actions/download-artifact@v2
         with:
           name: linux
-          working-directory: linux
+          path: release/linux
       - uses: actions/download-artifact@v2
         with:
           name: mac
-          working-directory: mac
+          path: release/mac
+
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory: release/
+
       - name: Upload windows binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: win/*.zip
+          file: release/win/*.zip
           tag: ${{ github.ref }}
           overwrite: true
           file_glob: true
@@ -99,7 +104,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: mac/*.zip
+          file: release/mac/*.zip
           tag: ${{ github.ref }}
           overwrite: true
           file_glob: true
@@ -107,7 +112,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: linux/*.zip
+          file: release/linux/*.zip
           tag: ${{ github.ref }}
           overwrite: true
           file_glob: true
