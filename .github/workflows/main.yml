@@ -92,14 +92,6 @@ jobs:
         run: ls -R
         working-directory: release/
 
-      - name: Upload windows binaries to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: release/win/*.zip
-          tag: ${{ github.ref }}
-          overwrite: true
-          file_glob: true
       - name: Upload mac binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
@@ -108,11 +100,21 @@ jobs:
           tag: ${{ github.ref }}
           overwrite: true
           file_glob: true
+
       - name: Upload linux binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: release/linux/*.zip
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
+          
+      - name: Upload windows binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: release/win/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/build/out/*.zip
           tag: ${{ github.ref }}
           overwrite: true
           file_glob: true
