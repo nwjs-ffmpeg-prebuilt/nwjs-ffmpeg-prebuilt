@@ -75,15 +75,15 @@ jobs:
     name: "Build Release"
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/upload-artifact@v2
+      - uses: actions/download-artifact@v2
         with:
           name: win
           working-directory: win
-      - uses: actions/upload-artifact@v2
+      - uses: actions/download-artifact@v2
         with:
           name: linux
           working-directory: linux
-      - uses: actions/upload-artifact@v2
+      - uses: actions/download-artifact@v2
         with:
           name: mac
           working-directory: mac
