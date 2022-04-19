@@ -3,9 +3,9 @@ name: CI
 on:
   release:
     types: [created]
-  push:
-    branches:
-      - master
+#  push:
+#    branches:
+#      - master
 
 jobs:
   build-win:
@@ -69,3 +69,21 @@ jobs:
         with:
           name: linux
           path: 'build/out/*.zip'
+
+  build-release:
+    needs: [build-win, build-macos, build-linux]
+    name: "Build Release"
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: dawidd6/action-download-artifact@v2.16.0
+        with:
+          workflow: main.yml
+          workflow_conclusion: success
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          files: |
+            linux/**/*.zip
+            mac/**/*.zip
+            win/**/*.zip
