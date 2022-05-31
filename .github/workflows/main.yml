@@ -59,6 +59,10 @@ jobs:
         with:
           node-version: '12.x'
       - uses: actions/checkout@v2
+      - name: disk space cleanup
+        run: |
+          sudo rm -rf /usr/local/lib/android # will release about 10 GB if you don't need Android
+          sudo rm -rf /usr/share/dotnet # will release about 20GB if you don't need .NET
       - name: npm install, build and test
         run: |
           npm install
@@ -109,7 +113,7 @@ jobs:
           tag: ${{ github.ref }}
           overwrite: true
           file_glob: true
-          
+
       - name: Upload windows binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
