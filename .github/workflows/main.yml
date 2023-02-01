@@ -12,10 +12,10 @@ jobs:
     runs-on: windows-2019
     steps:
       - name: Setup Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: '12.x'
-      - uses: actions/checkout@v2
+          node-version: 16
+      - uses: actions/checkout@v3
       - name: Copy to C drive
         run: cp D:\a C:\ -Recurse
 #      - name: Setup tmate session
@@ -28,7 +28,7 @@ jobs:
           node build --arch x64
           node build --arch ia32
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: win
           path: 'c:/a/**/build/out/*.zip'
@@ -37,16 +37,16 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Setup Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: '12.x'
-      - uses: actions/checkout@v2
+          node-version: 16
+      - uses: actions/checkout@v3
       - name: npm install, build and test
         run: |
           npm install
           node build
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: mac
           path: 'build/out/*.zip'
@@ -55,10 +55,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: '12.x'
-      - uses: actions/checkout@v2
+          node-version: 16
+      - uses: actions/checkout@v3
       - name: disk space cleanup
         run: |
           sudo rm -rf /usr/local/lib/android # will release about 10 GB if you don't need Android
@@ -69,7 +69,7 @@ jobs:
           node build --arch x64
           node build --arch ia32
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: linux
           path: 'build/out/*.zip'
@@ -79,15 +79,15 @@ jobs:
     name: "Build Release"
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: win
           path: release/win
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: linux
           path: release/linux
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: mac
           path: release/mac
