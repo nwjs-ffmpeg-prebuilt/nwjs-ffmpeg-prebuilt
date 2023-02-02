@@ -3,10 +3,6 @@ name: CI
 on:
   release:
     types: [created]
-#  Remove before merging
-  pull_request:
-    branches:
-      - master
 
 jobs:
   build-win:
@@ -102,7 +98,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: release/mac/*.zip
-          # tag: ${{ github.ref }}
+          tag: ${{ github.ref }}
           overwrite: true
           file_glob: true
 
@@ -111,7 +107,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: release/linux/*.zip
-          # tag: ${{ github.ref }}
+          tag: ${{ github.ref }}
           overwrite: true
           file_glob: true
 
@@ -120,6 +116,6 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: release/win/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/build/out/*.zip
-          # tag: ${{ github.ref }}
+          tag: ${{ github.ref }}
           overwrite: true
           file_glob: true
