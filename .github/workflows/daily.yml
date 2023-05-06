@@ -17,6 +17,6 @@ jobs:
   is-latest:
     runs-on: ubuntu-22.04
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v3.5.2
       - run: bash ./is_latest.sh
