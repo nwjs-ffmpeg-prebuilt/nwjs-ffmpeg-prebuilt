@@ -13,7 +13,7 @@ FF=${FF:1}
 # If NW.js version is greater than FFmpeg version, exit with error
 FLAG=$(echo "$NW > $FF" | bc -l)
 
-if [ $FLAG == 0 ]; then
+if [ $FLAG = 0 ]; then
     exit 1;
 else
     exit 0;
