@@ -1,6 +1,9 @@
 name: CI
 
 on:
+  pull_request:
+    branches:
+      - master
   release:
     types: [created]
   workflow_run:
