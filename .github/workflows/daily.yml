@@ -12,4 +12,5 @@ jobs:
   is-latest:
     runs-on: ubuntu-22.04
     steps:
+      - run: ls
       - run: ./is_latest.sh
