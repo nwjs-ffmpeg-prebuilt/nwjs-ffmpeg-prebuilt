@@ -5,7 +5,7 @@ on:
     types: [created]
   workflow_run:
     workflows: ["daily"]
-    branches: [main]
+    branches: [master]
     types: [completed]
 
 jobs:

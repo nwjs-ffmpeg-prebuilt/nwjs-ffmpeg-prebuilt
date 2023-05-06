@@ -4,7 +4,7 @@ name: daily
 on:
   pull_request:
     branches:
-      - main
+      - master
   schedule:
     - cron: '* * * * *'
 
