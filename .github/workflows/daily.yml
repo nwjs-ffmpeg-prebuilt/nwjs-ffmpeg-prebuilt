@@ -19,4 +19,4 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3.5.2
-      - run: ./is_latest.sh
+      - run: bash ./is_latest.sh
