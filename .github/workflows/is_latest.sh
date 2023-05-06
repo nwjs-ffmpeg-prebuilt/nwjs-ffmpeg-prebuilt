@@ -12,7 +12,11 @@ FF=${FF:1}
 IFS='.' read -ra NW_VER <<< "$NW"
 IFS='.' read -ra FF_VER <<< "$FF"
 
-# If 
+# If the major, minor or patch version of NW.js
+# is larger than FFmpeg's latest released version,
+# then trigger a release.
+
+exit 0
 
 if [ "${NW_VER[0]}" -gt "${FF_VER[0]}" ]; then
     exit 0
