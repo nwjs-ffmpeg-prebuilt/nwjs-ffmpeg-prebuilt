@@ -4,11 +4,26 @@
 NW=$(curl -s https://nwjs.io/versions | jq -r ".latest")
 FF=v$(curl -s https://api.github.com/repos/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/releases | jq -r ".[0].tag_name")
 
+# Remove v from both strings
 NW=${NW:1}
 FF=${FF:1}
 
-if [ "$(echo -e "${NW}\n${FF}" | sort -V | head -n1)" == "$NW" ]; then
-    exit 1
-else
+# Split string at . into arrays
+IFS='.' read -ra NW_VER <<< "$NW"
+IFS='.' read -ra FF_VER <<< "$FF"
+
+# If 
+
+if [ "${NW_VER[0]}" -gt "${FF_VER[0]}" ]; then
     exit 0
 fi
+
+if [ "${NW_VER[1]}" -gt "${FF_VER[1]}" ]; then
+    exit 0
+fi
+
+if [ "${NW_VER[2]}" -gt "${FF_VER[2]}" ]; then
+    exit 0
+fi
+
+exit 1
