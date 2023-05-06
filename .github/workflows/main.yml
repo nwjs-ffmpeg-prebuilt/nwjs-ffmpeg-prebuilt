@@ -3,9 +3,19 @@ name: CI
 on:
   release:
     types: [created]
+  workflow_run:
+    workflows: ["daily"]
+    branches: [main]
+    types: [completed]
 
 jobs:
+  check:
+    runs-on: ubuntu-22.04
+    if: ${{ github.event.workflow_run.conclusion != 'success' }}
+    steps:
+      - run: echo "FFmpeg version is not the latest."
   build-win:
+    needs: [check]
     runs-on: windows-2019
     steps:
       - name: Setup Node
@@ -31,6 +41,7 @@ jobs:
           path: 'c:/a/**/build/out/*.zip'
 
   build-macos:
+    needs: [check]
     runs-on: macos-latest
     steps:
       - name: Setup Node
@@ -49,6 +60,7 @@ jobs:
           path: 'build/out/*.zip'
 
   build-linux:
+    needs: [check]
     runs-on: ubuntu-latest
     steps:
       - name: Setup Node

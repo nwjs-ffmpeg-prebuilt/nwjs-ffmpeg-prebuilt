@@ -1,0 +1,15 @@
+# https://stackoverflow.com/questions/65499626/trigger-github-actions-if-push-in-another-repo/68407424#68407424
+name: daily
+
+on:
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  is-latest:
+    runs-on: ubuntu-22.04
+    steps:
+      - run: bash ./is_latest.sh
