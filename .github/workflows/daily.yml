@@ -8,6 +8,11 @@ on:
   schedule:
     - cron: '* * * * *'
 
+defaults:
+  run:
+    shell: bash
+    working-directory: .github/workflows
+
 jobs:
   is-latest:
     runs-on: ubuntu-22.04
