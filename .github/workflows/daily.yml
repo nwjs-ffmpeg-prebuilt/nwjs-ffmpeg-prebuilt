@@ -6,7 +6,7 @@ on:
     branches:
       - master
   schedule:
-    - cron: '* * * * *'
+    - cron: '0 * * * *'
 
 defaults:
   run:
@@ -15,7 +15,7 @@ defaults:
 
 jobs:
   is-latest:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3.5.2

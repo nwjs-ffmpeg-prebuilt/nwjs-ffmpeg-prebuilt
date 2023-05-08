@@ -16,8 +16,6 @@ IFS='.' read -ra FF_VER <<< "$FF"
 # is larger than FFmpeg's latest released version,
 # then trigger a release.
 
-exit 0
-
 if [ "${NW_VER[0]}" -gt "${FF_VER[0]}" ]; then
     exit 0
 fi
