@@ -13,6 +13,10 @@ defaults:
     shell: bash
     working-directory: .github/workflows
 
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   is-latest:
     runs-on: ubuntu-latest
