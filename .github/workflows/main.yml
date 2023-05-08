@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-22.04
     if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'release'
     steps:
-      - run: echo "FFmpeg version is not the latest."
+      - run: echo "FFmpeg version is not the latest. The build job will be triggered momentarily."
   build-win:
     needs: [check]
     runs-on: windows-2019

@@ -17,14 +17,17 @@ IFS='.' read -ra FF_VER <<< "$FF"
 # then trigger a release.
 
 if [ "${NW_VER[0]}" -gt "${FF_VER[0]}" ]; then
+    echo "NW.js version $NW is greater than FFmpeg's latest release $FF."
     exit 0
 fi
 
 if [ "${NW_VER[1]}" -gt "${FF_VER[1]}" ]; then
+    echo "NW.js version $NW is greater than FFmpeg's latest release $FF."
     exit 0
 fi
 
 if [ "${NW_VER[2]}" -gt "${FF_VER[2]}" ]; then
+    echo "NW.js version $NW is greater than FFmpeg's latest release $FF."
     exit 0
 fi
 
