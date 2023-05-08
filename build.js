@@ -2,7 +2,7 @@
 const {spawn} = require('child_process');
 const fs = require('fs-extra');
 const path = require('path');
-const got = require('got');
+const got = await import('got');
 const program = require('commander');
 const yazl = require('yazl');
 const stream = require('stream');
