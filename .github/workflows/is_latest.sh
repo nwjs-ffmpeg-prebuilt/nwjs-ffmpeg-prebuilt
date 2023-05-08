@@ -1,5 +1,7 @@
 #!/bin/bash
 
+exit 0
+
 # Store versions in variables
 NW=$(curl -s https://nwjs.io/versions | jq -r ".latest")
 FF=v$(curl -s https://api.github.com/repos/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/releases | jq -r ".[0].tag_name")
