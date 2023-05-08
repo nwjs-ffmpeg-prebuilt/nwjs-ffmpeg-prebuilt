@@ -11,7 +11,7 @@ const pipeline = promisify(stream.pipeline);
 
 (async () => {
     try {
-        got = await import ('got');
+        got = await import('got').default;
     }
     catch (e) {
         console.error(e);
