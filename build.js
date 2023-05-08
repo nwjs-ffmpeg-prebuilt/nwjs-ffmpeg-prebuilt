@@ -2,12 +2,22 @@
 const {spawn} = require('child_process');
 const fs = require('fs-extra');
 const path = require('path');
-const got = await import('got');
+let got = undefined;
 const program = require('commander');
 const yazl = require('yazl');
 const stream = require('stream');
 const {promisify} = require('util');
 const pipeline = promisify(stream.pipeline);
+
+(async () => {
+    try {
+        got = await import ('got');
+    }
+    catch (e) {
+        console.error(e);
+        process.exit(1);
+    }
+})();
 
 program
     .option('-a, --arch [arch]', 'Target architecture, ia32, x64, arm', 'x64')
