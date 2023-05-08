@@ -14,7 +14,7 @@ on:
 jobs:
   check:
     runs-on: ubuntu-22.04
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }} || ${{ github.event_name == 'release' }}
     steps:
       - run: echo "FFmpeg version is not the latest."
   build-win:
