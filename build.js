@@ -1,15 +1,19 @@
 #!/usr/bin/env node
-const {spawn} = require('child_process');
-const fs = require('fs-extra');
-const path = require('path');
-const got = require('got');
-const program = require('commander');
-const yazl = require('yazl');
-const stream = require('stream');
-const {promisify} = require('util');
+
+import { spawn } from 'child_process';
+import path from 'path';
+import process from 'process';
+import { promisify } from 'util';
+import stream from 'stream';
+
+import got from 'got';
+import { program as cli } from 'commander';
+import yazl from 'yazl';
+import fs from 'fs-extra';
+
 const pipeline = promisify(stream.pipeline);
 
-program
+cli
     .option('-a, --arch [arch]', 'Target architecture, ia32, x64, arm', 'x64')
     .option('-v, --version [version]', 'Build FFmpeg for the specified NW.js version or Branch', false)
     .option('-c, --clean', 'Clean the workspace, removes downloaded source code')
@@ -18,7 +22,9 @@ program
     .option('-p, --platform [platform]', 'Download platform, darwin, win, linux', process.platform)
     .option('-o, --out [out]', 'Output Directory', path.join(process.cwd(), 'build', 'out'));
 
-program.parse(process.argv);
+cli.parse(process.argv);
+let program = cli.opts();
+
 const outDir = program.out;
 
 function execAsync(code, ...a) {

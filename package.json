@@ -3,6 +3,7 @@
   "version": "0.0.5",
   "description": "FFmpeg prebuilt binaries with proprietary codecs and build instructions for Window, Linux and macOS.",
   "main": "build.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
