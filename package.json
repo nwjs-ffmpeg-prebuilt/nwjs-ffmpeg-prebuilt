@@ -20,9 +20,9 @@
   },
   "homepage": "https://github.com/iteufel/nwjs-ffmpeg-prebuilt#readme",
   "dependencies": {
-    "commander": "^4.1.0",
-    "fs-extra": "^8.1.0",
-    "got": "^11.8.5",
+    "commander": "^10.0.1",
+    "fs-extra": "^11.1.1",
+    "got": "^12.6.0",
     "yazl": "^2.5.1"
   }
 }
