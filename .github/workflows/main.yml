@@ -1,11 +1,27 @@
 name: CI
 
 on:
+  pull_request:
+    branches: [master]
   release:
     types: [created]
+  workflow_run:
+    workflows: ["daily"]
+    branches: [master]
+    types: [completed]
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
+  check:
+    runs-on: ubuntu-22.04
+    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'release'
+    steps:
+      - run: echo "FFmpeg version is not the latest. The build job will be triggered momentarily."
   build-win:
+    needs: [check]
     runs-on: windows-2019
     steps:
       - name: Setup Node
@@ -31,6 +47,7 @@ jobs:
           path: 'c:/a/**/build/out/*.zip'
 
   build-macos:
+    needs: [check]
     runs-on: macos-latest
     steps:
       - name: Setup Node
@@ -49,6 +66,7 @@ jobs:
           path: 'build/out/*.zip'
 
   build-linux:
+    needs: [check]
     runs-on: ubuntu-latest
     steps:
       - name: Setup Node
