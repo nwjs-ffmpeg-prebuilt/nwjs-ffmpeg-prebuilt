@@ -2,6 +2,7 @@
   "name": "nwjs-ffmpeg-prebuilt",
   "version": "0.0.5",
   "description": "FFmpeg prebuilt binaries with proprietary codecs and build instructions for Window, Linux and macOS.",
+  "type": "module",
   "main": "build.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -21,7 +22,7 @@
   "homepage": "https://github.com/iteufel/nwjs-ffmpeg-prebuilt#readme",
   "dependencies": {
     "commander": "^10.0.1",
-    "fs-extra": "^8.1.0",
+    "fs-extra": "^11.1.1",
     "got": "^12.6.0",
     "yazl": "^2.5.1"
   }

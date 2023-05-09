@@ -1,25 +1,18 @@
 #!/usr/bin/env node
-const {spawn} = require('child_process');
-const fs = require('fs-extra');
-const path = require('path');
-let got = undefined;
-const program = require('commander');
-const yazl = require('yazl');
-const stream = require('stream');
-const {promisify} = require('util');
+
+import { spawn } from 'node:child_process';
+import path from 'node:path';
+import stream from 'node:stream';
+import { promisify } from 'node:util';
+
+import fs from 'fs-extra';
+import got from 'got';
+import { program as cli } from 'commander';
+import yazl from 'yazl';
+
 const pipeline = promisify(stream.pipeline);
 
-(async () => {
-    try {
-        got = await import('got').default;
-    }
-    catch (e) {
-        console.error(e);
-        process.exit(1);
-    }
-})();
-
-program
+cli
     .option('-a, --arch [arch]', 'Target architecture, ia32, x64, arm', 'x64')
     .option('-v, --version [version]', 'Build FFmpeg for the specified NW.js version or Branch', false)
     .option('-c, --clean', 'Clean the workspace, removes downloaded source code')
@@ -28,8 +21,11 @@ program
     .option('-p, --platform [platform]', 'Download platform, darwin, win, linux', process.platform)
     .option('-o, --out [out]', 'Output Directory', path.join(process.cwd(), 'build', 'out'));
 
-program.parse(process.argv);
+cli.parse(process.argv);
+const program = cli.opts();
 const outDir = program.out;
+
+console.log(program);
 
 function execAsync(code, ...a) {
     return new Promise((resolve) => {
