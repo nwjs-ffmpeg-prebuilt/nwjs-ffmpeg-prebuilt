@@ -22,7 +22,7 @@ jobs:
       - run: echo "FFmpeg version is not the latest. The build job will be triggered momentarily."
   build-win:
     needs: [check]
-    runs-on: windows-2019
+    runs-on: windows-latest
     steps:
       - name: Setup Node
         uses: actions/setup-node@v3
