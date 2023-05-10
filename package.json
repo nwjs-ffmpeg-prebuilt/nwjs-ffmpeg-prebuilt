@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iteufel/nwjs-ffmpeg-prebuilt.git"
+    "url": "git+https://github.com/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/iteufel/nwjs-ffmpeg-prebuilt/issues"
+    "url": "https://github.com/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/issues"
   },
-  "homepage": "https://github.com/iteufel/nwjs-ffmpeg-prebuilt#readme",
+  "homepage": "https://github.com/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt#readme",
   "dependencies": {
     "commander": "^4.1.0",
     "fs-extra": "^8.1.0",
