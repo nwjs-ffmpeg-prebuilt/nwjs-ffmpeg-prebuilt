@@ -6,7 +6,7 @@ on:
     branches:
       - master
   schedule:
-    - cron: '* * * * *'
+    - cron: '0 0 * * *'
 
 defaults:
   run:
