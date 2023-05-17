@@ -59,7 +59,7 @@ async function main() {
         console.error(`NW.js version ${nwVersion} could not be found.`);
         process.exit(1);
     }
-    const chromiumVersion = "113.0.5672.92"
+    const chromiumVersion = version['components']['chromium'];
     let libName = null;
     let zipName = null;
     const platform = program.platform || process.platform;
