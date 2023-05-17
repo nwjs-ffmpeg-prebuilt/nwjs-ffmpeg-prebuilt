@@ -23,6 +23,9 @@ jobs:
   build-win:
     needs: [check]
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: powershell
     steps:
       - name: Setup Node
         uses: actions/setup-node@v3
