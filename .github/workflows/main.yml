@@ -28,11 +28,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-      - uses: actions/checkout@v3
       - name: Copy to C drive
         run: cp D:\a C:\ -Recurse
-      #      - name: Setup tmate session
-      #        uses: mxschmitt/action-tmate@v3
       - name: npm install, build and test
         working-directory: "C:/a/${{ github.event.repository.name }}/${{ github.event.repository.name }}"
         run: |
@@ -54,7 +51,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-      - uses: actions/checkout@v3
       - name: npm install, build and test
         run: |
           npm install
@@ -73,7 +69,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-      - uses: actions/checkout@v3
       - name: disk space cleanup
         run: |
           sudo rm -rf /usr/local/lib/android # will release about 10 GB if you don't need Android
