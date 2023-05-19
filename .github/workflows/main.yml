@@ -16,10 +16,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3.5.2
-      - run: bash ./is_latest.sh
-          
+        working-directory: .github/workflows
+        run: bash ./is_latest.sh
+
   build-win:
-    needs: [ check ]
+    needs: [ is-latest ]
     runs-on: windows-latest
     defaults:
       run:
@@ -48,7 +49,7 @@ jobs:
           path: 'c:/a/**/build/out/*.zip'
 
   build-macos:
-    needs: [ check ]
+    needs: [ is-latest ]
     runs-on: macos-latest
     steps:
       - name: Setup Node
@@ -67,7 +68,7 @@ jobs:
           path: 'build/out/*.zip'
 
   build-linux:
-    needs: [ check ]
+    needs: [ is-latest ]
     runs-on: ubuntu-latest
     steps:
       - name: Setup Node
