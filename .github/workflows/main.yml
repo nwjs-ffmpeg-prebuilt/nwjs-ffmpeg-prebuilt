@@ -4,7 +4,7 @@ on:
   release:
     types: [created]
   workflow_run:
-#     workflows: ["daily"]
+    workflows: ["daily"]
     branches: [master]
     types: [completed]
 
