@@ -14,9 +14,7 @@ jobs:
   is-latest:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3.5.2
-        working-directory: .github/workflows
+      - working-directory: .github/workflows
         run: bash ./is_latest.sh
 
   build-win:
