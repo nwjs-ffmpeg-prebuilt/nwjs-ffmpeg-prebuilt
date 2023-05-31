@@ -4,7 +4,7 @@ on:
   release:
     types: [ created ]
   schedule:
-    - cron: '* * * * *'
+    - cron: '0 0 * * *'
 
 concurrency:
   group: ${{ github.ref }}
