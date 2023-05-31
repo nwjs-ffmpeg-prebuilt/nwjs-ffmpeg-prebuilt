@@ -14,6 +14,8 @@ jobs:
   is-latest:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
       - working-directory: .github/workflows
         run: bash ./is_latest.sh
 
@@ -28,6 +30,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+      - name: Checkout code
+        uses: actions/checkout@v3
       - name: Copy to C drive
         run: cp D:\a C:\ -Recurse
       - name: npm install, build and test
@@ -51,6 +55,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+      - name: Checkout code
+        uses: actions/checkout@v3
       - name: npm install, build and test
         run: |
           npm install
@@ -69,6 +75,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+      - name: Checkout code
+        uses: actions/checkout@v3
       - name: disk space cleanup
         run: |
           sudo rm -rf /usr/local/lib/android # will release about 10 GB if you don't need Android
