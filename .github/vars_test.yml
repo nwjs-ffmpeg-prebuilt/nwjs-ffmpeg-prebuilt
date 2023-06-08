@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  schedule:
+    - cron: '* * * * *'
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  is-latest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - working-directory: .github/workflows
+        run: bash ./is_latest.sh
+      - name: Set Variable
+        id: set_var
+        run: |
+          echo "NW_VERSION=${NW}" >> $GITHUB_OUTPUT
+
+  build-linux:
+    needs: [ is-latest ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show Vars
+        run: |
+          echo ${{env.NW}}
+
+  build-release:
+    needs: [ build-linux ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show Vars
+        run: |
+          echo ${{env.NW}}
+
