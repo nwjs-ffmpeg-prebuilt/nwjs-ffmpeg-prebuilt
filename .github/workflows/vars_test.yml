@@ -1,8 +1,6 @@
 name: VARS
 
-on:
-  schedule:
-    - cron: '* * * * *'
+on: workflow_dispatch
 
 concurrency:
   group: ${{ github.ref }}
