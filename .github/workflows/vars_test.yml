@@ -18,6 +18,12 @@ jobs:
         id: set_var
         run: |
           echo "NW_VERSION=${NW}" >> $GITHUB_OUTPUT
+      - name: Show Var
+        run: |
+          echo ${{env.NW}}
+      - name: Show Var
+        run: |
+          echo $GITHUB_OUTPUT
 
   build-linux:
     needs: [ is-latest ]
