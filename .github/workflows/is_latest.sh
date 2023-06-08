@@ -8,6 +8,8 @@ FF=v$(curl -s https://api.github.com/repos/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-preb
 NW=${NW:1}
 FF=${FF:1}
 
+export "NW=$NW"
+
 # Split string at . into arrays
 IFS='.' read -ra NW_VER <<< "$NW"
 IFS='.' read -ra FF_VER <<< "$FF"
@@ -30,7 +32,5 @@ if [ "${NW_VER[2]}" -gt "${FF_VER[2]}" ]; then
     echo "NW.js version $NW is greater than FFmpeg's latest release $FF."
     exit 0
 fi
-
-echo "NW_VERSION=$NW" >> $GITHUB_OUTPUT
 
 exit 0
