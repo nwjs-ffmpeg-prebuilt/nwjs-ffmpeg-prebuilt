@@ -10,20 +10,12 @@ jobs:
   is-latest:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - working-directory: .github/workflows
-        run: bash ./is_latest.sh
       - name: Set Variable
-        id: set_var
         run: |
-          echo "NW_VERSION=${NW}" >> $GITHUB_OUTPUT
+          echo "NW=$(curl -s https://nwjs.io/versions | jq -r '.latest')" >> $GITHUB_ENV
       - name: Show Var
         run: |
           echo ${{env.NW}}
-      - name: Show Var
-        run: |
-          echo $GITHUB_OUTPUT
 
   build-linux:
     needs: [ is-latest ]

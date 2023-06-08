@@ -8,7 +8,6 @@ FF=v$(curl -s https://api.github.com/repos/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-preb
 NW=${NW:1}
 FF=${FF:1}
 
-export "NW=$NW"
 
 # Split string at . into arrays
 IFS='.' read -ra NW_VER <<< "$NW"
@@ -33,4 +32,4 @@ if [ "${NW_VER[2]}" -gt "${FF_VER[2]}" ]; then
     exit 0
 fi
 
-exit 0
+exit 1
