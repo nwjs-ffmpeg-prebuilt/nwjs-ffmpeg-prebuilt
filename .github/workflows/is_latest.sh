@@ -31,4 +31,4 @@ if [ "${NW_VER[2]}" -gt "${FF_VER[2]}" ]; then
     exit 0
 fi
 
-exit 1
+exit 0
