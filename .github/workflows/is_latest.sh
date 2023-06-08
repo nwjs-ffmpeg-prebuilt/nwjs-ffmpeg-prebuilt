@@ -31,4 +31,6 @@ if [ "${NW_VER[2]}" -gt "${FF_VER[2]}" ]; then
     exit 0
 fi
 
+echo "NW_VERSION=$NW" >> $GITHUB_OUTPUT
+
 exit 0

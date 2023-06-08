@@ -14,10 +14,6 @@ jobs:
         uses: actions/checkout@v3
       - working-directory: .github/workflows
         run: bash ./is_latest.sh
-      - name: Set Variable
-        id: set_var
-        run: |
-          echo "NW_VERSION=${NW}" >> $GITHUB_OUTPUT
 
   build-linux:
     needs: [ is-latest ]
