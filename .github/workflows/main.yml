@@ -99,7 +99,7 @@ jobs:
     steps:
       - name: Get NWJS version
         run: |
-          echo "NW=$(curl -s https://nwjs.io/versions | jq -r '.latest')" >> $GITHUB_ENV
+          echo "NW=$(curl -s https://nwjs.io/versions | jq -r '.latest' | sed 's/v//')" >> $GITHUB_ENV
       - uses: actions/download-artifact@v3
         with:
           name: win
