@@ -77,10 +77,25 @@ jobs:
           node-version: 16
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: disk space cleanup
-        run: |
-          sudo rm -rf /usr/local/lib/android # will release about 10 GB if you don't need Android
-          sudo rm -rf /usr/share/dotnet # will release about 20GB if you don't need .NET
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
+
+          # all of these default to true, but feel free to set to
+          # "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+      #      - name: disk space cleanup
+      #        run: |
+      #          sudo rm -rf /usr/local/lib/android # will release about 10 GB if you don't need Android
+      #          sudo rm -rf /usr/share/dotnet # will release about 20GB if you don't need .NET
       - name: npm install, build and test
         run: |
           npm install
@@ -97,21 +112,6 @@ jobs:
     name: "Build Release"
     runs-on: "ubuntu-latest"
     steps:
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          # this might remove tools that are actually needed,
-          # if set to "true" but frees about 6 GB
-          tool-cache: false
-          
-          # all of these default to true, but feel free to set to
-          # "false" if necessary for your workflow
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: true
       - name: Get NWJS version
         run: |
           echo "NW=$(curl -s https://nwjs.io/versions | jq -r '.latest' | sed 's/v//')" >> $GITHUB_ENV
