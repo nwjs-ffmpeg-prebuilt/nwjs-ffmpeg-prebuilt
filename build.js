@@ -14,10 +14,10 @@ import fs from 'fs-extra';
 const pipeline = promisify(stream.pipeline);
 
 cli
-    .option('-a, --arch [arch]', 'Target architecture, ia32, x64, arm', 'x64')
+    .option('-a, --arch [arch]', 'Target architecture, ia32, x64, arm', 'x64', process.arch)
     .option('-v, --version [version]', 'Build FFmpeg for the specified NW.js version or Branch', false)
     .option('-c, --clean', 'Clean the workspace, removes downloaded source code')
-    .option('-d, --download', 'Download Prebuild binaries.')
+    .option('-d, --download', 'Download Prebuilds binaries.')
     .option('--get-download-url', 'Get Download Url for Prebuild binaries.')
     .option('-p, --platform [platform]', 'Download platform, darwin, win, linux', process.platform)
     .option('-o, --out [out]', 'Output Directory', path.join(process.cwd(), 'build', 'out'));
@@ -63,6 +63,7 @@ async function main() {
     let libName = null;
     let zipName = null;
     const platform = program.platform || process.platform;
+    const arch = program.arch || process.arch;
     if (platform === 'darwin') {
         libName = 'libffmpeg.dylib';
         zipName = `${version.version}-osx-${program.arch}.zip`.slice(1);
