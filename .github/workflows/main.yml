@@ -60,7 +60,8 @@ jobs:
       - name: npm install, build and test
         run: |
           npm install
-          node build
+          node build --x64
+          node build --arm64
       - name: Upload the artifacts
         uses: actions/upload-artifact@v3
         with:
