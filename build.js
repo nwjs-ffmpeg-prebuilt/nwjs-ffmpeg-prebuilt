@@ -63,7 +63,6 @@ async function main() {
     let libName = null;
     let zipName = null;
     const platform = program.platform || process.platform;
-    const arch = program.arch || process.arch;
     if (platform === 'darwin') {
         libName = 'libffmpeg.dylib';
         zipName = `${version.version}-osx-${program.arch}.zip`.slice(1);
