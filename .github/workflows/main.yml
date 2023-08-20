@@ -72,6 +72,9 @@ jobs:
     needs: [ is-latest ]
     runs-on: ubuntu-latest
     steps:
+      - name: Run apt-get update
+          run: |
+            sudo apt-get update
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
