@@ -75,11 +75,11 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Free Disk Space (Ubuntu)
-        uses: zkrige/free-disk-space@patch-1
+        uses: jlumbroso/free-disk-space
         with:
           # this might remove tools that are actually needed,
           # if set to "true" but frees about 6 GB
