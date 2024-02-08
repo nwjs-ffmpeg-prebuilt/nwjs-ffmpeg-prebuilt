@@ -5,7 +5,12 @@ on:
     types: [ created ]
   schedule:
     - cron: '0 0 * * *'
-
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number to build'
+        required: true
+        default: '0.84.0'
 concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
@@ -16,8 +21,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - working-directory: .github/workflows
-        run: bash ./is_latest.sh
+      - name: Check if latest
+        working-directory: .github/workflows
+        run: bash ./is_latest.sh ${{ github.event_name }}
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+
 
   build-win:
     needs: [ is-latest ]
@@ -111,7 +120,12 @@ jobs:
     steps:
       - name: Get NWJS version
         run: |
-          echo "NW=$(curl -s https://nwjs.io/versions | jq -r '.latest' | sed 's/v//')" >> $GITHUB_ENV
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "NW=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+          else
+            echo "NW=$(curl -s https://nwjs.io/versions | jq -r '.latest' | sed 's/v//')" >> $GITHUB_ENV
+          fi
+
       - uses: actions/download-artifact@v3
         with:
           name: win

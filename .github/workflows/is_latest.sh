@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Check if the script is triggered by workflow_dispatch
+if [ "$1" == "workflow_dispatch" ]; then
+    echo "Manual build triggered, skipping version check."
+    exit 0
+fi
+
+
 # Store versions in variables
 NW=$(curl -s https://nwjs.io/versions | jq -r ".latest")
 FF=v$(curl -s https://api.github.com/repos/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/releases | jq -r ".[0].tag_name")
