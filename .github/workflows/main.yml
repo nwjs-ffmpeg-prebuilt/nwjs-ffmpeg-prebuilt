@@ -51,7 +51,7 @@ jobs:
           node build --arch x64
           node build --arch ia32
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: win
           path: 'c:/a/**/build/out/*.zip'
