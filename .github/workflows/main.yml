@@ -126,7 +126,7 @@ jobs:
             echo "NW=$(curl -s https://nwjs.io/versions | jq -r '.latest' | sed 's/v//')" >> $GITHUB_ENV
           fi
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: win
           path: release/win
@@ -134,7 +134,7 @@ jobs:
         with:
           name: linux
           path: release/linux
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: mac
           path: release/mac
