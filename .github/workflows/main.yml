@@ -54,7 +54,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: win
-          path: 'c:/a/**/build/out/*.zip'
+          path: 'build/out/*.zip'
 
   build-macos:
     needs: [ is-latest ]
