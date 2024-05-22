@@ -10,7 +10,7 @@ on:
       version:
         description: 'Version number to build'
         required: true
-        default: '0.85.0'
+        default: '0.88.0'
 concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
