@@ -10,17 +10,18 @@ on:
       version:
         description: 'Version number to build'
         required: true
-        default: '0.88.0'
+        default: '0.89.0'
 concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   is-latest:
+    name: "Is Latest"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
       - name: Check if latest
         working-directory: .github/workflows
         run: bash ./is_latest.sh ${{ github.event_name }}
@@ -30,17 +31,18 @@ jobs:
 
   build-win:
     needs: [ is-latest ]
+    name: "Build for Windows"
     runs-on: windows-latest
     defaults:
       run:
         shell: powershell
     steps:
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4.0.2
         with:
           node-version: 16
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
       - name: Copy to C drive
         run: cp D:\a C:\ -Recurse
       - name: Support long paths
@@ -53,42 +55,44 @@ jobs:
           node build --arch x64
           node build --arch ia32
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.3.3
         with:
           name: win
           path: 'c:/a/**/build/out/*.zip'
 
   build-macos:
     needs: [ is-latest ]
+    name: "Build for MacOS"
     runs-on: macos-latest
     steps:
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4.0.2
         with:
           node-version: 16
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
       - name: npm install, build and test
         run: |
           npm install
           node build -a x64
           node build -a arm64
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.3.3
         with:
           name: mac
           path: 'build/out/*.zip'
 
   build-linux:
     needs: [ is-latest ]
+    name: "Build for Linux"
     runs-on: ubuntu-latest
     steps:
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4.0.2
         with:
           node-version: 20
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
@@ -110,7 +114,7 @@ jobs:
           node build --arch x64
           node build --arch ia32
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.3.3
         with:
           name: linux
           path: 'build/out/*.zip'
@@ -128,15 +132,15 @@ jobs:
             echo "NW=$(curl -s https://nwjs.io/versions | jq -r '.latest' | sed 's/v//')" >> $GITHUB_ENV
           fi
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: win
           path: release/win
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: linux
           path: release/linux
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: mac
           path: release/mac
@@ -146,7 +150,7 @@ jobs:
         working-directory: release/
 
       - name: Upload mac binaries to release
-        uses: svenstaro/upload-release-action@v2
+        uses: svenstaro/upload-release-action@v2.9.0
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: release/mac/*.zip
@@ -155,7 +159,7 @@ jobs:
           file_glob: true
 
       - name: Upload linux binaries to release
-        uses: svenstaro/upload-release-action@v2
+        uses: svenstaro/upload-release-action@v2.9.0
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: release/linux/*.zip
@@ -164,7 +168,7 @@ jobs:
           file_glob: true
 
       - name: Upload windows binaries to release
-        uses: svenstaro/upload-release-action@v2
+        uses: svenstaro/upload-release-action@v2.9.0
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: release/win/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/build/out/*.zip
