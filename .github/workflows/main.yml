@@ -55,7 +55,7 @@ jobs:
           node build --arch x64
           node build --arch ia32
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v4.3.3
+        uses: actions/upload-artifact@v4.3.4
         with:
           name: win
           path: 'c:/a/**/build/out/*.zip'
@@ -77,7 +77,7 @@ jobs:
           node build -a x64
           node build -a arm64
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v4.3.3
+        uses: actions/upload-artifact@v4.3.4
         with:
           name: mac
           path: 'build/out/*.zip'
@@ -114,7 +114,7 @@ jobs:
           node build --arch x64
           node build --arch ia32
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v4.3.3
+        uses: actions/upload-artifact@v4.3.4
         with:
           name: linux
           path: 'build/out/*.zip'
@@ -132,15 +132,15 @@ jobs:
             echo "NW=$(curl -s https://nwjs.io/versions | jq -r '.latest' | sed 's/v//')" >> $GITHUB_ENV
           fi
 
-      - uses: actions/download-artifact@v4.1.7
+      - uses: actions/download-artifact@v4.1.8
         with:
           name: win
           path: release/win
-      - uses: actions/download-artifact@v4.1.7
+      - uses: actions/download-artifact@v4.1.8
         with:
           name: linux
           path: release/linux
-      - uses: actions/download-artifact@v4.1.7
+      - uses: actions/download-artifact@v4.1.8
         with:
           name: mac
           path: release/mac
