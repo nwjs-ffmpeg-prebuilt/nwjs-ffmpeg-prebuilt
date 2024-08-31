@@ -52,6 +52,9 @@ jobs:
           node-version: 20
       - name: Checkout code
         uses: actions/checkout@v4.1.7
+      - name: Debug NW version
+        run: |
+          echo "NW Version: ${{ needs.is-latest.outputs.nw }}"
       - name: Copy to C drive
         run: cp D:\a C:\ -Recurse
       - name: Support long paths
@@ -83,8 +86,8 @@ jobs:
       - name: npm install, build and test
         run: |
           npm install
-          node build -a x64 -v ${{ needs.is-latest.outputs.nw }}
-          node build -a arm64 -v ${{ needs.is-latest.outputs.nw }}
+          node build --arch x64 --version ${{ needs.is-latest.outputs.nw }}
+          node build --arch arm64 --version ${{ needs.is-latest.outputs.nw }}
       - name: Upload the artifacts
         uses: actions/upload-artifact@v4.3.6
         with:
