@@ -19,6 +19,8 @@ jobs:
   is-latest:
     name: "Is Latest"
     runs-on: ubuntu-latest
+    outputs:
+      nw: ${{ steps.set_nw.outputs.nw }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.1.7
@@ -39,7 +41,7 @@ jobs:
 
 
   build-win:
-    needs: [ is-latest ]
+    needs: is-latest
     name: "Build for Windows"
     runs-on: windows-latest
     defaults:
@@ -73,7 +75,7 @@ jobs:
           path: 'c:/a/**/build/out/*.zip'
 
   build-macos:
-    needs: [ is-latest ]
+    needs: is-latest
     name: "Build for MacOS"
     runs-on: macos-latest
     steps:
@@ -95,7 +97,7 @@ jobs:
           path: 'build/out/*.zip'
 
   build-linux:
-    needs: [ is-latest ]
+    needs: is-latest
     name: "Build for Linux"
     runs-on: ubuntu-latest
     steps:
