@@ -27,6 +27,15 @@ jobs:
         run: bash ./is_latest.sh ${{ github.event_name }}
         env:
           GITHUB_EVENT_NAME: ${{ github.event_name }}
+      - name: Write NW version to env and set output
+        id: set_nw
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "::set-output name=nw::${{ github.event.inputs.version }}"
+          else
+            NW_VERSION=$(curl -s https://nwjs.io/versions | jq -r '.latest' | sed 's/v//')
+            echo "::set-output name=nw::$NW_VERSION"
+          fi
 
 
   build-win:
@@ -52,8 +61,8 @@ jobs:
         run: |
           pwd
           npm install
-          node build --arch x64
-          node build --arch ia32
+          node build --arch x64 --version ${{ needs.is-latest.outputs.nw }}
+          node build --arch ia32 --version ${{ needs.is-latest.outputs.nw }}
       - name: Upload the artifacts
         uses: actions/upload-artifact@v4.3.4
         with:
@@ -74,8 +83,8 @@ jobs:
       - name: npm install, build and test
         run: |
           npm install
-          node build -a x64
-          node build -a arm64
+          node build -a x64 -v ${{ needs.is-latest.outputs.nw }}
+          node build -a arm64 -v ${{ needs.is-latest.outputs.nw }}
       - name: Upload the artifacts
         uses: actions/upload-artifact@v4.3.4
         with:
@@ -111,8 +120,8 @@ jobs:
       - name: npm install, build and test
         run: |
           npm install
-          node build --arch x64
-          node build --arch ia32
+          node build --arch x64 -v ${{ needs.is-latest.outputs.nw }}
+          node build --arch ia32 -v ${{ needs.is-latest.outputs.nw }}
       - name: Upload the artifacts
         uses: actions/upload-artifact@v4.3.4
         with:
