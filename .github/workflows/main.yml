@@ -69,7 +69,7 @@ jobs:
           node build --arch x64 --version ${{ needs.is-latest.outputs.nw }}
           node build --arch ia32 --version ${{ needs.is-latest.outputs.nw }}
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v4.3.6
+        uses: actions/upload-artifact@v4.4.0
         with:
           name: win
           path: 'c:/a/**/build/out/*.zip'
@@ -98,7 +98,7 @@ jobs:
           node build --arch x64 --version ${{ needs.is-latest.outputs.nw }}
           node build --arch arm64 --version ${{ needs.is-latest.outputs.nw }}
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v4.3.6
+        uses: actions/upload-artifact@v4.4.0
         with:
           name: mac
           path: 'build/out/*.zip'
@@ -135,7 +135,7 @@ jobs:
           node build --arch x64 -v ${{ needs.is-latest.outputs.nw }}
           node build --arch ia32 -v ${{ needs.is-latest.outputs.nw }}
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v4.3.6
+        uses: actions/upload-artifact@v4.4.0
         with:
           name: linux
           path: 'build/out/*.zip'
