@@ -23,7 +23,7 @@ jobs:
       nw: ${{ steps.set_nw.outputs.nw }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4.2.0
+        uses: actions/checkout@v4.2.2
       - name: Check if latest
         working-directory: .github/workflows
         run: bash ./is_latest.sh ${{ github.event_name }}
@@ -49,11 +49,11 @@ jobs:
         shell: powershell
     steps:
       - name: Setup Node
-        uses: actions/setup-node@v4.0.4
+        uses: actions/setup-node@v4.1.0
         with:
           node-version: 20
       - name: Checkout code
-        uses: actions/checkout@v4.2.0
+        uses: actions/checkout@v4.2.2
       - name: Debug NW version
         run: |
           echo "NW Version: ${{ needs.is-latest.outputs.nw }}"
@@ -69,7 +69,7 @@ jobs:
           node build --arch x64 --version ${{ needs.is-latest.outputs.nw }}
           node build --arch ia32 --version ${{ needs.is-latest.outputs.nw }}
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v4.4.0
+        uses: actions/upload-artifact@v4.5.0
         with:
           name: win
           path: 'c:/a/**/build/out/*.zip'
@@ -80,7 +80,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Setup Node
-        uses: actions/setup-node@v4.0.4
+        uses: actions/setup-node@v4.1.0
         with:
           node-version: 20
       - name: Delete unused SDKs
@@ -91,14 +91,14 @@ jobs:
           sudo rm -rf /Library/Developer/CoreSimulator
         continue-on-error: true
       - name: Checkout code
-        uses: actions/checkout@v4.2.0
+        uses: actions/checkout@v4.2.2
       - name: npm install, build and test
         run: |
           npm install
           node build --arch x64 --version ${{ needs.is-latest.outputs.nw }}
           node build --arch arm64 --version ${{ needs.is-latest.outputs.nw }}
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v4.4.0
+        uses: actions/upload-artifact@v4.5.0
         with:
           name: mac
           path: 'build/out/*.zip'
@@ -109,11 +109,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Node
-        uses: actions/setup-node@v4.0.4
+        uses: actions/setup-node@v4.1.0
         with:
           node-version: 20
       - name: Checkout code
-        uses: actions/checkout@v4.2.0
+        uses: actions/checkout@v4.2.2
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
@@ -135,7 +135,7 @@ jobs:
           node build --arch x64 -v ${{ needs.is-latest.outputs.nw }}
           node build --arch ia32 -v ${{ needs.is-latest.outputs.nw }}
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v4.4.0
+        uses: actions/upload-artifact@v4.5.0
         with:
           name: linux
           path: 'build/out/*.zip'
