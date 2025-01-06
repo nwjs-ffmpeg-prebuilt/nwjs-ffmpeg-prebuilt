@@ -46,4 +46,9 @@ you can just execute the following steps:
 ```bash
 sudo cp /Downloads/cp 0.67.1-linux-x64/libffmpeg.so /usr/lib/x86_64-linux-gnu/opera/lib_extra/libffmpeg.so
 ```
+Fedora users 
+1. Copy file to the following folder:
+```bash
+sudo cp Downloads/libffmpeg.so /usr/lib64/opera/libffmpeg.so
+```
 4. Restart your web browser.
