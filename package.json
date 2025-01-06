@@ -21,9 +21,9 @@
   },
   "homepage": "https://github.com/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt#readme",
   "dependencies": {
-    "commander": "^12.1.0",
+    "commander": "^13.0.0",
     "fs-extra": "^11.1.1",
-    "got": "^14.4.2",
-    "yazl": "^2.5.1"
+    "got": "^14.4.5",
+    "yazl": "^3.3.1"
   }
 }
