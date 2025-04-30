@@ -23,7 +23,7 @@
   "dependencies": {
     "commander": "^13.1.0",
     "fs-extra": "^11.3.0",
-    "got": "^14.4.6",
+    "got": "^14.4.7",
     "yazl": "^3.3.1"
   }
 }
