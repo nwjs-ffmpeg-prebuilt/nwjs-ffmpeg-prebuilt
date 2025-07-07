@@ -8,7 +8,7 @@ fi
 
 
 # Store versions in variables
-NW=$(curl -s https://nwjs.io/versions | jq -r ".latest")
+NW=$(curl -s https://nwjs.io/versions.json | jq -r ".latest")
 FF=v$(curl -s https://api.github.com/repos/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/releases | jq -r ".[0].tag_name")
 
 # Remove v from both strings
