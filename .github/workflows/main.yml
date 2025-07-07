@@ -35,7 +35,7 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "nw=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
           else
-            NW_VERSION=$(curl -s https://nwjs.io/versions | jq -r '.latest' | sed 's/v//')
+            NW_VERSION=$(curl -s https://nwjs.io/versions.json | jq -r '.latest' | sed 's/v//')
             echo "nw=$NW_VERSION" >> $GITHUB_OUTPUT
           fi
 
