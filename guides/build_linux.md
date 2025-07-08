@@ -35,20 +35,7 @@ To fix this you can remove `HAVE_EBP_AVAILABLE` from `build/src/third_party/ffmp
 
 ## Opera Browser issue
 
-Is some exceptional cases, the build doesn't work for Opera Browser for some unknown reason. In this specific cases,
-you can just execute the following steps:
+You can install our prebuilt at `/usr/lib/x86_64-linux-gnu/opera/lib_extra/libffmpeg.so`. However, Opera tries to load `/usr/lib/x86_64-linux-gnu/opera/libffmpeg.so` by `LD_PRELOAD` which potentially breaks many things including compabinity. So it is recommended to drop read permission from `/usr/lib/x86_64-linux-gnu/opera/libffmpeg.so` after you installed our prebuilt.
 
-1. Build the project or download the latest version through this [link](https://github.com/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/releases/tag/0.72.0)
-
-2. Unzip the compress file
-
-3. Copy file to the following folder:
-```bash
-sudo cp /Downloads/cp 0.67.1-linux-x64/libffmpeg.so /usr/lib/x86_64-linux-gnu/opera/lib_extra/libffmpeg.so
-```
-Fedora users 
-1. Copy file to the following folder:
-```bash
-sudo cp Downloads/libffmpeg.so /usr/lib64/opera/libffmpeg.so
-```
-4. Restart your web browser.
+It is also recommended to use prebuilt corresponding with near Chromium version instead of latest version. Chromium version is avaiable at [link](opera:about) and you can fetch version of our prebuilt corresponding with major version of Chromium if `curl` and `jq` are usable at your system. To fetch version for Chromium M135, run
+`curl -s https://nwjs.io/versions.json | jq -r 'limit(1; .versions[] | select(.components.chromium | startswith("135.")) | .version)'`.
