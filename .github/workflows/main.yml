@@ -10,7 +10,7 @@ on:
       version:
         description: 'Version number to build'
         required: true
-        default: '0.91.0'
+        default: '0.101.2'
 concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
@@ -108,37 +108,21 @@ jobs:
     name: "Build for Linux"
     runs-on: ubuntu-latest
     steps:
-      - name: Setup Node
-        uses: actions/setup-node@v4.4.0
-        with:
-          node-version: 20
       - name: Checkout code
         uses: actions/checkout@v4.2.2
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          # this might remove tools that are actually needed,
-          # if set to "true" but frees about 6 GB
-          tool-cache: true
-
-          # all of these default to true, but feel free to set to
-          # "false" if necessary for your workflow
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: true
-      - name: npm install, build and test
+      - name: Setup build tools
         run: |
-          npm install
-          node build --arch x64 -v ${{ needs.is-latest.outputs.nw }}
-          node build --arch ia32 -v ${{ needs.is-latest.outputs.nw }}
+          sudo apt-get update
+          sudo apt-get install -y curl jq git build-essential nasm
+      - name: Build
+        working-directory: ${{ github.workspace }}
+        run: |
+          bash ./build-linux.sh ${{ needs.is-latest.outputs.nw }} linux
       - name: Upload the artifacts
         uses: actions/upload-artifact@v4.6.2
         with:
           name: linux
-          path: 'build/out/*.zip'
+          path: '/tmp/nwff/release/libffmpeg.so'
 
   build-release:
     needs: [ build-win, build-macos, build-linux ]
