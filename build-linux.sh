@@ -104,8 +104,6 @@ ${cc["$2"]} -shared  ${extldflags["$2"]} -flto=auto \
 	${ldwholearchive["$2"]}lib/libavformat.a \
 	${ldnowholearchive["$2"]}lib/libavutil.a \
 	${ldnowholearchive["$2"]}lib/libswresample.a \
-	-lm ${gccflag["$2"]} \
+	-lm ${gccflag["$2"]} -Wl,-s \
 	-o libffmpeg.${libext["$2"]}
-
-llvm-strip --strip-unneeded libffmpeg.${libext["$2"]}
  zip -9 "$1"-"$2".zip libffmpeg.${libext["$2"]}
