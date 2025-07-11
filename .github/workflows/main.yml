@@ -39,73 +39,9 @@ jobs:
             echo "nw=$NW_VERSION" >> $GITHUB_OUTPUT
           fi
 
-
-  build-win:
+  build-win-x64:
     needs: is-latest
-    name: "Build for Windows"
-    runs-on: windows-latest
-    defaults:
-      run:
-        shell: powershell
-    steps:
-      - name: Setup Node
-        uses: actions/setup-node@v4.4.0
-        with:
-          node-version: 20
-      - name: Checkout code
-        uses: actions/checkout@v4.2.2
-      - name: Debug NW version
-        run: |
-          echo "NW Version: ${{ needs.is-latest.outputs.nw }}"
-      - name: Copy to C drive
-        run: cp D:\a C:\ -Recurse
-      - name: Support long paths
-        run: git config --system core.longpaths true
-      - name: npm install, build and test
-        working-directory: "C:/a/${{ github.event.repository.name }}/${{ github.event.repository.name }}"
-        run: |
-          pwd
-          npm install
-          node build --arch x64 --version ${{ needs.is-latest.outputs.nw }}
-          node build --arch ia32 --version ${{ needs.is-latest.outputs.nw }}
-      - name: Upload the artifacts
-        uses: actions/upload-artifact@v4.6.2
-        with:
-          name: win
-          path: 'c:/a/**/build/out/*.zip'
-
-  build-macos:
-    needs: is-latest
-    name: "Build for MacOS"
-    runs-on: macos-latest
-    steps:
-      - name: Setup Node
-        uses: actions/setup-node@v4.4.0
-        with:
-          node-version: 20
-      - name: Delete unused SDKs
-        # To free up disk space to not run out during the run
-        run: |
-          sudo rm -rf ~/.dotnet
-          sudo rm -rf /Library/Android
-          sudo rm -rf /Library/Developer/CoreSimulator
-        continue-on-error: true
-      - name: Checkout code
-        uses: actions/checkout@v4.2.2
-      - name: npm install, build and test
-        run: |
-          npm install
-          node build --arch x64 --version ${{ needs.is-latest.outputs.nw }}
-          node build --arch arm64 --version ${{ needs.is-latest.outputs.nw }}
-      - name: Upload the artifacts
-        uses: actions/upload-artifact@v4.6.2
-        with:
-          name: mac
-          path: 'build/out/*.zip'
-
-  build-linux:
-    needs: is-latest
-    name: "Build for Linux"
+    name: "Build for Windows on Ubuntu"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -113,19 +49,125 @@ jobs:
       - name: Setup build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y curl jq git build-essential nasm
+          sudo apt-get install -y nasm ripgrep mingw-w64 llvm
       - name: Build
         working-directory: ${{ github.workspace }}
         run: |
-          bash ./build-linux.sh ${{ needs.is-latest.outputs.nw }} linux
+          bash ./build-linux.sh ${{ needs.is-latest.outputs.nw }} win-x64
       - name: Upload the artifacts
         uses: actions/upload-artifact@v4.6.2
         with:
-          name: linux
-          path: '/tmp/nwff/release/libffmpeg.so'
+          name: win-x64
+          path: '/tmp/nwff/release/*.zip'
+
+  build-win-ia32:
+    needs: is-latest
+    name: "Build for Windows-ia32 on Ubuntu"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+      - name: Setup build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nasm ripgrep mingw-w64 llvm
+      - name: Build
+        working-directory: ${{ github.workspace }}
+        run: |
+          bash ./build-linux.sh ${{ needs.is-latest.outputs.nw }} win-ia32
+      - name: Upload the artifacts
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: win-ia32
+          path: '/tmp/nwff/release/*.zip'
+
+  build-osx-x64:
+    needs: is-latest
+    name: "Build for macos-x64"
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+      - name: Setup build tools
+        run: |
+          brew update
+          # Use newer bash
+          brew install nasm ripgrep bash llvm
+      - name: Build
+        working-directory: ${{ github.workspace }}
+        run: |
+          bash ./build-linux.sh ${{ needs.is-latest.outputs.nw }} osx-x64
+      - name: Upload the artifacts
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: osx-x64
+          path: '/tmp/nwff/release/*.zip'
+
+  build-osx-arm64:
+    needs: is-latest
+    name: "Build for macos-arm64"
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+      - name: Setup build tools
+        run: |
+          brew update
+          brew install nasm ripgrep bash llvm
+      - name: Build
+        working-directory: ${{ github.workspace }}
+        run: |
+          bash ./build-linux.sh ${{ needs.is-latest.outputs.nw }} osx-arm64
+      - name: Upload the artifacts
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: osx-arm64
+          path: '/tmp/nwff/release/*.zip'
+
+  build-linux-x64:
+    needs: is-latest
+    name: "Build for Linux-x64"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+      - name: Setup build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nasm ripgrep llvm
+      - name: Build
+        working-directory: ${{ github.workspace }}
+        run: |
+          bash ./build-linux.sh ${{ needs.is-latest.outputs.nw }} linux-x64
+      - name: Upload the artifacts
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: linux-x64
+          path: '/tmp/nwff/release/*.zip'
+
+  build-linux-ia32:
+    needs: is-latest
+    name: "Build for Linux-ia32"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+      - name: Setup build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nasm ripgrep gcc-multilib llvm
+      - name: Build
+        working-directory: ${{ github.workspace }}
+        run: |
+          bash ./build-linux.sh ${{ needs.is-latest.outputs.nw }} linux-ia32
+      - name: Upload the artifacts
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: linux-ia32
+          path: '/tmp/nwff/release/*.zip'
 
   build-release:
-    needs: [ build-win, build-macos, build-linux ]
+    needs: [ build-win-x64, build-win-ia32, build-osx-x64, build-osx-arm64, build-linux-x64, build-linux-ia32]
     name: "Build Release"
     runs-on: "ubuntu-latest"
     steps:
@@ -135,20 +177,34 @@ jobs:
             echo "NW=${{ github.event.inputs.version }}" >> $GITHUB_ENV
           else
             echo "NW=$(curl -s https://nwjs.io/versions | jq -r '.latest' | sed 's/v//')" >> $GITHUB_ENV
+            #CHROMIUM=$(curl -s https://nwjs.io/versions.json | jq -r ".versions[] | select(.version==\"v$NW_VERSION\") | .components.chromium")
+            #echo "Chromium=$CHROMIUM" >> $GITHUB_ENV
           fi
 
       - uses: actions/download-artifact@v4.3.0
         with:
-          name: win
-          path: release/win
+          name: win-x64
+          path: release/win-x64
       - uses: actions/download-artifact@v4.3.0
         with:
-          name: linux
-          path: release/linux
+          name: win-ia32
+          path: release/win-ia32
       - uses: actions/download-artifact@v4.3.0
         with:
-          name: mac
-          path: release/mac
+          name: linux-x64
+          path: release/linux-x64
+      - uses: actions/download-artifact@v4.3.0
+        with:
+          name: linux-ia32
+          path: release/linux-ia32
+      - uses: actions/download-artifact@v4.3.0
+        with:
+          name: osx-x64
+          path: release/osx-x64
+      - uses: actions/download-artifact@v4.3.0
+        with:
+          name: osx-arm64
+          path: release/osx-arm64
 
       - name: Display structure of downloaded files
         run: ls -R
@@ -158,9 +214,14 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            release/mac/*.zip
-            release/linux/*.zip
-            release/win/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/build/out/*.zip
+            release/osx-arm64/*.zip
+            release/osx-x64/*.zip
+            release/linux-x64/*.zip
+            release/linux-ia32/*.zip
+            release/win-x64/*.zip
+            release/win-ia32/*.zip
           tag_name: ${{ env.NW }}
+          #body: |
+            #Chromium ${{ env.CHROMIUM}}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
