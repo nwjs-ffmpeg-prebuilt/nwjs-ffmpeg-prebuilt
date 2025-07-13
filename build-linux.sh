@@ -10,8 +10,8 @@ declare -A ffbuildflags=(
 [win-ia32]='--arch=x86 --target-os=mingw32 --cross-prefix=i686-w64-mingw32-'
 )
 declare -A extcflags=(
-[linux-x64]='-fno-math-errno -fno-signed-zeros'
-[linux-ia32]='-m32 -fno-math-errno -fno-signed-zeros'
+[linux-x64]='-fno-math-errno -fno-signed-zeros -fomit-frame-pointer'
+[linux-ia32]='-m32 -fno-math-errno -fno-signed-zeros -fomit-frame-pointer'
 [osx-x64]='-arch x86_64 --target=x86_64-apple-macosx'
 [osx-arm64]=
 [win-x64]=
