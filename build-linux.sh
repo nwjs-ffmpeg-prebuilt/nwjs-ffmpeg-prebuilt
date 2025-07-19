@@ -68,12 +68,12 @@ diff libavcodec/opus/dec.c{.bak,} || :
 
 cd ../release
 declare -A gccflag=(
-[linux-x64]='-Wl,-u,avutil_version -lm -Wl,-Bsymbolic'
-[linux-ia32]='-Wl,-u,avutil_version -lm -Wl,-Bsymbolic'
+[linux-x64]='-Wl,-u,avutil_version -Wl,--version-script=export.map -lm -Wl,-Bsymbolic'
+[linux-ia32]='-Wl,-u,avutil_version -Wl,--version-script=export.map -lm -Wl,-Bsymbolic'
 [osx-x64]=
 [osx-arm64]=
-[win-x64]='-lbcrypt'
-[win-ia32]='-lbcrypt'
+[win-x64]='-Wl,-u,avutil_version -Wl,--version-script=export.map -lbcrypt'
+[win-ia32]='-Wl,-u,avutil_version -Wl,--version-script=export.map -lbcrypt'
 )
 declare -A ldwholearchive=(
 [linux-x64]='-Wl,--whole-archive '
@@ -99,6 +99,16 @@ declare -A libext=(
 [win-x64]=dll
 [win-ia32]=dll
 )
+echo "{
+ global:
+ avcodec*;
+ avformat*;
+ avutil_version*;ff_aac*;ff_h264*; /*used by opera*/
+ avio_*;
+ av_*;
+local:
+ *;
+};" > export.map
 ${cc["$2"]} -shared  ${extldflags["$2"]} -flto=auto \
 	${ldwholearchive["$2"]}lib/libavcodec.a \
 	${ldwholearchive["$2"]}lib/libavformat.a \
