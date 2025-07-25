@@ -58,7 +58,7 @@ jobs:
         uses: actions/upload-artifact@v4.6.2
         with:
           name: win-x64
-          path: '/tmp/nwff/release/*.zip'
+          path: '/tmp/nwff/*.zip'
 
   build-win-ia32:
     needs: is-latest
@@ -79,7 +79,7 @@ jobs:
         uses: actions/upload-artifact@v4.6.2
         with:
           name: win-ia32
-          path: '/tmp/nwff/release/*.zip'
+          path: '/tmp/nwff/*.zip'
 
   build-osx-x64:
     needs: is-latest
@@ -101,7 +101,7 @@ jobs:
         uses: actions/upload-artifact@v4.6.2
         with:
           name: osx-x64
-          path: '/tmp/nwff/release/*.zip'
+          path: '/tmp/nwff/*.zip'
 
   build-osx-arm64:
     needs: is-latest
@@ -122,7 +122,7 @@ jobs:
         uses: actions/upload-artifact@v4.6.2
         with:
           name: osx-arm64
-          path: '/tmp/nwff/release/*.zip'
+          path: '/tmp/nwff/*.zip'
 
   build-linux-x64:
     needs: is-latest
@@ -143,7 +143,7 @@ jobs:
         uses: actions/upload-artifact@v4.6.2
         with:
           name: linux-x64
-          path: '/tmp/nwff/release/*.zip'
+          path: '/tmp/nwff/*.zip'
 
   build-linux-ia32:
     needs: is-latest
@@ -164,7 +164,7 @@ jobs:
         uses: actions/upload-artifact@v4.6.2
         with:
           name: linux-ia32
-          path: '/tmp/nwff/release/*.zip'
+          path: '/tmp/nwff/*.zip'
 
   build-release:
     needs: [ build-win-x64, build-win-ia32, build-osx-x64, build-osx-arm64, build-linux-x64, build-linux-ia32]

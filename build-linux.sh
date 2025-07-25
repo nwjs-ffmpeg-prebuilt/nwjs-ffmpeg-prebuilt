@@ -10,8 +10,8 @@ declare -A ffbuildflags=(
 [win-ia32]='--arch=x86 --target-os=mingw32 --cross-prefix=i686-w64-mingw32-'
 )
 declare -A extcflags=(
-[linux-x64]='-fno-math-errno -fno-signed-zeros -fomit-frame-pointer'
-[linux-ia32]='-m32 -fno-math-errno -fno-signed-zeros -fomit-frame-pointer'
+[linux-x64]='-fno-math-errno -fno-signed-zeros -fno-semantic-interposition -fomit-frame-pointer'
+[linux-ia32]='-m32 -fno-math-errno -fno-signed-zeros -fno-semantic-interposition -fomit-frame-pointer'
 [osx-x64]='-arch x86_64 --target=x86_64-apple-macosx'
 [osx-arm64]=
 [win-x64]=
@@ -44,6 +44,12 @@ git init
 git remote add origin https://chromium.googlesource.com/chromium/third_party/ffmpeg
 git fetch --depth=1 origin $_commit
 git checkout $_commit
+# List used functions
+rg -oP -N '\bav[a-z0-9_]*(?=\s*\()' chromium/ffmpeg.sigs > ../sigs.txt
+echo -e "avformat_version\navutil_version\nff_h264_decode_init_vlc" >> ../sigs.txt # only for opera
+echo -e "{\nglobal:" > ../export.map
+sed 's/$/;/' ${srcdir}/sigs.txt >> ../export.map
+echo -e "local:\n*;\n};" >> ../export.map
 # Use ffmpeg's native opus decoder not in kAllowedAudioCodecs at https://github.com/chromium/chromium/blob/main/media/ffmpeg/ffmpeg_common.cc
 sed -i.bak "s/^ *\.p\.name *=.*/.p.name=\"libopus\",/" libavcodec/opus/dec.c
 diff libavcodec/opus/dec.c{.bak,} || :
@@ -63,58 +69,47 @@ diff libavcodec/opus/dec.c{.bak,} || :
   --extra-ldflags="${extldflags["$2"]}" \
   ${ffbuildflags["$2"]} \
   --enable-{pic,asm,hardcoded-tables} \
-  --prefix="${srcdir}/release"
+  --libdir=/
 
-  make -j3 install
+  make -j3 DESTDIR=.. install
 
-cd ../release
+cd ..
+_symbols=$(cat sigs.txt | awk '{print "-Wl,-u," $1}'|paste -sd ' ' -)
 declare -A gccflag=(
-[linux-x64]='-Wl,-u,avutil_version -Wl,--version-script=export.map -lm -Wl,-Bsymbolic'
-[linux-ia32]='-Wl,-u,avutil_version -Wl,--version-script=export.map -lm -Wl,-Bsymbolic'
+[linux-x64]="${_symbols} -Wl,-u,avutil_version -Wl,--version-script=export.map -lm -Wl,-Bsymbolic"
+[linux-ia32]="${_symbols} -Wl,-u,avutil_version -Wl,--version-script=export.map -lm -Wl,-Bsymbolic"
 [osx-x64]=
 [osx-arm64]=
-[win-x64]='-Wl,-u,avutil_version -Wl,--version-script=export.map -lbcrypt'
-[win-ia32]='-Wl,-u,avutil_version -Wl,--version-script=export.map -lbcrypt'
+[win-x64]="${_symbols} -Wl,-u,avutil_version -Wl,--version-script=export.map -lbcrypt"
+[win-ia32]="${_symbols} -Wl,-u,avutil_version -Wl,--version-script=export.map -lbcrypt"
 )
-declare -A ldwholearchive=(
-[linux-x64]='-Wl,--whole-archive '
-[linux-ia32]='-Wl,--whole-archive '
+declare -A startgroup=(
+[linux-x64]='-Wl,--start-group ' # space is not typo
+[linux-ia32]='-Wl,--start-group '
 [osx-x64]='-Wl,-force_load,'
 [osx-arm64]='-Wl,-force_load,'
-[win-x64]='-Wl,--whole-archive '
-[win-ia32]='-Wl,--whole-archive '
+[win-x64]='-Wl,--start-group '
+[win-ia32]='-Wl,--whole-archive ' # filtering of funcs cause few kb binary
 )
-declare -A ldnowholearchive=(
-[linux-x64]='-Wl,--no-whole-archive '
-[linux-ia32]='-Wl,--no-whole-archive '
+declare -A endgroup=(
+[linux-x64]='-Wl,--end-group'
+[linux-ia32]='-Wl,--end-group'
 [osx-x64]=
 [osx-arm64]=
-[win-x64]='-Wl,--no-whole-archive '
-[win-ia32]='-Wl,--no-whole-archive '
+[win-x64]='-Wl,--end-group'
+[win-ia32]='-Wl,--no-whole-archive'
 )
-declare -A libext=(
-[linux-x64]=so
-[linux-ia32]=so
-[osx-x64]=dylib
-[osx-arm64]=dylib
-[win-x64]=dll
-[win-ia32]=dll
+declare -A libname=(
+[linux-x64]=libffmpeg.so
+[linux-ia32]=libffmpeg.so
+[osx-x64]=libffmpeg.dylib
+[osx-arm64]=kibffmpeg.dylib
+[win-x64]=ffmpeg.dll
+[win-ia32]=ffmpeg.dll
 )
-echo "{
- global:
- avcodec*;
- avformat*;
- avutil_version*;ff_aac*;ff_h264*; /*used by opera*/
- avio_*;
- av_*;
-local:
- *;
-};" > export.map
+
 ${cc["$2"]} -shared  ${extldflags["$2"]} -flto=auto \
-	${ldwholearchive["$2"]}lib/libavcodec.a \
-	${ldwholearchive["$2"]}lib/libavformat.a \
-	${ldnowholearchive["$2"]}lib/libavutil.a \
-	${ldnowholearchive["$2"]}lib/libswresample.a \
-	-lm ${gccflag["$2"]} -Wl,-s \
-	-o libffmpeg.${libext["$2"]}
- zip -9 "$1"-"$2".zip libffmpeg.${libext["$2"]}
+	${startgroup["$2"]} libav{codec,format,util}.a libswresample.a ${endgroup["$2"]} \
+	${gccflag["$2"]} -lm -Wl,-s \
+	-o ${libname["$2"]}
+ zip -9 "$1"-"$2".zip ${libname["$2"]}
