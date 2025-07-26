@@ -22,7 +22,9 @@ jobs:
     outputs:
       nw: ${{ steps.set_nw.outputs.nw }}
       chromium: ${{ steps.set_nw.outputs.chromium }}
-      #avcodec: ${{ steps.set_nw.outputs.avcodec }}
+      avcodec: ${{ steps.set_nw.outputs.avcodec }}
+      avformat: ${{ steps.set_nw.outputs.avformat }}
+      avutil: ${{ steps.set_nw.outputs.avutil }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
@@ -42,12 +44,14 @@ jobs:
           fi
           CHROMIUM=$(curl -s https://nwjs.io/versions.json | jq -r ".versions[] | select(.version==\"v$NW_VERSION\") | .components.chromium")
           echo "chromium=$CHROMIUM" >> $GITHUB_OUTPUT
-          #_commit=$(curl -sL https://raw.githubusercontent.com/chromium/chromium/refs/tags/${_chromium}/DEPS | grep -oP "'ffmpeg_revision': '\K[0-9a-f]{40}'" | tr -d \')
-          #_url=https://chromium.googlesource.com/chromium/third_party/ffmpeg
-          #curl -sL ${_url}/+/${_commit}/libavcodec/version_major.h?format=TEXT -o a.base64
-          #SO=$(base64 -d a.base64|grep -oP 'LIBAVCODEC_VERSION_MAJOR\s+\K\d+')
-          #echo "avcodec=$SO" >> $GITHUB_OUTPUT
-
+          _commit=$(curl -sL https://raw.githubusercontent.com/chromium/chromium/refs/tags/${CHROMIUM}/DEPS | grep -oP "'ffmpeg_revision': '\K[0-9a-f]{40}'" | tr -d \')
+          _url=https://chromium.googlesource.com/chromium/third_party/ffmpeg
+          SO=$(curl -sL ${_url}/+/${_commit}/libavcodec/version_major.h?format=TEXT|base64 -d | grep -oP 'LIBAVCODEC_VERSION_MAJOR\s+\K\d+')
+          echo "avcodec=$SO" >> $GITHUB_OUTPUT
+          SO=$(curl -sL ${_url}/+/${_commit}/libavformat/version_major.h?format=TEXT|base64 -d | grep -oP 'LIBAVFORMAT_VERSION_MAJOR\s+\K\d+')
+          echo "avformat=$SO" >> $GITHUB_OUTPUT
+          SO=$(curl -sL ${_url}/+/${_commit}/libavutil/version.h?format=TEXT|base64 -d | grep -oP 'LIBAVUTIL_VERSION_MAJOR\s+\K\d+')
+          echo "avutil=$SO" >> $GITHUB_OUTPUT
   build-win-x64:
     needs: is-latest
     name: "Build for Windows on Ubuntu"
@@ -240,6 +244,8 @@ jobs:
           tag_name: ${{ needs.is-latest.outputs.nw }}
           body: |
             Chromium ${{ needs.is-latest.outputs.chromium }}
-            #avcodec ${{ needs.is-latest.outputs.avcodec }}
+            avcodec${{ needs.is-latest.outputs.avcodec }}
+            avformat${{ needs.is-latest.outputs.avformat }}
+            avutil${{ needs.is-latest.outputs.avutil }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
