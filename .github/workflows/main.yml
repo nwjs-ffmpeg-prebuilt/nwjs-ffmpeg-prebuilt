@@ -173,7 +173,7 @@ jobs:
       - name: Unzip Linux artifacts
         run: |
           mkdir -p extracted/linux
-          unzip 'release/linux/*.zip' -d extracted/linux
+          unzip release/linux/*.zip -d extracted/linux
 
       - name: Extract FFmpeg version
         run: bash ./ffmpeg.sh

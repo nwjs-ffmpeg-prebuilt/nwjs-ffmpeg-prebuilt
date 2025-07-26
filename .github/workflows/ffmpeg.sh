@@ -1,4 +1,4 @@
-FFMPEG_VERSION=$(strings release/linux/build/out/libffmpeg.so | grep -Eo 'ffmpeg version [^ ]+' | head -n 1)
+FFMPEG_VERSION=$(strings extracted/linux/build/out/libffmpeg.so | grep -Eo 'ffmpeg version [^ ]+' | head -n 1)
 echo "FFMPEG_VERSION=${FFMPEG_VERSION}" >> $GITHUB_ENV
 echo "## Release Notes" > release-notes.md
 echo "- NW.js version: $NW" >> release-notes.md
