@@ -10,7 +10,7 @@ on:
       version:
         description: 'Version number to build'
         required: true
-        default: '0.91.0'
+        default: '0.101.2'
 concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
@@ -21,6 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       nw: ${{ steps.set_nw.outputs.nw }}
+      chromium: ${{ steps.set_nw.outputs.chromium }}
+      #avcodec: ${{ steps.set_nw.outputs.avcodec }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
@@ -38,133 +40,188 @@ jobs:
             NW_VERSION=$(curl -s https://nwjs.io/versions.json | jq -r '.latest' | sed 's/v//')
             echo "nw=$NW_VERSION" >> $GITHUB_OUTPUT
           fi
+          CHROMIUM=$(curl -s https://nwjs.io/versions.json | jq -r ".versions[] | select(.version==\"v$NW_VERSION\") | .components.chromium")
+          echo "chromium=$CHROMIUM" >> $GITHUB_OUTPUT
+          #_commit=$(curl -sL https://raw.githubusercontent.com/chromium/chromium/refs/tags/${_chromium}/DEPS | grep -oP "'ffmpeg_revision': '\K[0-9a-f]{40}'" | tr -d \')
+          #_url=https://chromium.googlesource.com/chromium/third_party/ffmpeg
+          #curl -sL ${_url}/+/${_commit}/libavcodec/version_major.h?format=TEXT -o a.base64
+          #SO=$(base64 -d a.base64|grep -oP 'LIBAVCODEC_VERSION_MAJOR\s+\K\d+')
+          #echo "avcodec=$SO" >> $GITHUB_OUTPUT
 
-
-  build-win:
+  build-win-x64:
     needs: is-latest
-    name: "Build for Windows"
-    runs-on: windows-latest
-    defaults:
-      run:
-        shell: powershell
-    steps:
-      - name: Setup Node
-        uses: actions/setup-node@v4.4.0
-        with:
-          node-version: 20
-      - name: Checkout code
-        uses: actions/checkout@v4.2.2
-      - name: Debug NW version
-        run: |
-          echo "NW Version: ${{ needs.is-latest.outputs.nw }}"
-      - name: Copy to C drive
-        run: cp D:\a C:\ -Recurse
-      - name: Support long paths
-        run: git config --system core.longpaths true
-      - name: npm install, build and test
-        working-directory: "C:/a/${{ github.event.repository.name }}/${{ github.event.repository.name }}"
-        run: |
-          pwd
-          npm install
-          node build --arch x64 --version ${{ needs.is-latest.outputs.nw }}
-          node build --arch ia32 --version ${{ needs.is-latest.outputs.nw }}
-      - name: Upload the artifacts
-        uses: actions/upload-artifact@v4.6.2
-        with:
-          name: win
-          path: 'c:/a/**/build/out/*.zip'
-
-  build-macos:
-    needs: is-latest
-    name: "Build for MacOS"
-    runs-on: macos-latest
-    steps:
-      - name: Setup Node
-        uses: actions/setup-node@v4.4.0
-        with:
-          node-version: 20
-      - name: Delete unused SDKs
-        # To free up disk space to not run out during the run
-        run: |
-          sudo rm -rf ~/.dotnet
-          sudo rm -rf /Library/Android
-          sudo rm -rf /Library/Developer/CoreSimulator
-        continue-on-error: true
-      - name: Checkout code
-        uses: actions/checkout@v4.2.2
-      - name: npm install, build and test
-        run: |
-          npm install
-          node build --arch x64 --version ${{ needs.is-latest.outputs.nw }}
-          node build --arch arm64 --version ${{ needs.is-latest.outputs.nw }}
-      - name: Upload the artifacts
-        uses: actions/upload-artifact@v4.6.2
-        with:
-          name: mac
-          path: 'build/out/*.zip'
-
-  build-linux:
-    needs: is-latest
-    name: "Build for Linux"
+    name: "Build for Windows on Ubuntu"
     runs-on: ubuntu-latest
     steps:
-      - name: Setup Node
-        uses: actions/setup-node@v4.4.0
-        with:
-          node-version: 20
       - name: Checkout code
         uses: actions/checkout@v4.2.2
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          # this might remove tools that are actually needed,
-          # if set to "true" but frees about 6 GB
-          tool-cache: true
-
-          # all of these default to true, but feel free to set to
-          # "false" if necessary for your workflow
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: true
-      - name: npm install, build and test
+      - name: Setup build tools
         run: |
-          npm install
-          node build --arch x64 -v ${{ needs.is-latest.outputs.nw }}
-          node build --arch ia32 -v ${{ needs.is-latest.outputs.nw }}
+          sudo apt-get update
+          sudo apt-get install -y nasm ripgrep mingw-w64
+      - name: Build
+        working-directory: ${{ github.workspace }}
+        run: |
+          mkdir -p /tmp/nwff;cd /tmp/nwff
+          bash  ${{ github.workspace }}/fetch-ffmpeg-chromium.sh ${{ needs.is-latest.outputs.chromium }}
+          MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh win-x64
+          zip -9 win-x64-${{ needs.is-latest.outputs.nw }}.zip ffmpeg.dll
       - name: Upload the artifacts
         uses: actions/upload-artifact@v4.6.2
         with:
-          name: linux
-          path: 'build/out/*.zip'
+          name: win-x64
+          path: '/tmp/nwff/*.zip'
+
+  build-win-ia32:
+    needs: is-latest
+    name: "Build for Windows-ia32 on Ubuntu"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+      - name: Setup build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nasm ripgrep mingw-w64
+      - name: Build
+        working-directory: ${{ github.workspace }}
+        run: |
+          mkdir -p /tmp/nwff;cd /tmp/nwff
+          bash  ${{ github.workspace }}/fetch-ffmpeg-chromium.sh ${{ needs.is-latest.outputs.chromium }}
+          MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh win-ia32
+          zip -9 win-ia32-${{ needs.is-latest.outputs.nw }}.zip ffmpeg.dll
+      - name: Upload the artifacts
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: win-ia32
+          path: '/tmp/nwff/*.zip'
+
+  build-osx-x64:
+    needs: is-latest
+    name: "Build for macos-x64"
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+      - name: Setup build tools
+        run: |
+          brew update
+          # Use newer bash
+          brew install nasm ripgrep bash
+      - name: Build
+        working-directory: ${{ github.workspace }}
+        run: |
+          mkdir -p /tmp/nwff;cd /tmp/nwff
+          bash  ${{ github.workspace }}/fetch-ffmpeg-chromium.sh ${{ needs.is-latest.outputs.chromium }}
+          MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh osx-x64
+          zip -9 osz-x64-${{ needs.is-latest.outputs.nw }}.zip libffmpeg.dylib
+      - name: Upload the artifacts
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: osx-x64
+          path: '/tmp/nwff/*.zip'
+
+  build-osx-arm64:
+    needs: is-latest
+    name: "Build for macos-arm64"
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+      - name: Setup build tools
+        run: |
+          brew update
+          brew install nasm ripgrep bash
+      - name: Build
+        working-directory: ${{ github.workspace }}
+        run: |
+          mkdir -p /tmp/nwff;cd /tmp/nwff
+          bash  ${{ github.workspace }}/fetch-ffmpeg-chromium.sh ${{ needs.is-latest.outputs.chromium }}
+          MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh osx-arm64
+          zip -9 osx-arm64-${{ needs.is-latest.outputs.nw }}.zip libffmpeg.dylib
+      - name: Upload the artifacts
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: osx-arm64
+          path: '/tmp/nwff/*.zip'
+
+  build-linux-x64:
+    needs: is-latest
+    name: "Build for Linux-x64"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+      - name: Setup build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nasm ripgrep
+      - name: Build
+        working-directory: ${{ github.workspace }}
+        run: |
+          mkdir -p /tmp/nwff;cd /tmp/nwff
+          bash  ${{ github.workspace }}/fetch-ffmpeg-chromium.sh ${{ needs.is-latest.outputs.chromium }}
+          MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh linux-x64
+          zip -9 linux-x64-${{ needs.is-latest.outputs.nw }}.zip libffmpeg.so
+      - name: Upload the artifacts
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: linux-x64
+          path: '/tmp/nwff/*.zip'
+
+  build-linux-ia32:
+    needs: is-latest
+    name: "Build for Linux-ia32"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+      - name: Setup build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nasm ripgrep gcc-multilib
+      - name: Build
+        working-directory: ${{ github.workspace }}
+        run: |
+          mkdir -p /tmp/nwff;cd /tmp/nwff
+          bash  ${{ github.workspace }}/fetch-ffmpeg-chromium.sh ${{ needs.is-latest.outputs.chromium }}
+          MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh linux-ia32
+          zip -9 linux-ia32-${{ needs.is-latest.outputs.nw }}.zip libffmpeg.so
+      - name: Upload the artifacts
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: linux-ia32
+          path: '/tmp/nwff/*.zip'
 
   build-release:
-    needs: [ build-win, build-macos, build-linux ]
+    needs: [ is-latest, build-win-x64, build-win-ia32, build-osx-x64, build-osx-arm64, build-linux-x64, build-linux-ia32]
     name: "Build Release"
     runs-on: "ubuntu-latest"
     steps:
-      - name: Get NWJS version
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "NW=${{ github.event.inputs.version }}" >> $GITHUB_ENV
-          else
-            echo "NW=$(curl -s https://nwjs.io/versions | jq -r '.latest' | sed 's/v//')" >> $GITHUB_ENV
-          fi
-
       - uses: actions/download-artifact@v4.3.0
         with:
-          name: win
-          path: release/win
+          name: win-x64
+          path: release/win-x64
       - uses: actions/download-artifact@v4.3.0
         with:
-          name: linux
-          path: release/linux
+          name: win-ia32
+          path: release/win-ia32
       - uses: actions/download-artifact@v4.3.0
         with:
-          name: mac
-          path: release/mac
+          name: linux-x64
+          path: release/linux-x64
+      - uses: actions/download-artifact@v4.3.0
+        with:
+          name: linux-ia32
+          path: release/linux-ia32
+      - uses: actions/download-artifact@v4.3.0
+        with:
+          name: osx-x64
+          path: release/osx-x64
+      - uses: actions/download-artifact@v4.3.0
+        with:
+          name: osx-arm64
+          path: release/osx-arm64
 
       - name: Display structure of downloaded files
         run: ls -R
@@ -174,9 +231,15 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            release/mac/*.zip
-            release/linux/*.zip
-            release/win/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/build/out/*.zip
-          tag_name: ${{ env.NW }}
+            release/osx-arm64/*.zip
+            release/osx-x64/*.zip
+            release/linux-x64/*.zip
+            release/linux-ia32/*.zip
+            release/win-x64/*.zip
+            release/win-ia32/*.zip
+          tag_name: ${{ needs.is-latest.outputs.nw }}
+          body: |
+            Chromium ${{ needs.is-latest.outputs.chromium }}
+            #avcodec ${{ needs.is-latest.outputs.avcodec }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
