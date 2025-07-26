@@ -170,6 +170,21 @@ jobs:
         run: ls -R
         working-directory: release/
 
+      - name: Unzip Linux artifacts
+        run: |
+          mkdir -p extracted/linux
+          unzip 'release/linux/*.zip' -d extracted/linux
+
+      - name: Extract FFmpeg version
+        run: |
+          FFMPEG_VERSION=$(strings release/linux/build/out/libffmpeg.so | grep -Eo 'ffmpeg version [^ ]+' | head -n 1)
+          echo "FFMPEG_VERSION=${FFMPEG_VERSION}" >> $GITHUB_ENV
+          echo "## Release Notes" > release-notes.md
+          echo "- NW.js version: $NW" >> release-notes.md
+          echo "- Chromium version: $(curl -s https://nwjs.io/versions.json | jq -r .versions[0].components.chromium)" >> release-notes.md
+          echo "- ${FFMPEG_VERSION}" >> release-notes.md
+          echo "- Includes builds for Windows, macOS, and Linux" >> release-notes.md
+
       - name: Upload binaries to release
         uses: softprops/action-gh-release@v2
         with:
@@ -178,7 +193,6 @@ jobs:
             release/linux/*.zip
             release/win/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/build/out/*.zip
           tag_name: ${{ env.NW }}
-          body: |
-            Chromium version: $( curl -s https://nwjs.io/versions.json | jq -r .versions[0].components.chromium )
+          body_path: release-notes.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
