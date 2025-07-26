@@ -178,5 +178,7 @@ jobs:
             release/linux/*.zip
             release/win/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/build/out/*.zip
           tag_name: ${{ env.NW }}
+          body: |
+            Chromium version: $( curl -s https://nwjs.io/versions.json | jq -r .versions[0].components.chromium )
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
