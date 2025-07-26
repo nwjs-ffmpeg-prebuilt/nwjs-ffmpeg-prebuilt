@@ -21,6 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       nw: ${{ steps.set_nw.outputs.nw }}
+      chromium: ${{ steps.set_nw.outputs.chromium }}
+      #avcodec: ${{ steps.set_nw.outputs.avcodec }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
@@ -38,6 +40,13 @@ jobs:
             NW_VERSION=$(curl -s https://nwjs.io/versions.json | jq -r '.latest' | sed 's/v//')
             echo "nw=$NW_VERSION" >> $GITHUB_OUTPUT
           fi
+          CHROMIUM=$(curl -s https://nwjs.io/versions.json | jq -r ".versions[] | select(.version==\"v$NW_VERSION\") | .components.chromium")
+          echo "chromium=$CHROMIUM" >> $GITHUB_OUTPUT
+          #_commit=$(curl -sL https://raw.githubusercontent.com/chromium/chromium/refs/tags/${_chromium}/DEPS | grep -oP "'ffmpeg_revision': '\K[0-9a-f]{40}'" | tr -d \')
+          #_url=https://chromium.googlesource.com/chromium/third_party/ffmpeg
+          #curl -sL ${_url}/+/${_commit}/libavcodec/version_major.h?format=TEXT -o a.base64
+          #SO=$(base64 -d a.base64|grep -oP 'LIBAVCODEC_VERSION_MAJOR\s+\K\d+')
+          #echo "avcodec=$SO" >> $GITHUB_OUTPUT
 
   build-win-x64:
     needs: is-latest
@@ -53,7 +62,10 @@ jobs:
       - name: Build
         working-directory: ${{ github.workspace }}
         run: |
-          bash ./build-linux.sh ${{ needs.is-latest.outputs.nw }} win-x64
+          mkdir -p /tmp/nwff;cd /tmp/nwff
+          bash  ${{ github.workspace }}/fetch-ffmpeg-chromium.sh ${{ needs.is-latest.outputs.chromium }}
+          MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh win-x64
+          zip -9 win-x64-${{ needs.is-latest.outputs.nw }}.zip ffmpeg.dll
       - name: Upload the artifacts
         uses: actions/upload-artifact@v4.6.2
         with:
@@ -74,7 +86,10 @@ jobs:
       - name: Build
         working-directory: ${{ github.workspace }}
         run: |
-          bash ./build-linux.sh ${{ needs.is-latest.outputs.nw }} win-ia32
+          mkdir -p /tmp/nwff;cd /tmp/nwff
+          bash  ${{ github.workspace }}/fetch-ffmpeg-chromium.sh ${{ needs.is-latest.outputs.chromium }}
+          MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh win-ia32
+          zip -9 win-ia32-${{ needs.is-latest.outputs.nw }}.zip ffmpeg.dll
       - name: Upload the artifacts
         uses: actions/upload-artifact@v4.6.2
         with:
@@ -96,7 +111,10 @@ jobs:
       - name: Build
         working-directory: ${{ github.workspace }}
         run: |
-          bash ./build-linux.sh ${{ needs.is-latest.outputs.nw }} osx-x64
+          mkdir -p /tmp/nwff;cd /tmp/nwff
+          bash  ${{ github.workspace }}/fetch-ffmpeg-chromium.sh ${{ needs.is-latest.outputs.chromium }}
+          MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh osx-x64
+          zip -9 osz-x64-${{ needs.is-latest.outputs.nw }}.zip libffmpeg.dylib
       - name: Upload the artifacts
         uses: actions/upload-artifact@v4.6.2
         with:
@@ -117,7 +135,10 @@ jobs:
       - name: Build
         working-directory: ${{ github.workspace }}
         run: |
-          bash ./build-linux.sh ${{ needs.is-latest.outputs.nw }} osx-arm64
+          mkdir -p /tmp/nwff;cd /tmp/nwff
+          bash  ${{ github.workspace }}/fetch-ffmpeg-chromium.sh ${{ needs.is-latest.outputs.chromium }}
+          MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh osx-arm64
+          zip -9 osx-arm64-${{ needs.is-latest.outputs.nw }}.zip libffmpeg.dylib
       - name: Upload the artifacts
         uses: actions/upload-artifact@v4.6.2
         with:
@@ -138,7 +159,10 @@ jobs:
       - name: Build
         working-directory: ${{ github.workspace }}
         run: |
-          bash ./build-linux.sh ${{ needs.is-latest.outputs.nw }} linux-x64
+          mkdir -p /tmp/nwff;cd /tmp/nwff
+          bash  ${{ github.workspace }}/fetch-ffmpeg-chromium.sh ${{ needs.is-latest.outputs.chromium }}
+          MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh linux-x64
+          zip -9 linux-x64-${{ needs.is-latest.outputs.nw }}.zip libffmpeg.so
       - name: Upload the artifacts
         uses: actions/upload-artifact@v4.6.2
         with:
@@ -159,7 +183,10 @@ jobs:
       - name: Build
         working-directory: ${{ github.workspace }}
         run: |
-          bash ./build-linux.sh ${{ needs.is-latest.outputs.nw }} linux-ia32
+          mkdir -p /tmp/nwff;cd /tmp/nwff
+          bash  ${{ github.workspace }}/fetch-ffmpeg-chromium.sh ${{ needs.is-latest.outputs.chromium }}
+          MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh linux-ia32
+          zip -9 linux-ia32-${{ needs.is-latest.outputs.nw }}.zip libffmpeg.so
       - name: Upload the artifacts
         uses: actions/upload-artifact@v4.6.2
         with:
@@ -167,20 +194,10 @@ jobs:
           path: '/tmp/nwff/*.zip'
 
   build-release:
-    needs: [ build-win-x64, build-win-ia32, build-osx-x64, build-osx-arm64, build-linux-x64, build-linux-ia32]
+    needs: [ is-latest, build-win-x64, build-win-ia32, build-osx-x64, build-osx-arm64, build-linux-x64, build-linux-ia32]
     name: "Build Release"
     runs-on: "ubuntu-latest"
     steps:
-      - name: Get NWJS version
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "NW=${{ github.event.inputs.version }}" >> $GITHUB_ENV
-          else
-            echo "NW=$(curl -s https://nwjs.io/versions | jq -r '.latest' | sed 's/v//')" >> $GITHUB_ENV
-            #CHROMIUM=$(curl -s https://nwjs.io/versions.json | jq -r ".versions[] | select(.version==\"v$NW_VERSION\") | .components.chromium")
-            #echo "Chromium=$CHROMIUM" >> $GITHUB_ENV
-          fi
-
       - uses: actions/download-artifact@v4.3.0
         with:
           name: win-x64
@@ -220,8 +237,9 @@ jobs:
             release/linux-ia32/*.zip
             release/win-x64/*.zip
             release/win-ia32/*.zip
-          tag_name: ${{ env.NW }}
-          #body: |
-            #Chromium ${{ env.CHROMIUM}}
+          tag_name: ${{ needs.is-latest.outputs.nw }}
+          body: |
+            Chromium ${{ needs.is-latest.outputs.chromium }}
+            #avcodec ${{ needs.is-latest.outputs.avcodec }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
