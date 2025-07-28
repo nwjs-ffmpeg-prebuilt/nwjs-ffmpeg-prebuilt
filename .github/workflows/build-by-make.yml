@@ -10,7 +10,7 @@ on:
       version:
         description: 'Version number to build'
         required: true
-        default: '0.99.1' # has sonames of libavcodec's with latest Opera 
+        default: '0.100.1' # has sonames of libavcodec's with latest Opera 
 concurrency:
   group: ${{ github.ref }}-make # fix after reviewed
   cancel-in-progress: false # true
@@ -64,7 +64,7 @@ jobs:
       - name: Setup build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y nasm mingw-w64
+          sudo apt-get install -y nasm gcc-mingw-w64-x86-64
       - name: Build
         working-directory: ${{ github.workspace }}
         run: |
@@ -89,7 +89,7 @@ jobs:
       - name: Setup build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y nasm mingw-w64
+          sudo apt-get install -y nasm gcc-mingw-w64-i686
       - name: Build
         working-directory: ${{ github.workspace }}
         run: |
@@ -123,7 +123,7 @@ jobs:
           curl https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/${{ needs.is-latest.outputs.commit }}.tar.gz -o chromium-ffmpeg.tar.gz
           tar -xf chromium-ffmpeg.tar.gz
           MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh osx-x64
-          zip -9 osz-x64-${{ needs.is-latest.outputs.nw }}.zip libffmpeg.dylib
+          zip -9 osx-x64-${{ needs.is-latest.outputs.nw }}.zip libffmpeg.dylib
       - name: Upload the artifacts
         uses: actions/upload-artifact@v4.6.2
         with:
