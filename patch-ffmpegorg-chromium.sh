@@ -13,7 +13,6 @@ _chrff=$(curl -sL https://raw.githubusercontent.com/chromium/chromium/refs/tags/
 curl https://chromium.googlesource.com/chromium/third_party/ffmpeg/+/${_chrff}/chromium/ffmpeg.sigs?format=TEXT -o ffmpeg.sigs.base64
 mkdir -p chromium
 base64 -d ffmpeg.sigs.base64 > chromium/ffmpeg.sigs
-curl https://aur.archlinux.org/cgit/aur.git/plain/nolog.c?h=chromium-ffmpeg-codecs -o nolog.c # insecure source
 
 # https://chromium.googlesource.com/chromium/third_party/ffmpeg/+/refs/heads/master/chromium/patches/README
 patch -Np1 -i Add-av_stream_get_first_dts.patch # needed
@@ -24,10 +23,10 @@ sed -i.bak -E -e "/&ff_dirac_codec,/d" -e "/&ff_speex_codec,/d" \
 diff libavformat/oggdec.c{.bak,}||:
 sed -i.bak 's/^int av_sscanf(.*/#define av_sscanf sscanf/' libavutil/avstring.h # not only for -8 kb
 diff libavutil/avstring.h{.bak,}||:
-# CHROMIUM_NO_LOGGING
-sed -i.bak -E \
-  -e "/^void\s+av_log\s*\(.*\)\s*$/,/^\s*\}\s*$/d" \
-  -e "/^void\s+av_log_once\s*\(.*\)\s*$/,/^\s*\}\s*$/d" \
-  -e "/^void\s+av_vlog\s*\(.*\)\s*$/,/^\s*\}\s*$/d" \
- libavutil/log.c
-cat nolog.c >> libavutil/log.c
+# CHROMIUM_NO_LOGGING to drop 100 kb+
+_av_log=$(grep 'void av_log(' libavutil/log.c)
+_av_log_once=$(grep 'void av_log_once(' libavutil/log.c)
+_av_vlog=$(grep 'void av_vlog(' libavutil/log.c)
+sed -i.bak -E "/^void\s+(av_log|av_log_once|av_vlog)\s*\(.*\)\s*$/,/^\s*\}\s*$/d" libavutil/log.c
+echo -e "${_av_log}{}\n${_av_log_once}{}\n${_av_vlog}{}" >> libavutil/log.c
+#diff libavutil/log.c{.bak,}||:
