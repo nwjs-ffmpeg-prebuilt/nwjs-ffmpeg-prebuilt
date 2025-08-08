@@ -77,7 +77,7 @@ jobs:
   build-macos:
     needs: is-latest
     name: "Build for MacOS"
-    runs-on: macos-latest
+    runs-on: macos-15
     steps:
       - name: Setup Node
         uses: actions/setup-node@v4.4.0
