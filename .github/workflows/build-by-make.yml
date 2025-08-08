@@ -45,7 +45,7 @@ jobs:
           fi
           CHROMIUM=$(curl -s https://nwjs.io/versions.json | jq -r ".versions[] | select(.version==\"v$NW_VERSION\") | .components.chromium")
           echo "chromium=$CHROMIUM" >> $GITHUB_OUTPUT
-          _commit=$(curl -sL https://raw.githubusercontent.com/chromium/chromium/refs/tags/${CHROMIUM}/DEPS | grep -oP "'ffmpeg_revision': '\K[0-9a-f]{40}'" | tr -d \')
+          _commit=$(curl -sL https://chromium.googlesource.com/chromium/src.git/+/refs/tags/${_chromium}/DEPS?format=TEXT | base64 -d | grep -oP "'ffmpeg_revision': '\K[0-9a-f]{40}'" | tr -d \')
            echo "commit=$_commit" >> $GITHUB_OUTPUT
           _url=https://chromium.googlesource.com/chromium/third_party/ffmpeg
           SO=$(curl -sL ${_url}/+/${_commit}/libavcodec/version_major.h?format=TEXT|base64 -d | grep -oP 'LIBAVCODEC_VERSION_MAJOR\s+\K\d+')
