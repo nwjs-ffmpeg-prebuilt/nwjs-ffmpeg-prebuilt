@@ -59,7 +59,7 @@ diff libavcodec/opus/dec.c{.bak,} || :
   --libdir=/
 
   make DESTDIR=. install
-_symbols=$(cat sigs.txt | awk '{print "-Wl,-u," $1}'|paste -sd ' ' -)
+_symbols=$(awk '{print "-Wl,-u," $1}' sigs.txt | paste -sd ' ' -)
 declare -A gccflag=(
 [linux-x64]="${_symbols} -Wl,-u,avutil_version -Wl,--version-script=export.map -lm -Wl,-Bsymbolic"
 [linux-ia32]="${_symbols} -Wl,-u,avutil_version -Wl,--version-script=export.map -lm -Wl,-Bsymbolic"
