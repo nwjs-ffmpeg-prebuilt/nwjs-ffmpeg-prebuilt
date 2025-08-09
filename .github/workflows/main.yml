@@ -133,7 +133,7 @@ jobs:
         run: |
           npm install
           node build --arch x64 -v ${{ needs.is-latest.outputs.nw }}
-          node build --arch ia32 -v ${{ needs.is-latest.outputs.nw }}
+          # ia32 build is broken
       - name: Upload the artifacts
         uses: actions/upload-artifact@v4.6.2
         with:
