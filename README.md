@@ -35,4 +35,4 @@ npx nwjs-ffmpeg-prebuilt [-h] [-c] [-d] [--get-download-url] [--version NW_VERSI
 You can get the FFmpeg source code from [here](https://chromium.googlesource.com/chromium/third_party/ffmpeg).
 
 >### License and Patent Fee
-> Using MP3 and H.264 codecs requires you to pay attention to the patent royalties and the license of the source code. Consult a lawyer if you do not understand the licensing constraints and using patented media formats in your application. For more information about the license of the source code, check [here](https://chromium.googlesource.com/chromium/third_party/ffmpeg.git/+/master/CREDITS.chromium).
+> Using AAC and H.264 codecs requires you to pay attention to the patent royalties and the license of the source code. Consult a lawyer if you do not understand the licensing constraints and using patented media formats in your application. For more information about the license of the source code, check [here](https://chromium.googlesource.com/chromium/third_party/ffmpeg.git/+/master/CREDITS.chromium).
