@@ -150,7 +150,7 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "NW=${{ github.event.inputs.version }}" >> $GITHUB_ENV
           else
-            echo "NW=$(curl -s https://nwjs.io/versions | jq -r '.latest' | sed 's/v//')" >> $GITHUB_ENV
+            echo "NW=$(curl -s https://nwjs.io/versions.json | jq -r '.latest' | sed 's/v//')" >> $GITHUB_ENV
           fi
 
       - uses: actions/download-artifact@v4.3.0
