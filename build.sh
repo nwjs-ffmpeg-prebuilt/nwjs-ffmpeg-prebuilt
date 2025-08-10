@@ -66,7 +66,7 @@ declare -A gccflag=(
 [osx-x64]=
 [osx-arm64]=
 [win-x64]="${_symbols} -Wl,-u,avutil_version -Wl,--version-script=export.map -lbcrypt"
-[win-ia32]=-lbcrypt
+[win-ia32]="${_symbols} -Wl,-u,avutil_version -Wl,--version-script=export.map -lbcrypt -static-libgcc"
 )
 declare -A startgroup=(
 [linux-x64]='-Wl,--start-group ' # space is not typo
