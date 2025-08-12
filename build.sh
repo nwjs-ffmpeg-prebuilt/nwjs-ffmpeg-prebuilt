@@ -61,20 +61,20 @@ diff libavcodec/opus/dec.c{.bak,} || :
   make DESTDIR=. install
 _symbols=$(awk '{print "-Wl,-u," $1}' sigs.txt | paste -sd ' ' -)
 declare -A gccflag=(
-[linux-x64]="${_symbols} -Wl,-u,avutil_version -Wl,--version-script=export.map -lm -Wl,-Bsymbolic"
-[linux-ia32]="${_symbols} -Wl,-u,avutil_version -Wl,--version-script=export.map -lm -Wl,-Bsymbolic"
+[linux-x64]="${_symbols} -Wl,--version-script=export.map -lm -Wl,-Bsymbolic"
+[linux-ia32]="${_symbols} -Wl,--version-script=export.map -lm -Wl,-Bsymbolic"
 [osx-x64]=
 [osx-arm64]=
-[win-x64]="${_symbols} -Wl,-u,avutil_version -Wl,--version-script=export.map -lbcrypt"
-[win-ia32]="${_symbols} -Wl,-u,avutil_version -Wl,--version-script=export.map -lbcrypt -static-libgcc"
+[win-x64]="${_symbols} -Wl,--version-script=export.map -lbcrypt"
+[win-ia32]="${_symbols} -Wl,--version-script=export.map -lbcrypt -static-libgcc"
 )
 declare -A startgroup=(
-[linux-x64]='-Wl,--start-group ' # space is not typo
+[linux-x64]='-Wl,--start-group '
 [linux-ia32]='-Wl,--start-group '
-[osx-x64]='-Wl,-force_load,'
+[osx-x64]='-Wl,-force_load,' # should be list of funcs
 [osx-arm64]='-Wl,-force_load,'
 [win-x64]='-Wl,--start-group '
-[win-ia32]='-Wl,--whole-archive ' # filtering of funcs cause few kb binary
+[win-ia32]='-Wl,--whole-archive ' # should be --start-group which builds few kb dll
 )
 declare -A endgroup=(
 [linux-x64]='-Wl,--end-group'
@@ -82,7 +82,7 @@ declare -A endgroup=(
 [osx-x64]=
 [osx-arm64]=
 [win-x64]='-Wl,--end-group'
-[win-ia32]='-Wl,--no-whole-archive'
+[win-ia32]='-Wl,--no-whole-archive' # should be --end-group
 )
 declare -A libname=(
 [linux-x64]=libffmpeg.so
