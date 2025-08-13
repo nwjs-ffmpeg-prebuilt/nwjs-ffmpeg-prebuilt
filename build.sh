@@ -2,7 +2,7 @@
 declare -A ffbuildflags=(
 [linux-x64]=
 [linux-ia32]='--arch=x86 --enable-cross-compile'
-[osx-x64]='--arch=x86_64 --enable-cross-compile --enable-audiotoolbox --enable-decoder=aac_at,mp3_at --disable-decoder=aac,mp3'
+[osx-x64]='--arch=x86_64 --enable-cross-compile --enable-audiotoolbox --enable-decoder=aac_at,mp3_at --disable-decoder=aac,mp3,h264'
 [osx-arm64]='--arch=arm64 --enable-audiotoolbox --enable-decoder=aac_at,mp3_at --disable-decoder=aac,mp3,h264' # Chromium decodes H264 via videotoolbox
 [win-x64]='--arch=x86_64 --target-os=mingw32 --cross-prefix=x86_64-w64-mingw32-'
 [win-ia32]='--arch=x86 --target-os=mingw32 --cross-prefix=i686-w64-mingw32-'
@@ -35,6 +35,7 @@ declare -A cc=(
 $(command -v ggrep||command -v grep)  -oP '\bav[a-z0-9_]*(?=\s*\()' chromium/ffmpeg.sigs > sigs.txt
 echo -e "avformat_version\navutil_version\nff_h264_decode_init_vlc" >> sigs.txt # only for opera
 echo -e "{\nglobal:\n$(sed 's/$/;/' sigs.txt)\nlocal:\n*;\n};" | tee export.map
+sed -e 's/^/_/' -e 's/_ff_h264_decode_init_vlc//' sigs.txt > _sigs.txt
 # Use ffmpeg's native opus decoder not in kAllowedAudioCodecs at https://github.com/chromium/chromium/blob/main/media/ffmpeg/ffmpeg_common.cc
 sed -i.bak "s/^ *\.p\.name *=.*/.p.name=\"libopus\",/" libavcodec/opus/dec.c
 diff libavcodec/opus/dec.c{.bak,} || :
@@ -66,8 +67,8 @@ _symbols=$(awk '{print "-Wl,-u," $1}' sigs.txt | paste -sd ' ' -)
 declare -A gccflag=(
 [linux-x64]="${_symbols} -Wl,--version-script=export.map -lm -Wl,-Bsymbolic"
 [linux-ia32]="${_symbols} -Wl,--version-script=export.map -lm -Wl,-Bsymbolic"
-[osx-x64]="-framework AudioToolbox" #"${_symbols} -Wl,-exported_symbols_list,sigs.txt"
-[osx-arm64]="-framework AudioToolbox" #"${_symbols} -Wl,-exported_symbols_list,sigs.txt"
+[osx-x64]="-framework AudioToolbox -Wl,-exported_symbols_list,_sigs.txt -dead_strip"
+[osx-arm64]="-framework AudioToolbox -Wl,-exported_symbols_list,_sigs.txt -dead_strip"
 [win-x64]="${_symbols} -Wl,--version-script=export.map -lbcrypt"
 [win-ia32]="${_symbols} -Wl,--version-script=export.map -lbcrypt -static-libgcc"
 )
