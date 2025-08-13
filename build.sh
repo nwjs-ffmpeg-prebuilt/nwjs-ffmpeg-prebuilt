@@ -2,8 +2,8 @@
 declare -A ffbuildflags=(
 [linux-x64]=
 [linux-ia32]='--arch=x86 --enable-cross-compile'
-[osx-x64]='--arch=x86_64 --enable-cross-compile'
-[osx-arm64]='--arch=arm64'
+[osx-x64]='--arch=x86_64 --enable-cross-compile --enable-audiotoolbox --enable-decoder=aac_at,mp3_at --disable-decoder=aac,mp3'
+[osx-arm64]='--arch=arm64 --enable-audiotoolbox --enable-decoder=aac_at,mp3_at --disable-decoder=aac,mp3'
 [win-x64]='--arch=x86_64 --target-os=mingw32 --cross-prefix=x86_64-w64-mingw32-'
 [win-ia32]='--arch=x86 --target-os=mingw32 --cross-prefix=i686-w64-mingw32-'
 )
@@ -38,6 +38,9 @@ echo -e "{\nglobal:\n$(sed 's/$/;/' sigs.txt)\nlocal:\n*;\n};" | tee export.map
 # Use ffmpeg's native opus decoder not in kAllowedAudioCodecs at https://github.com/chromium/chromium/blob/main/media/ffmpeg/ffmpeg_common.cc
 sed -i.bak "s/^ *\.p\.name *=.*/.p.name=\"libopus\",/" libavcodec/opus/dec.c
 diff libavcodec/opus/dec.c{.bak,} || :
+# Use osapi on macOS
+sed -i.bak "/^ *\.p\.name *=.*/s/\"_at\"//g" libavcodec/audiotoolboxdec.c
+diff libavcodec/audiotoolboxdec.c{.bak,}||:
 # https://chromium.googlesource.com/chromium/third_party/ffmpeg/+/refs/heads/master/
 # BUILD.gn and chromium/config/Chrome/linux/x64/
 ./configure \
@@ -63,18 +66,18 @@ _symbols=$(awk '{print "-Wl,-u," $1}' sigs.txt | paste -sd ' ' -)
 declare -A gccflag=(
 [linux-x64]="${_symbols} -Wl,--version-script=export.map -lm -Wl,-Bsymbolic"
 [linux-ia32]="${_symbols} -Wl,--version-script=export.map -lm -Wl,-Bsymbolic"
-[osx-x64]=
-[osx-arm64]=
+[osx-x64]="-framework AudioToolbox" #"${_symbols} -Wl,-exported_symbols_list,sigs.txt"
+[osx-arm64]="-framework AudioToolbox" #"${_symbols} -Wl,-exported_symbols_list,sigs.txt"
 [win-x64]="${_symbols} -Wl,--version-script=export.map -lbcrypt"
 [win-ia32]="${_symbols} -Wl,--version-script=export.map -lbcrypt -static-libgcc"
 )
 declare -A startgroup=(
-[linux-x64]='-Wl,--start-group '
-[linux-ia32]='-Wl,--start-group '
-[osx-x64]='-Wl,-force_load,' # should be list of funcs
-[osx-arm64]='-Wl,-force_load,'
-[win-x64]='-Wl,--start-group '
-[win-ia32]='-Wl,--whole-archive ' # should be --start-group which builds few kb dll
+[linux-x64]='-Wl,--start-group'
+[linux-ia32]='-Wl,--start-group'
+[osx-x64]='-Wl,-force_load,libavcodec.a -Wl,-force_load,libavformat.a -Wl,-force_load,libavutil.a'
+[osx-arm64]='-Wl,-force_load,libavcodec.a -Wl,-force_load,libavformat.a -Wl,-force_load,libavutil.a'
+[win-x64]='-Wl,--start-group'
+[win-ia32]='-Wl,--whole-archive' # should be --start-group which builds few kb dll
 )
 declare -A endgroup=(
 [linux-x64]='-Wl,--end-group'
