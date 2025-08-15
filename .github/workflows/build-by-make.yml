@@ -72,7 +72,7 @@ jobs:
           curl https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/${{ needs.is-latest.outputs.commit }}.tar.gz -o chromium-ffmpeg.tar.gz
           tar -xf chromium-ffmpeg.tar.gz
           MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh win-x64
-          zip -9 win-x64-${{ needs.is-latest.outputs.nw }}.zip ffmpeg.dll
+          zip -9 ${{ needs.is-latest.outputs.nw }}-win-x64.zip ffmpeg.dll
       - name: Upload the artifacts
         uses: actions/upload-artifact@v4.6.2
         with:
@@ -97,7 +97,7 @@ jobs:
           curl https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/${{ needs.is-latest.outputs.commit }}.tar.gz -o chromium-ffmpeg.tar.gz
           tar -xf chromium-ffmpeg.tar.gz
           MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh win-ia32
-          zip -9 win-ia32-${{ needs.is-latest.outputs.nw }}.zip ffmpeg.dll
+          zip -9 ${{ needs.is-latest.outputs.nw }}-win-ia32.zip ffmpeg.dll
       - name: Upload the artifacts
         uses: actions/upload-artifact@v4.6.2
         with:
@@ -123,7 +123,7 @@ jobs:
           curl https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/${{ needs.is-latest.outputs.commit }}.tar.gz -o chromium-ffmpeg.tar.gz
           tar -xf chromium-ffmpeg.tar.gz
           MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh osx-x64
-          zip -9 osx-x64-${{ needs.is-latest.outputs.nw }}.zip libffmpeg.dylib
+          zip -9 ${{ needs.is-latest.outputs.nw }}-osx-x64.zip libffmpeg.dylib
       - name: Upload the artifacts
         uses: actions/upload-artifact@v4.6.2
         with:
@@ -148,7 +148,7 @@ jobs:
           curl https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/${{ needs.is-latest.outputs.commit }}.tar.gz -o chromium-ffmpeg.tar.gz
           tar -xf chromium-ffmpeg.tar.gz
           MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh osx-arm64
-          zip -9 osx-arm64-${{ needs.is-latest.outputs.nw }}.zip libffmpeg.dylib
+          zip -9 ${{ needs.is-latest.outputs.nw }}-osx-arm64.zip libffmpeg.dylib
       - name: Upload the artifacts
         uses: actions/upload-artifact@v4.6.2
         with:
@@ -173,7 +173,7 @@ jobs:
           curl https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/${{ needs.is-latest.outputs.commit }}.tar.gz -o chromium-ffmpeg.tar.gz
           tar -xf chromium-ffmpeg.tar.gz
           MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh linux-x64
-          zip -9 linux-x64-${{ needs.is-latest.outputs.nw }}.zip libffmpeg.so
+          zip -9 ${{ needs.is-latest.outputs.nw }}-linux-x64.zip libffmpeg.so
       - name: Upload the artifacts
         uses: actions/upload-artifact@v4.6.2
         with:
@@ -198,7 +198,7 @@ jobs:
           curl https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/${{ needs.is-latest.outputs.commit }}.tar.gz -o chromium-ffmpeg.tar.gz
           tar -xf chromium-ffmpeg.tar.gz
           MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh linux-ia32
-          zip -9 linux-ia32-${{ needs.is-latest.outputs.nw }}.zip libffmpeg.so
+          zip -9 ${{ needs.is-latest.outputs.nw }}-linux-ia32.zip libffmpeg.so
       - name: Upload the artifacts
         uses: actions/upload-artifact@v4.6.2
         with:
