@@ -35,14 +35,14 @@ SO=$(curl -sL ${_url}/+/${_commit}/libavcodec/version_major.h?format=TEXT|base64
 
 We can build ffmpeg from source of [chromium/third_pirty/ffmpeg](https://chromium.googlesource.com/chromium/third_party/ffmpeg/):
 
-https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/${_commit}.tar.gz
+`curl https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/${_commit}.tar.gz -o chromium-ffmpeg.tar.gz`
 
 or original ffmpeg source. You need to run `patch-ffmpegorg-chromium.sh` at toplevel (same location with `configure` file) of source if you build from original ffmpeg source.
 Build acript accepts `MAKEFLAGS`. Run
 
-`MAKEFLAGS=-j3 bash ./build.sh TARGET`
+`MAKEFLAGS=-j3 bash ./build.sh $TARGET`
 
-where TARGET is one of linux-x64, linux-ia32, win-x64, win-ia32, osx-arm64 or osx-x64.
+where `$TARGET` is one of linux-x64, linux-ia32, win-x64, win-ia32, osx-arm64 or osx-x64.
 
 ### License and Patent Fee
 
@@ -66,11 +66,13 @@ Building binary on Windows host is not supported yet. Decoding AAC via OSAPI is 
 
 User of Gentoo Linux or Arch Linux (AUR) is advised to use [ebuild](https://packages.gentoo.org/packages/media-video/ffmpeg-chromium) or [PKGBUILD](https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=chromium-ffmpeg) instead of this project.
 
-## Opera Browser issue
+##### Opera Browser issue
 
 Opera needs to care more than libavcodec version to use our binary.
-You are NOT enough to install our binary at
-`/usr/lib/x86_64-linux-gnu/opera/lib_extra/libffmpeg.so` since Opera has strange internal `LD_PRELOAD` for default
-`/usr/lib/x86_64-linux-gnu/opera/libffmpeg.so` which blocks our custom performance optimization flags,
-and breaks binary built from original ffmpeg source.
-It is recommended to remove or drop read permission from default `/usr/lib/x86_64-linux-gnu/opera/libffmpeg.so`.
+
+It is recommended to install our binary at
+`/usr/lib/x86_64-linux-gnu/opera/lib_extra/libffmpeg.so` and remove or drop read permission from default
+
+``/usr/lib/x86_64-linux-gnu/opera/libffmpeg.so``
+
+since Opera has strange internal `LD_PRELOAD` for default binary which blocks our custom performance optimization, or simply breaks video play back.
