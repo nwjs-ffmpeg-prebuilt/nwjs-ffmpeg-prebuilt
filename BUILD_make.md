@@ -37,10 +37,9 @@ We can build ffmpeg from source of [chromium/third_pirty/ffmpeg](https://chromiu
 
 `curl https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/${_commit}.tar.gz -o chromium-ffmpeg.tar.gz`
 
-or original ffmpeg source. You need to run `patch-ffmpegorg-chromium.sh` at toplevel (same location with `configure` file) of source if you build from original ffmpeg source.
-Build acript accepts `MAKEFLAGS`. Run
+Run build script with suitable `MAKEFLAGS`:
 
-`MAKEFLAGS=-j3 bash ./build.sh $TARGET`
+`MAKEFLAGS=-j7 bash ./build.sh $TARGET`
 
 where `$TARGET` is one of linux-x64, linux-ia32, win-x64, win-ia32, osx-arm64 or osx-x64.
 
