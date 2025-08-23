@@ -1,38 +1,35 @@
 #!/bin/bash -e
-declare -A ffbuildflags=(
-[linux-x64]=
-[linux-ia32]='--arch=x86 --enable-cross-compile'
-[osx-x64]='--arch=x86_64 --enable-cross-compile --enable-audiotoolbox --enable-decoder=aac_at,mp3_at --disable-decoder=aac,mp3,h264'
-[osx-arm64]='--arch=arm64 --enable-audiotoolbox --enable-decoder=aac_at,mp3_at --disable-decoder=aac,mp3,h264' # Chromium decodes H264 via videotoolbox
-[win-x64]='--arch=x86_64 --target-os=mingw32 --cross-prefix=x86_64-w64-mingw32-'
-[win-ia32]='--arch=x86 --target-os=mingw32 --cross-prefix=i686-w64-mingw32-'
-)
-declare -A extcflags=(
-[linux-x64]='-fno-math-errno -fno-signed-zeros -fno-semantic-interposition -fomit-frame-pointer'
-[linux-ia32]='-m32 -fno-math-errno -fno-signed-zeros -fno-semantic-interposition -fomit-frame-pointer'
-[osx-x64]='-arch x86_64 --target=x86_64-apple-macosx'
-[osx-arm64]=
-[win-x64]=
-[win-ia32]=
-)
-declare -A extldflags=(
-[linux-x64]='-Wl,-O1 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now -Wl,-z,pack-relative-relocs'
-[linux-ia32]='-m32 -Wl,-O1 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now -Wl,-z,pack-relative-relocs'
-[osx-x64]=
-[osx-arm64]=
-[win-x64]='-Wl,--nxcompat -Wl,--dynamicbase'
-[win-ia32]='-Wl,--nxcompat -Wl,--dynamicbase'
-)
-declare -A cc=(
-[linux-x64]=gcc
-[linux-ia32]='gcc -m32'
-[osx-x64]='clang -arch x86_64'
-[osx-arm64]=clang
-[win-x64]=x86_64-w64-mingw32-gcc
-[win-ia32]=i686-w64-mingw32-gcc
-)
+# Do not use declare -A for old bash on macOS
+case $1 in
+linux-ia32) ffbuild="--arch=x86 --enable-cross-compile" ;;
+osx-x64) ffbuild="--arch=x86_64 --enable-cross-compile --enable-audiotoolbox --enable-decoder=aac_at,mp3_at --disable-decoder=aac,mp3,h264" ;;
+osx-arm64) ffbuild="--arch=arm64 --enable-audiotoolbox --enable-decoder=aac_at,mp3_at --disable-decoder=aac,mp3,h264" ;;# Chromium decodes H264 via videotoolbox
+win-x64) ffbuild="--arch=x86_64 --target-os=mingw32 --cross-prefix=x86_64-w64-mingw32-" ;;
+win-ia32) ffbuild="--arch=x86 --target-os=mingw32 --cross-prefix=i686-w64-mingw32-" ;;
+esac
 
-$(command -v ggrep||command -v grep)  -oP '\bav[a-z0-9_]*(?=\s*\()' chromium/ffmpeg.sigs > sigs.txt
+case $1 in
+linux-x64) cflags="-fno-math-errno -fno-signed-zeros" ;;
+linux-ia32) cflags="-m32 -fno-math-errno -fno-signed-zeros" ;;
+osx-x64) cflags="-arch x86_64 --target=x86_64-apple-macosx" ;;
+esac
+
+case $1 in
+linux-x64) ldflags="-Wl,-O1 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now -Wl,-z,pack-relative-relocs" ;;
+linux-ia32) ldflags="-m32 -Wl,-O1 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now -Wl,-z,pack-relative-relocs" ;;
+win-*) ldflags="-Wl,-O1 -Wl,--sort-common -Wl,--as-needed -Wl,--nxcompat -Wl,--dynamicbase" ;;
+esac
+
+case $1 in
+linux-*|osx-arm64) cc=gcc ;; # symlink to clang at macOS
+osx-x64) cc="clang -arch x86_64";;
+linux-ia32) cc="gcc -m32" ;;
+win-x64) cc=x86_64-w64-mingw32-gcc ;;
+win-ia32) cc=i686-w64-mingw32-gcc ;;
+esac
+
+# support old grep on macOS
+grep  -o '\bav[a-z0-9_]*(' chromium/ffmpeg.sigs | sed 's/(//' > sigs.txt
 echo -e "avformat_version\navutil_version\nff_h264_decode_init_vlc" >> sigs.txt # only for opera
 echo -e "{\nglobal:\n$(sed 's/$/;/' sigs.txt)\nlocal:\n*;\n};" | tee export.map
 sed -e 's/^/_/' -e 's/_ff_h264_decode_init_vlc//' sigs.txt > _sigs.txt
@@ -54,50 +51,41 @@ diff libavcodec/audiotoolboxdec.c{.bak,}||:
   --enable-demuxer=ogg,matroska,wav,flac,mp3,mov,aac \
   --enable-decoder=vorbis,opus,flac,pcm_s16le,mp3,aac,h264 \
   --enable-parser=aac,flac,h264,mpegaudio,opus,vorbis,vp9 \
-  --cc="${cc["$1"]}" \
+  --cc="$cc" \
   --extra-cflags="-DCHROMIUM_NO_LOGGING" \
-  --extra-cflags="-O3 -pipe -fno-plt -flto=auto ${extcflags["$1"]}" \
-  --extra-ldflags="${extldflags["$1"]}" \
-  ${ffbuildflags["$1"]} \
+  --extra-cflags="-O3 -pipe -fno-plt -fno-semantic-interposition -fomit-frame-pointer -flto=auto $cflags" \
+  --extra-ldflags="$ldflags" \
+  $ffbuild \
   --enable-{pic,asm,hardcoded-tables} \
   --libdir=/
 
   make DESTDIR=. install
-_symbols=$(awk '{print "-Wl,-u," $1}' sigs.txt | paste -sd ' ' -)
-declare -A gccflag=(
-[linux-x64]="${_symbols} -Wl,--version-script=export.map -lm -Wl,-Bsymbolic"
-[linux-ia32]="${_symbols} -Wl,--version-script=export.map -lm -Wl,-Bsymbolic"
-[osx-x64]="-framework AudioToolbox -Wl,-exported_symbols_list,_sigs.txt -dead_strip"
-[osx-arm64]="-framework AudioToolbox -Wl,-exported_symbols_list,_sigs.txt -dead_strip"
-[win-x64]="${_symbols} -Wl,--version-script=export.map -lbcrypt"
-[win-ia32]="${_symbols} -Wl,--version-script=export.map -lbcrypt -static-libgcc"
-)
-declare -A startgroup=(
-[linux-x64]='-Wl,--start-group'
-[linux-ia32]='-Wl,--start-group'
-[osx-x64]='-Wl,-force_load,libavcodec.a -Wl,-force_load,libavformat.a -Wl,-force_load,libavutil.a'
-[osx-arm64]='-Wl,-force_load,libavcodec.a -Wl,-force_load,libavformat.a -Wl,-force_load,libavutil.a'
-[win-x64]='-Wl,--start-group'
-[win-ia32]='-Wl,--whole-archive' # should be --start-group which builds few kb dll
-)
-declare -A endgroup=(
-[linux-x64]='-Wl,--end-group'
-[linux-ia32]='-Wl,--end-group'
-[osx-x64]=
-[osx-arm64]=
-[win-x64]='-Wl,--end-group'
-[win-ia32]='-Wl,--no-whole-archive' # should be --end-group
-)
-declare -A libname=(
-[linux-x64]=libffmpeg.so
-[linux-ia32]=libffmpeg.so
-[osx-x64]=libffmpeg.dylib
-[osx-arm64]=libffmpeg.dylib
-[win-x64]=ffmpeg.dll
-[win-ia32]=ffmpeg.dll
-)
+_symbols=$(sed 's/^/-Wl,-u,/' sigs.txt | paste -sd " " -)
+case $1 in
+linux-*) ccunify="${_symbols} -Wl,--version-script=export.map -lm -Wl,-Bsymbolic" ;;
+osx-*) ccunify="-framework AudioToolbox -Wl,-exported_symbols_list,_sigs.txt -dead_strip" ;;
+win-x64) ccunify="${_symbols} -Wl,--version-script=export.map -lbcrypt";;
+win-ia32) ccunify="${_symbols} -Wl,--version-script=export.map -lbcrypt -static-libgcc";;
+esac
 
-${cc["$1"]} -shared  ${extldflags["$1"]} -flto=auto \
-	${startgroup["$1"]} libav{codec,format,util}.a libswresample.a ${endgroup["$1"]} \
-	${gccflag["$1"]} -lm -Wl,-s \
-	-o ${libname["$1"]}
+case $1 in
+win-ia32)
+startgroup='-Wl,--whole-archive'
+endgroup='-Wl,--no-whole-archive'
+;;
+osx-*) startgroup='-Wl,-all_load' ;;
+*)
+startgroup='-Wl,--start-group'
+endgroup='-Wl,--end-group'
+;;
+esac
+
+case $1 in
+osx-*) lib=libffmpeg.dylib ;;
+win-*) lib=ffmpeg.dll ;;
+*) lib=libffmpeg.so ;;
+esac
+
+$cc -shared  $ldflags -flto=auto \
+	$startgroup libav{codec,format,util}.a libswresample.a $endgroup \
+	$ccunify -lm -Wl,-s -o $lib

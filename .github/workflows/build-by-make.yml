@@ -114,8 +114,7 @@ jobs:
       - name: Setup build tools
         run: |
           brew update
-          # Install bash and install ggrep
-          brew install nasm bash grep
+          brew install nasm
       - name: Build
         working-directory: ${{ github.workspace }}
         run: |
@@ -140,7 +139,7 @@ jobs:
       - name: Setup build tools
         run: |
           brew update
-          brew install nasm bash grep
+          brew install nasm
       - name: Build
         working-directory: ${{ github.workspace }}
         run: |

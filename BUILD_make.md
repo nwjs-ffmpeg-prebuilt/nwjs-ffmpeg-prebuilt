@@ -1,25 +1,22 @@
 
 # FFmpeg prebuilt for Chromium based apps
 
-FFmpeg prebuilt binaries with proprietary codecs and build instructions for Window, Linux and macOS.
-We also have some optimization not used by Chromium source.
+FFmpeg prebuilt binaries with proprietary codecs and build script by `make` faster than official `gn` build. We also have some optimization not used by Chromium e.g. swapping decoders.
 
 ### Downloads
 Prebuilt binaries are avaiable at [here](https://github.com/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/releases)
 
 ### Build
 
-This project provides build script by GNU `make` instead of official `gn` build which takes too many time and disk space.
-
 #### Required build tools
 
 - Linux 64bit host (for Linux and Windows target)
-- macOS 64bit host (for macOS target)
+- Xcode (for macOS target)
+- make
 - nasm
 - gcc-multilib (for Linux ia32 target)
 - gcc-mingw-w64-x86-64 (for WIndows x64 target)
 - gcc-mingw-w64-i686 (for Windows ia32 target)
-- bash and grep (newer version, install from brew for macOS)
 - curl jq tar
 
 #### Usage:
@@ -59,7 +56,7 @@ We remove H.264 decoder and replaces AAC and MP3 decoder by those reasons. But w
 
 #### Windows
 
-Building binary on Windows host is not supported yet. Decoding AAC via OSAPI is also unsupported yet.
+Building binary on Windows host might possible by MinGQ, but only tested on Linux host yet. Decoding AAC via OSAPI is also unsupported yet.
 
 #### Linux
 
