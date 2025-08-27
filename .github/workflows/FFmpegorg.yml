@@ -39,6 +39,7 @@ jobs:
             # Do we need master?
             SO_MASTER=$(curl -s https://git.ffmpeg.org/gitweb/ffmpeg.git/blob_plain/master:/libavcodec/version_major.h |grep -oP 'LIBAVCODEC_VERSION_MAJOR\s+\K\d+')
             if [ $SO != $SO_MASTER ]; then
+             exit 1 # remove when Chromiumver drived CI is removed 
              SO=$SO_MASTER
              FF_VER=snapshot
             else
