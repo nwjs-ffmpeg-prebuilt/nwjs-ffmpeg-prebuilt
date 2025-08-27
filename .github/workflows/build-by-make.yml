@@ -54,185 +54,68 @@ jobs:
           echo "avformat=$SO" >> $GITHUB_OUTPUT
           SO=$(curl -sL ${_url}/+/${_commit}/libavutil/version.h?format=TEXT|base64 -d | grep -oP 'LIBAVUTIL_VERSION_MAJOR\s+\K\d+')
           echo "avutil=$SO" >> $GITHUB_OUTPUT
-  build-win-x64:
-    needs: is-latest
-    name: "Build for Windows on Ubuntu"
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4.2.2
-      - name: Setup build tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y nasm gcc-mingw-w64-x86-64
-      - name: Build
-        working-directory: ${{ github.workspace }}
-        run: |
-          mkdir -p /tmp/nwff;cd /tmp/nwff
-          curl https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/${{ needs.is-latest.outputs.commit }}.tar.gz -o chromium-ffmpeg.tar.gz
-          tar -xf chromium-ffmpeg.tar.gz
-          MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh win-x64
-          zip -9 ${{ needs.is-latest.outputs.nw }}-win-x64.zip ffmpeg.dll
-      - name: Upload the artifacts
-        uses: actions/upload-artifact@v4.6.2
-        with:
-          name: win-x64
-          path: '/tmp/nwff/*.zip'
 
-  build-win-ia32:
+  build:
     needs: is-latest
-    name: "Build for Windows-ia32 on Ubuntu"
-    runs-on: ubuntu-latest
+    name: "Build for ${{ matrix.target }}"
+    runs-on: ${{ matrix.host }}
+    strategy:
+      matrix:
+        target: [linux-x64, linux-ia32]
+        include:
+          - target: linux-x64
+            host: ubuntu-latest
+            setupcmd: sudo apt-get update && sudo apt-get install -y nasm
+            soname: libffmpeg.so
+          - target: linux-ia32
+            host: ubuntu-latest
+            setupcmd: sudo apt-get update && sudo apt-get install -y nasm gcc-multilib
+            soname: libffmpeg.so
+          - target: win-x64
+            host: ubuntu-latest
+            setupcmd: sudo apt-get update && sudo apt-get install -y nasm gcc-mingw-w64-x86-64
+            soname: ffmpeg.dll
+          - target: win-ia32
+            host: ubuntu-latest
+            setupcmd: sudo apt-get update && sudo apt-get install -y nasm gcc-mingw-w64-i686
+            soname: ffmpeg.dll
+          - target: osx-arm64
+            host: macos-latest
+            setupcmd: brew update && brew install nasm
+            soname: libffmpeg.dylib
+          - target: osx-x64
+            host: macos-latest
+            setupcmd: brew update && brew install nasm
+            soname: libffmpeg.dylib
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
       - name: Setup build tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y nasm gcc-mingw-w64-i686
+        run: ${{ matrix.setupcmd }}
       - name: Build
         working-directory: ${{ github.workspace }}
         run: |
-          mkdir -p /tmp/nwff;cd /tmp/nwff
-          curl https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/${{ needs.is-latest.outputs.commit }}.tar.gz -o chromium-ffmpeg.tar.gz
-          tar -xf chromium-ffmpeg.tar.gz
-          MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh win-ia32
-          zip -9 ${{ needs.is-latest.outputs.nw }}-win-ia32.zip ffmpeg.dll
+          mkdir -p /tmp/ff
+          cd /tmp/ff
+          curl https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/${{ needs.is-latest.outputs.commit }}.tar.gz -o ff.tar.gz
+          tar -xf ff.tar.gz
+          MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh ${{ matrix.target }}
+          zip -9 ${{ needs.is-latest.outputs.nw }}-${{ matrix.target }}.zip ${{ matrix.soname }}
       - name: Upload the artifacts
         uses: actions/upload-artifact@v4.6.2
         with:
-          name: win-ia32
-          path: '/tmp/nwff/*.zip'
-
-  build-osx-x64:
-    needs: is-latest
-    name: "Build for macos-x64"
-    runs-on: macos-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4.2.2
-      - name: Setup build tools
-        run: |
-          brew update
-          brew install nasm
-      - name: Build
-        working-directory: ${{ github.workspace }}
-        run: |
-          mkdir -p /tmp/nwff;cd /tmp/nwff
-          curl https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/${{ needs.is-latest.outputs.commit }}.tar.gz -o chromium-ffmpeg.tar.gz
-          tar -xf chromium-ffmpeg.tar.gz
-          MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh osx-x64
-          zip -9 ${{ needs.is-latest.outputs.nw }}-osx-x64.zip libffmpeg.dylib
-      - name: Upload the artifacts
-        uses: actions/upload-artifact@v4.6.2
-        with:
-          name: osx-x64
-          path: '/tmp/nwff/*.zip'
-
-  build-osx-arm64:
-    needs: is-latest
-    name: "Build for macos-arm64"
-    runs-on: macos-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4.2.2
-      - name: Setup build tools
-        run: |
-          brew update
-          brew install nasm
-      - name: Build
-        working-directory: ${{ github.workspace }}
-        run: |
-          mkdir -p /tmp/nwff;cd /tmp/nwff
-          curl https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/${{ needs.is-latest.outputs.commit }}.tar.gz -o chromium-ffmpeg.tar.gz
-          tar -xf chromium-ffmpeg.tar.gz
-          MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh osx-arm64
-          zip -9 ${{ needs.is-latest.outputs.nw }}-osx-arm64.zip libffmpeg.dylib
-      - name: Upload the artifacts
-        uses: actions/upload-artifact@v4.6.2
-        with:
-          name: osx-arm64
-          path: '/tmp/nwff/*.zip'
-
-  build-linux-x64:
-    needs: is-latest
-    name: "Build for Linux-x64"
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4.2.2
-      - name: Setup build tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y nasm
-      - name: Build
-        working-directory: ${{ github.workspace }}
-        run: |
-          mkdir -p /tmp/nwff;cd /tmp/nwff
-          curl https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/${{ needs.is-latest.outputs.commit }}.tar.gz -o chromium-ffmpeg.tar.gz
-          tar -xf chromium-ffmpeg.tar.gz
-          MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh linux-x64
-          zip -9 ${{ needs.is-latest.outputs.nw }}-linux-x64.zip libffmpeg.so
-      - name: Upload the artifacts
-        uses: actions/upload-artifact@v4.6.2
-        with:
-          name: linux-x64
-          path: '/tmp/nwff/*.zip'
-
-  build-linux-ia32:
-    needs: is-latest
-    name: "Build for Linux-ia32"
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4.2.2
-      - name: Setup build tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y nasm gcc-multilib
-      - name: Build
-        working-directory: ${{ github.workspace }}
-        run: |
-          mkdir -p /tmp/nwff;cd /tmp/nwff
-          curl https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/${{ needs.is-latest.outputs.commit }}.tar.gz -o chromium-ffmpeg.tar.gz
-          tar -xf chromium-ffmpeg.tar.gz
-          MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh linux-ia32
-          zip -9 ${{ needs.is-latest.outputs.nw }}-linux-ia32.zip libffmpeg.so
-      - name: Upload the artifacts
-        uses: actions/upload-artifact@v4.6.2
-        with:
-          name: linux-ia32
-          path: '/tmp/nwff/*.zip'
+          name: ${{ matrix.target }}
+          path: '/tmp/ff/*.zip'
 
   build-release:
-    needs: [ is-latest, build-win-x64, build-win-ia32, build-osx-x64, build-osx-arm64, build-linux-x64, build-linux-ia32]
+    needs: [ is-latest, build ]
     name: "Build Release"
     runs-on: "ubuntu-latest"
     steps:
       - uses: actions/download-artifact@v4.3.0
         with:
-          name: win-x64
-          path: release/win-x64
-      - uses: actions/download-artifact@v4.3.0
-        with:
-          name: win-ia32
-          path: release/win-ia32
-      - uses: actions/download-artifact@v4.3.0
-        with:
-          name: linux-x64
-          path: release/linux-x64
-      - uses: actions/download-artifact@v4.3.0
-        with:
-          name: linux-ia32
-          path: release/linux-ia32
-      - uses: actions/download-artifact@v4.3.0
-        with:
-          name: osx-x64
-          path: release/osx-x64
-      - uses: actions/download-artifact@v4.3.0
-        with:
-          name: osx-arm64
-          path: release/osx-arm64
+          # all: true
+          path: release/
 
       - name: Display structure of downloaded files
         run: ls -R
@@ -242,12 +125,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            release/osx-arm64/*.zip
-            release/osx-x64/*.zip
-            release/linux-x64/*.zip
-            release/linux-ia32/*.zip
-            release/win-x64/*.zip
-            release/win-ia32/*.zip
+            release/*/*.zip
           tag_name: ${{ needs.is-latest.outputs.nw }}
           body: |
             Chromium ${{ needs.is-latest.outputs.chromium }}
