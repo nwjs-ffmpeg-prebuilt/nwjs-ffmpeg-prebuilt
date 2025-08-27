@@ -1,0 +1,130 @@
+name: CI
+
+on:
+  release:
+    types: [created]
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number to build'
+        required: true
+        default: '7.1.1'
+concurrency:
+  group: ${{ github.ref }}-ffmpegorg
+  cancel-in-progress: false
+
+jobs:
+  build-or-not:
+    name: "Build or not"
+    runs-on: ubuntu-latest
+    outputs:
+      ff: ${{ steps.set_ff.outputs.ff }}
+      avcodec: ${{ steps.set_ff.outputs.avcodec }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+      - name: Write version to env
+        id: set_ff
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            FF_VER=${{ github.event.inputs.version }}
+            echo "ff=$FF_VER" >> $GITHUB_OUTPUT
+            SO=$(curl -s https://git.ffmpeg.org/gitweb/ffmpeg.git/blob_plain/n${FF_VER}:/libavcodec/version_major.h |grep -oP 'LIBAVCODEC_VERSION_MAJOR\s+\K\d+')
+            echo "avcodec=$SO" >> $GITHUB_OUTPUT
+          else
+            FF_VER=$(curl -s https://www.ffmpeg.org/download.html | grep -o -m 1 'FFmpeg [0-9.]* ".*"' | cut -d ' ' -f 2)
+            SO=$(curl -s https://git.ffmpeg.org/gitweb/ffmpeg.git/blob_plain/n${FF_VER}:/libavcodec/version_major.h |grep -oP 'LIBAVCODEC_VERSION_MAJOR\s+\K\d+')
+            # Do we need master?
+            SO_MASTER=$(curl -s https://git.ffmpeg.org/gitweb/ffmpeg.git/blob_plain/master:/libavcodec/version_major.h |grep -oP 'LIBAVCODEC_VERSION_MAJOR\s+\K\d+')
+            if [ $SO != $SO_MASTER ]; then
+             SO=$SO_MASTER
+             FF_VER=snapshot
+            else
+            # Do not build existing binary
+             curl -s -o /dev/null -w "%{http_code}" https://github.com/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/releases/download/${{ github.event.inputs.version }}/ffmpeg-${{ github.event.inputs.version }}-linux-x64.zip|grep -q 404
+            fi
+            echo "avcodec=$SO" >> $GITHUB_OUTPUT
+            echo "ff=$FF_VER" >> $GITHUB_OUTPUT
+            echo "Build $FF_VER with avcodec $SO"
+          fi
+
+  build:
+    needs: build-or-not
+    name: "Build for ${{ matrix.target }}"
+    runs-on: ${{ matrix.host }}
+    strategy:
+      matrix:
+        target: [linux-x64, linux-ia32]
+        include:
+          - target: linux-x64
+            host: ubuntu-latest
+            setupcmd: sudo apt-get update && sudo apt-get install -y nasm
+            soname: libffmpeg.so
+          - target: linux-ia32
+            host: ubuntu-latest
+            setupcmd: sudo apt-get update && sudo apt-get install -y nasm gcc-multilib
+            soname: libffmpeg.so
+          - target: win-x64
+            host: ubuntu-latest
+            setupcmd: sudo apt-get update && sudo apt-get install -y nasm gcc-mingw-w64-x86-64
+            soname: ffmpeg.dll
+          - target: win-ia32
+            host: ubuntu-latest
+            setupcmd: sudo apt-get update && sudo apt-get install -y nasm gcc-mingw-w64-i686
+            soname: ffmpeg.dll
+          - target: osx-arm64
+            host: macos-latest
+            setupcmd: brew update && brew install nasm gnu-sed
+            soname: libffmpeg.dylib
+          - target: osx-x64
+            host: macos-latest
+            setupcmd: brew update && brew install nasm gnu-sed
+            soname: libffmpeg.dylib
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+      - name: Setup build tools
+        run: ${{ matrix.setupcmd }}
+      - name: Build
+        working-directory: ${{ github.workspace }}
+        run: |
+          cd /tmp
+          curl https://ffmpeg.org/releases/ffmpeg-${{ needs.build-or-not.outputs.ff }}.tar.xz -o ffmpeg.tar.xz
+          tar -xf ffmpeg.tar.xz
+          mv ffmpeg-${{ needs.build-or-not.outputs.ff }} ffmpeg || : # Use same dirname with master
+          cd ffmpeg
+          bash ${{ github.workspace }}/patch-ffmpegorg-chromium.sh ffmpegorg
+          MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh ${{ matrix.target }}
+          zip -9 ffmpeg-${{ needs.build-or-not.outputs.ff }}-${{ matrix.target }}.zip ${{ matrix.soname }}
+      - name: Upload the artifacts
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: ${{ matrix.target }}
+          path: '/tmp/ffmpeg/*.zip'
+
+  build-release:
+    needs: [ build-or-not, build ]
+    name: "Build Release"
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/download-artifact@v4.3.0
+        with:
+          # all: true
+          path: release/
+
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory: release/
+
+      - name: Upload binaries to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release/*/*.zip
+          tag_name: ${{ needs.build-or-not.outputs.ff }}
+          body: |
+            avcodec${{ needs.build-or-not.outputs.avcodec }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
