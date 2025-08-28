@@ -26,9 +26,10 @@ diff libavcodec/h2645_sei.c{.bak,}||:
 sed -i.bak -E -e "/&ff_dirac_codec,/d" -e "/&ff_speex_codec,/d" \
 -e "/&ff_theora_codec,/d" -e "/&ff_celt_codec,/d" -e "/&ff_old_dirac_codec,/d" libavformat/oggdec.c
 diff libavformat/oggdec.c{.bak,}||:
-# Removing av_sscanf breaks mingw
-# sed -i.bak 's/^int av_sscanf(.*/#define av_sscanf sscanf/' libavutil/avstring.h
-
+# Remove av_sscanf
+sed -i.bak 's/^int av_sscanf(.*/#define av_sscanf sscanf/' libavutil/avstring.h
+$(command -v gsed||command -v sed) -i.bak -E "/^int\s+av_sscanf\s*\(.*\)\s*$/,/^\s*\}\s*$/d" libavutil/avsscanf.c
+diff libavutil/avsscanf.c{.bak,}||:
 # CHROMIUM_NO_LOGGING
 _av_log=$(grep 'void av_log(' libavutil/log.c)
 _av_log_once=$(grep 'void av_log_once(' libavutil/log.c)
