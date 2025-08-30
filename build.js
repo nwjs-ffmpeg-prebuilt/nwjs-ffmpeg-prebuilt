@@ -65,13 +65,13 @@ async function main() {
     const platform = program.platform || process.platform;
     if (platform === 'darwin') {
         libName = 'libffmpeg.dylib';
-        zipName = `${version.version}-osx-${program.arch}.zip`.slice(1);
+        zipName = `${version.version}-osx-${program.arch}-gn.zip`.slice(1);
     } else if (platform === 'win32' || platform === 'win') {
         libName = 'ffmpeg.dll';
-        zipName = `${version.version}-win-${program.arch}.zip`.slice(1);
+        zipName = `${version.version}-win-${program.arch}-gn.zip`.slice(1);
     } else if (platform === 'linux') {
         libName = 'libffmpeg.so';
-        zipName = `${version.version}-linux-${program.arch}.zip`.slice(1);
+        zipName = `${version.version}-linux-${program.arch}-gn.zip`.slice(1);
     } else {
         console.error('Platform not supported');
         process.exit(1);
