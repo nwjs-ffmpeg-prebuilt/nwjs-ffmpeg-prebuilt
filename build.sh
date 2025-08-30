@@ -2,8 +2,8 @@
 # Do not use declare -A for old bash on macOS
 case $1 in
 linux-ia32) ffbuild="--arch=x86 --enable-cross-compile" ;;
-osx-x64) ffbuild="--arch=x86_64 --enable-cross-compile --enable-audiotoolbox --enable-decoder=aac_at,mp3_at --disable-decoder=aac,mp3,h264" ;;
-osx-arm64) ffbuild="--arch=arm64 --enable-audiotoolbox --enable-decoder=aac_at,mp3_at --disable-decoder=aac,mp3,h264" ;;# Chromium decodes H264 via videotoolbox
+osx-x64) ffbuild="--arch=x86_64 --enable-cross-compile --disable-decoder=h264" ;;
+osx-arm64) ffbuild="--arch=arm64 --disable-decoder=h264" ;; # Chromium decodes H264 via videotoolbox
 win-x64) ffbuild="--arch=x86_64 --target-os=mingw32 --cross-prefix=x86_64-w64-mingw32-" ;;
 win-ia32) ffbuild="--arch=x86 --target-os=mingw32 --cross-prefix=i686-w64-mingw32-" ;;
 esac
@@ -36,9 +36,8 @@ sed -e 's/^/_/' -e 's/_ff_h264_decode_init_vlc//' sigs.txt > _sigs.txt
 # Use ffmpeg's native opus decoder not in kAllowedAudioCodecs at https://github.com/chromium/chromium/blob/main/media/ffmpeg/ffmpeg_common.cc
 sed -i.bak "s/^ *\.p\.name *=.*/.p.name=\"libopus\",/" libavcodec/opus/dec.c
 diff libavcodec/opus/dec.c{.bak,} || :
-# Use osapi on macOS
-sed -i.bak "/^ *\.p\.name *=.*/s/\"_at\"//g" libavcodec/audiotoolboxdec.c
-diff libavcodec/audiotoolboxdec.c{.bak,}||:
+#sed -i.bak "/^ *\.p\.name *=.*/s/\"_at\"//g" libavcodec/audiotoolboxdec.c # cannot be used at render process
+
 # https://chromium.googlesource.com/chromium/third_party/ffmpeg/+/refs/heads/master/
 # BUILD.gn and chromium/config/Chrome/linux/x64/
 ./configure \
@@ -63,7 +62,7 @@ diff libavcodec/audiotoolboxdec.c{.bak,}||:
 _symbols=$(sed 's/^/-Wl,-u,/' sigs.txt | paste -sd " " -)
 case $1 in
 linux-*) ccunify="${_symbols} -Wl,--version-script=export.map -lm -Wl,-Bsymbolic" ;;
-osx-*) ccunify="-framework AudioToolbox -Wl,-exported_symbols_list,_sigs.txt -dead_strip" ;;
+osx-*) ccunify="-Wl,-exported_symbols_list,_sigs.txt -dead_strip" ;;
 win-x64) ccunify="${_symbols} -Wl,--version-script=export.map -lbcrypt";;
 win-ia32) ccunify="${_symbols} -Wl,--version-script=export.map -lbcrypt -static-libgcc";;
 esac
