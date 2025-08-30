@@ -51,8 +51,7 @@ For more information about the license of the source code, check [here](https://
 
 #### macOS
 
-macOS have its own API for hardware decoding: H.264 is supported by Chromium itself and others are supported by ffmpeg.
-We remove H.264 decoder and replaces AAC and MP3 decoder by those reasons. But we still builds parsers and demuxers which might still have patient issues.
+Chromium supports decoding H.264 via macOS's API. We remove H.264 decoder by the reason.
 
 #### Windows
 
