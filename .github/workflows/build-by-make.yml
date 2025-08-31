@@ -1,0 +1,137 @@
+name: CI
+
+on:
+  release:
+    types: [ created ]
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number to build'
+        required: true
+        default: '0.100.1' # has sonames of libavcodec's with latest Opera 
+concurrency:
+  group: ${{ github.ref }}-make # fix after reviewed
+  cancel-in-progress: false # true
+
+jobs:
+  is-latest:
+    name: "Is Latest"
+    runs-on: ubuntu-latest
+    outputs:
+      nw: ${{ steps.set_nw.outputs.nw }}
+      chromium: ${{ steps.set_nw.outputs.chromium }}
+      commit: ${{ steps.set_nw.outputs.commit }}
+      avcodec: ${{ steps.set_nw.outputs.avcodec }}
+      avformat: ${{ steps.set_nw.outputs.avformat }}
+      avutil: ${{ steps.set_nw.outputs.avutil }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+      - name: Check if latest
+        working-directory: .github/workflows
+        run: bash ./is_latest.sh ${{ github.event_name }} #replaced until reviewed
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+      - name: Write NW version to env and set output
+        id: set_nw
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "nw=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            NW_VERSION=$(curl -s https://nwjs.io/versions.json | jq -r '.latest' | sed 's/v//')
+            echo "nw=$NW_VERSION" >> $GITHUB_OUTPUT
+          fi
+          CHROMIUM=$(curl -s https://nwjs.io/versions.json | jq -r ".versions[] | select(.version==\"v$NW_VERSION\") | .components.chromium")
+          echo "chromium=$CHROMIUM" >> $GITHUB_OUTPUT
+          _commit=$(curl -sL https://chromium.googlesource.com/chromium/src.git/+/refs/tags/${CHROMIUM}/DEPS?format=TEXT | base64 -d | grep -oP "'ffmpeg_revision': '\K[0-9a-f]{40}'" | tr -d \')
+           echo "commit=$_commit" >> $GITHUB_OUTPUT
+          _url=https://chromium.googlesource.com/chromium/third_party/ffmpeg
+          SO=$(curl -sL ${_url}/+/${_commit}/libavcodec/version_major.h?format=TEXT|base64 -d | grep -oP 'LIBAVCODEC_VERSION_MAJOR\s+\K\d+')
+          echo "avcodec=$SO" >> $GITHUB_OUTPUT
+          SO=$(curl -sL ${_url}/+/${_commit}/libavformat/version_major.h?format=TEXT|base64 -d | grep -oP 'LIBAVFORMAT_VERSION_MAJOR\s+\K\d+')
+          echo "avformat=$SO" >> $GITHUB_OUTPUT
+          SO=$(curl -sL ${_url}/+/${_commit}/libavutil/version.h?format=TEXT|base64 -d | grep -oP 'LIBAVUTIL_VERSION_MAJOR\s+\K\d+')
+          echo "avutil=$SO" >> $GITHUB_OUTPUT
+
+  build:
+    needs: is-latest
+    name: "Build for ${{ matrix.target }}"
+    runs-on: ${{ matrix.host }}
+    strategy:
+      matrix:
+        target: [linux-x64, linux-ia32]
+        include:
+          - target: linux-x64
+            host: ubuntu-latest
+            setupcmd: sudo apt-get update && sudo apt-get install -y nasm
+            soname: libffmpeg.so
+          - target: linux-ia32
+            host: ubuntu-latest
+            setupcmd: sudo apt-get update && sudo apt-get install -y nasm gcc-multilib
+            soname: libffmpeg.so
+          - target: win-x64
+            host: ubuntu-latest
+            setupcmd: sudo apt-get update && sudo apt-get install -y nasm gcc-mingw-w64-x86-64
+            soname: ffmpeg.dll
+          - target: win-ia32
+            host: ubuntu-latest
+            setupcmd: sudo apt-get update && sudo apt-get install -y nasm gcc-mingw-w64-i686
+            soname: ffmpeg.dll
+          - target: osx-arm64
+            host: macos-latest
+            setupcmd: brew update && brew install nasm
+            soname: libffmpeg.dylib
+          - target: osx-x64
+            host: macos-latest
+            setupcmd: brew update && brew install nasm
+            soname: libffmpeg.dylib
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+      - name: Setup build tools
+        run: ${{ matrix.setupcmd }}
+      - name: Build
+        working-directory: ${{ github.workspace }}
+        run: |
+          mkdir -p /tmp/ff
+          cd /tmp/ff
+          curl https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/${{ needs.is-latest.outputs.commit }}.tar.gz -o ff.tar.gz
+          tar -xf ff.tar.gz
+          MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh ${{ matrix.target }}
+          zip -9 ${{ needs.is-latest.outputs.nw }}-${{ matrix.target }}.zip ${{ matrix.soname }}
+      - name: Upload the artifacts
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: ${{ matrix.target }}
+          path: '/tmp/ff/*.zip'
+
+  build-release:
+    needs: [ is-latest, build ]
+    name: "Build Release"
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/download-artifact@v4.3.0
+        with:
+          # all: true
+          path: release/
+
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory: release/
+
+      - name: Upload binaries to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release/*/*.zip
+          tag_name: ${{ needs.is-latest.outputs.nw }}
+          body: |
+            Chromium ${{ needs.is-latest.outputs.chromium }}
+            Commit of chromium/third_pirty/ffmpeg ${{ needs.is-latest.outputs.commit }}
+            avcodec${{ needs.is-latest.outputs.avcodec }}
+            avformat${{ needs.is-latest.outputs.avformat }}
+            avutil${{ needs.is-latest.outputs.avutil }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

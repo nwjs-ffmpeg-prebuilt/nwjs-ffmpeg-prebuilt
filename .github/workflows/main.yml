@@ -13,7 +13,7 @@ on:
         default: '0.91.0'
 concurrency:
   group: ${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   is-latest:
