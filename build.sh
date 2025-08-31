@@ -12,6 +12,7 @@ case $1 in
 linux-x64) cflags="-fno-math-errno -fno-signed-zeros" ;;
 linux-ia32) cflags="-m32 -fno-math-errno -fno-signed-zeros" ;;
 osx-x64) cflags="-arch x86_64 --target=x86_64-apple-macosx" ;;
+win-*) cflags="-ffat-lto-objects" ;; # needed for -flto for MSYS2 MinGW by unknown reason
 esac
 
 case $1 in
