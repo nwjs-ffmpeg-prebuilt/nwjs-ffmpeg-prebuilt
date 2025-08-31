@@ -55,7 +55,7 @@ Chromium supports decoding H.264 via macOS's API. We remove H.264 decoder by the
 
 #### Windows
 
-Building binary on Windows host might possible by MinGQ, but only tested on Linux host yet. Decoding AAC via OSAPI is also unsupported yet.
+It is recommended to build `ffmpeg.dll` on Linux if possible. But you can try to build on Windows host by MinGW installed by MSYS2. It might needed to remove `-flto=auto` from `build.sh`.
 
 #### Linux
 
