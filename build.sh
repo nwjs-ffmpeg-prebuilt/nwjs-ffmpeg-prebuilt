@@ -64,8 +64,8 @@ _symbols=$(sed 's/^/-Wl,-u,/' sigs.txt | paste -sd " " -)
 case $1 in
 linux-*) ccunify="${_symbols} -Wl,--version-script=export.map -lm -Wl,-Bsymbolic" ;;
 osx-*) ccunify="-Wl,-exported_symbols_list,_sigs.txt -dead_strip" ;;
-win-x64) ccunify="${_symbols} -Wl,--version-script=export.map -lbcrypt";;
-win-ia32) ccunify="${_symbols} -Wl,--version-script=export.map -lbcrypt -static-libgcc";;
+win-x64) ccunify="${_symbols} -Wl,--version-script=export.map -lbcrypt -Wl,-Bstatic -lpthread -Wl,-Bdynamic";;
+win-ia32) ccunify="${_symbols} -Wl,--version-script=export.map -lbcrypt -static-libgcc -Wl,-Bstatic -lpthread -Wl,-Bdynamic";;
 esac
 
 case $1 in
