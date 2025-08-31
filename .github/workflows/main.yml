@@ -103,45 +103,8 @@ jobs:
           name: mac
           path: 'build/out/*.zip'
 
-  build-linux:
-    needs: is-latest
-    name: "Build for Linux"
-    runs-on: ubuntu-latest
-    steps:
-      - name: Setup Node
-        uses: actions/setup-node@v4.4.0
-        with:
-          node-version: 20
-      - name: Checkout code
-        uses: actions/checkout@v4.2.2
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          # this might remove tools that are actually needed,
-          # if set to "true" but frees about 6 GB
-          tool-cache: true
-
-          # all of these default to true, but feel free to set to
-          # "false" if necessary for your workflow
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: true
-      - name: npm install, build and test
-        run: |
-          npm install
-          node build --arch x64 -v ${{ needs.is-latest.outputs.nw }}
-          node build --arch ia32 -v ${{ needs.is-latest.outputs.nw }}
-      - name: Upload the artifacts
-        uses: actions/upload-artifact@v4.6.2
-        with:
-          name: linux
-          path: 'build/out/*.zip'
-
   build-release:
-    needs: [ build-win, build-macos, build-linux ]
+    needs: [ build-win, build-macos ]
     name: "Build Release"
     runs-on: "ubuntu-latest"
     steps:
@@ -159,10 +122,6 @@ jobs:
           path: release/win
       - uses: actions/download-artifact@v4.3.0
         with:
-          name: linux
-          path: release/linux
-      - uses: actions/download-artifact@v4.3.0
-        with:
           name: mac
           path: release/mac
 
@@ -175,7 +134,6 @@ jobs:
         with:
           files: |
             release/mac/*.zip
-            release/linux/*.zip
             release/win/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/build/out/*.zip
           tag_name: ${{ env.NW }}
         env:
