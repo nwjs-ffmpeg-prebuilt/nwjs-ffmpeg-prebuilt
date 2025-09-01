@@ -99,7 +99,7 @@ jobs:
           cd /tmp/ff
           curl https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/${{ needs.is-latest.outputs.commit }}.tar.gz -o ff.tar.gz
           tar -xf ff.tar.gz
-          MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh ${{ matrix.target }}
+          MAKEFLAGS=-j5 bash ${{ github.workspace }}/build.sh ${{ matrix.target }}
           zip -9 ${{ needs.is-latest.outputs.nw }}-${{ matrix.target }}.zip ${{ matrix.soname }}
       - name: Upload the artifacts
         uses: actions/upload-artifact@v4.6.2
