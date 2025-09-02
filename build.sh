@@ -42,7 +42,7 @@ diff libavcodec/opus/dec.c{.bak,} || :
 # https://chromium.googlesource.com/chromium/third_party/ffmpeg/+/refs/heads/master/
 # BUILD.gn and chromium/config/Chrome/linux/x64/
 ./configure \
-  --disable-{debug,all,autodetect,doc,iconv,network,symver} \
+  --disable-{debug,all,autodetect,doc,iconv,network,symver,large-tests} \
   --disable-{error-resilience,faan,iamf} \
   --disable-{schannel,securetransport} \
   --enable-static --disable-shared \
