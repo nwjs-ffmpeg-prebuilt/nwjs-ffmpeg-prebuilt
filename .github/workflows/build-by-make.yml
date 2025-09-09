@@ -10,10 +10,10 @@ on:
       version:
         description: 'Version number to build'
         required: true
-        default: '0.100.1' # has sonames of libavcodec's with latest Opera 
+        default: '0.100.1' # old soname of libavcodec
 concurrency:
-  group: ${{ github.ref }}-make # fix after reviewed
-  cancel-in-progress: false # true
+  group: ${{ github.ref }}-make
+  cancel-in-progress: false
 
 jobs:
   is-latest:
@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@v4.2.2
       - name: Check if latest
         working-directory: .github/workflows
-        run: bash ./is_latest.sh ${{ github.event_name }} #replaced until reviewed
+        run: bash ./is_latest.sh ${{ github.event_name }}
         env:
           GITHUB_EVENT_NAME: ${{ github.event_name }}
       - name: Write NW version to env and set output
@@ -65,31 +65,32 @@ jobs:
         include:
           - target: linux-x64
             host: ubuntu-latest
-            setupcmd: sudo apt-get update && sudo apt-get install -y nasm
+            setupcmd: true
             soname: libffmpeg.so
           - target: linux-ia32
             host: ubuntu-latest
-            setupcmd: sudo apt-get update && sudo apt-get install -y nasm gcc-multilib
+            setupcmd: sudo apt-get update && sudo apt-get install -y gcc-multilib
             soname: libffmpeg.so
           - target: win-x64
             host: ubuntu-latest
-            setupcmd: sudo apt-get update && sudo apt-get install -y nasm gcc-mingw-w64-x86-64
+            setupcmd: sudo apt-get update && sudo apt-get install -y gcc-mingw-w64-x86-64
             soname: ffmpeg.dll
           - target: win-ia32
             host: ubuntu-latest
-            setupcmd: sudo apt-get update && sudo apt-get install -y nasm gcc-mingw-w64-i686
+            setupcmd: sudo apt-get update && sudo apt-get install -y gcc-mingw-w64-i686
             soname: ffmpeg.dll
           - target: osx-arm64
             host: macos-latest
-            setupcmd: brew update && brew install nasm
+            setupcmd: true
             soname: libffmpeg.dylib
           - target: osx-x64
             host: macos-latest
-            setupcmd: brew update && brew install nasm
+            setupcmd: true
             soname: libffmpeg.dylib
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
+      - uses: ilammy/setup-nasm@v1 # faster than apt-get install nasm
       - name: Setup build tools
         run: ${{ matrix.setupcmd }}
       - name: Build
@@ -97,9 +98,8 @@ jobs:
         run: |
           mkdir -p /tmp/ff
           cd /tmp/ff
-          curl https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/${{ needs.is-latest.outputs.commit }}.tar.gz -o ff.tar.gz
-          tar -xf ff.tar.gz
-          MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh ${{ matrix.target }}
+          curl https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/${{ needs.is-latest.outputs.commit }}.tar.gz | tar -xzf -
+          MAKEFLAGS=-j4 bash ${{ github.workspace }}/build.sh ${{ matrix.target }}
           zip -9 ${{ needs.is-latest.outputs.nw }}-${{ matrix.target }}.zip ${{ matrix.soname }}
       - name: Upload the artifacts
         uses: actions/upload-artifact@v4.6.2
