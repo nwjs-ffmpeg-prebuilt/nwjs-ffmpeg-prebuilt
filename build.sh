@@ -29,6 +29,7 @@ win-ia32) cc=i686-w64-mingw32-gcc ;;
 esac
 
 # support old grep on macOS
+# List used functions
 grep  -o '\bav[a-z0-9_]*(' chromium/ffmpeg.sigs | sed 's/(//' > sigs.txt
 echo -e "avformat_version\navutil_version\nff_h264_decode_init_vlc" >> sigs.txt # only for opera
 echo -e "{\nglobal:\n$(sed 's/$/;/' sigs.txt)\nlocal:\n*;\n};" | tee export.map
@@ -36,7 +37,8 @@ sed -e 's/^/_/' -e 's/_ff_h264_decode_init_vlc//' sigs.txt > _sigs.txt
 # Use ffmpeg's native opus decoder not in kAllowedAudioCodecs at https://github.com/chromium/chromium/blob/main/media/ffmpeg/ffmpeg_common.cc
 sed -i.bak "s/^ *\.p\.name *=.*/.p.name=\"libopus\",/" libavcodec/opus/dec.c
 diff libavcodec/opus/dec.c{.bak,} || :
-#sed -i.bak "/^ *\.p\.name *=.*/s/\"_at\"//g" libavcodec/audiotoolboxdec.c # cannot be used at render process
+# backport https://git.ffmpeg.org/gitweb/ffmpeg.git/commit/1464930696f593320352a6f928fad6f50ade8f8b
+sed -i.bak '/check_optflags*.-fno-tree-vectorize/d' configure
 
 # https://chromium.googlesource.com/chromium/third_party/ffmpeg/+/refs/heads/master/
 # BUILD.gn and chromium/config/Chrome/linux/x64/
