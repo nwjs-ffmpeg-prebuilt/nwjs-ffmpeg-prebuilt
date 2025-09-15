@@ -70,4 +70,4 @@ It is recommended to install our binary at
 
 ``/usr/lib/x86_64-linux-gnu/opera/libffmpeg.so``
 
-since Opera has strange internal `LD_PRELOAD` for default binary which blocks our custom performance optimization, or simply breaks video play back.
+since Opera has bug that `LD_PRELOAD` buldled `.so` binary which breaks ABI compability.

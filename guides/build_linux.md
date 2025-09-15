@@ -49,6 +49,6 @@ or
 ```/usr/lib/x86_64-linux-gnu/opera/libffmpeg.so```
 or
 ```/usr/lib/opera/libffmpeg.so```
-since Opera has bug to `LD_PRELOAD` the binary which blocks optimizations of binary.
+since Opera has bug that `LD_PRELOAD` bundled `.so` which bleaks ABI compability.
 
 4. Restart your web browser.
