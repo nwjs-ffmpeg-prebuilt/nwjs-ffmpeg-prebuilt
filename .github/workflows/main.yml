@@ -23,7 +23,7 @@ jobs:
       nw: ${{ steps.set_nw.outputs.nw }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
       - name: Write NW version to env and set output
         id: set_nw
         run: |
@@ -51,7 +51,7 @@ jobs:
         with:
           node-version: 20
       - name: Checkout code
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
       - name: Debug NW version
         run: |
           echo "NW Version: ${{ needs.is-latest.outputs.nw }}"
@@ -89,7 +89,7 @@ jobs:
           sudo rm -rf /Library/Developer/CoreSimulator
         continue-on-error: true
       - name: Checkout code
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
       - name: npm install, build and test
         run: |
           npm install
@@ -111,7 +111,7 @@ jobs:
         with:
           node-version: 20
       - name: Checkout code
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
@@ -151,15 +151,15 @@ jobs:
             echo "NW=$(curl -s https://nwjs.io/versions.json | jq -r '.latest' | sed 's/v//')" >> $GITHUB_ENV
           fi
 
-      - uses: actions/download-artifact@v4.3.0
+      - uses: actions/download-artifact@v5.0.0
         with:
           name: win
           path: release/win
-      - uses: actions/download-artifact@v4.3.0
+      - uses: actions/download-artifact@v5.0.0
         with:
           name: linux
           path: release/linux
-      - uses: actions/download-artifact@v4.3.0
+      - uses: actions/download-artifact@v5.0.0
         with:
           name: mac
           path: release/mac
