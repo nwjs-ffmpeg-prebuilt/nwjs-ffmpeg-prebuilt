@@ -24,20 +24,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v5.0.0
-      - name: Check if latest
-        working-directory: .github/workflows
-        run: bash ./is_latest.sh ${{ github.event_name }}
-        env:
-          GITHUB_EVENT_NAME: ${{ github.event_name }}
       - name: Write NW version to env and set output
         id: set_nw
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            NW_VERSION=${{ github.event.inputs.version }}
             echo "nw=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
           else
             NW_VERSION=$(curl -s https://nwjs.io/versions.json | jq -r '.latest' | sed 's/v//')
             echo "nw=$NW_VERSION" >> $GITHUB_OUTPUT
           fi
+          # Fail for already released ver
+          curl -s -o /dev/null -w "%{http_code}" https://github.com/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/releases/download/${NW_VERSION}/${NW_VERSION}-linux-x64-gn.zip | grep 404
 
 
   build-win:
