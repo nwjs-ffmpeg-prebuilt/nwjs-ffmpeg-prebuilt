@@ -28,7 +28,7 @@ jobs:
       avutil: ${{ steps.set_nw.outputs.avutil }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
       - name: Check if latest
         working-directory: .github/workflows
         run: bash ./is_latest.sh ${{ github.event_name }}
@@ -89,7 +89,7 @@ jobs:
             soname: libffmpeg.dylib
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
       - uses: ilammy/setup-nasm@v1 # faster than apt-get install nasm
       - name: Setup build tools
         run: ${{ matrix.setupcmd }}
@@ -112,7 +112,7 @@ jobs:
     name: "Build Release"
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/download-artifact@v4.3.0
+      - uses: actions/download-artifact@v5.0.0
         with:
           # all: true
           path: release/

@@ -35,20 +35,20 @@ To fix this you can remove `HAVE_EBP_AVAILABLE` from `build/src/third_party/ffmp
 
 ## Opera Browser issue
 
-Is some exceptional cases, the build doesn't work for Opera Browser for some unknown reason. In this specific cases,
-you can just execute the following steps:
+Opera needs binary with correct avcodec version. avcodec version is avaiable at release page.
 
-1. Build the project or download the latest version through this [link](https://github.com/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/releases/tag/0.72.0)
+1. Download binary from [here](https://github.com/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/releases) with avcodec62 or later.
 
-2. Unzip the compress file
+2. Copy `libffmpeg.so` binary to:
+```/usr/lib/x86_64-linux-gnu/opera/lib_extra/libffmpeg.so```
+or
+```/usr/lib/opera/lib_extra/libffmpeg.so```
+(File path is depending on distributions. Put under `lib_extra`.)
 
-3. Copy file to the following folder:
-```bash
-sudo cp /Downloads/cp 0.67.1-linux-x64/libffmpeg.so /usr/lib/x86_64-linux-gnu/opera/lib_extra/libffmpeg.so
-```
-Fedora users 
-1. Copy file to the following folder:
-```bash
-sudo cp Downloads/libffmpeg.so /usr/lib64/opera/libffmpeg.so
-```
+3. Remove
+```/usr/lib/x86_64-linux-gnu/opera/libffmpeg.so```
+or
+```/usr/lib/opera/libffmpeg.so```
+since Opera has bug that `LD_PRELOAD` bundled `.so` which bleaks ABI compability.
+
 4. Restart your web browser.
