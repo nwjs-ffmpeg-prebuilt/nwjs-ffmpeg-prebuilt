@@ -47,7 +47,7 @@ jobs:
         shell: powershell
     steps:
       - name: Setup Node
-        uses: actions/setup-node@v4.4.0
+        uses: actions/setup-node@v5.0.0
         with:
           node-version: 20
       - name: Checkout code
@@ -78,7 +78,7 @@ jobs:
     runs-on: macos-15
     steps:
       - name: Setup Node
-        uses: actions/setup-node@v4.4.0
+        uses: actions/setup-node@v5.0.0
         with:
           node-version: 20
       - name: Delete unused SDKs
@@ -107,7 +107,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Node
-        uses: actions/setup-node@v4.4.0
+        uses: actions/setup-node@v5.0.0
         with:
           node-version: 20
       - name: Checkout code
