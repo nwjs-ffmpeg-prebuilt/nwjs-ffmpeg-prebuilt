@@ -6,7 +6,7 @@ linux-ia32) ffbuild="--arch=x86 --enable-cross-compile" ;;
 osx-x64) ffbuild="--arch=x86_64 --enable-cross-compile --disable-decoder=h264" ;;
 osx-arm64) ffbuild="--arch=arm64 --disable-decoder=h264" ;; # Chromium decodes H264 via videotoolbox
 win-x64) ffbuild="--arch=x86_64 --target-os=mingw32 --cross-prefix=x86_64-w64-mingw32-" ;;
-win-arm64) ffbuild="--arch=arm64 --target-os=mingw32 --cross-prefix=aarch64-w64-mingw32-" ;;
+win-arm64) ffbuild="--arch=aarch64 --target-os=mingw32 --cross-prefix=aarch64-w64-mingw32-" ;;
 win-ia32) ffbuild="--arch=x86 --target-os=mingw32 --cross-prefix=i686-w64-mingw32-" ;;
 esac
 
