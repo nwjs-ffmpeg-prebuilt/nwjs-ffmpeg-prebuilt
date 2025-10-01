@@ -40,7 +40,7 @@ jobs:
             echo "nw=$NW_VERSION" >> $GITHUB_OUTPUT
           fi
           # Fail for already released ver
-          # curl -s -o /dev/null -w "%{http_code}" https://github.com/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/releases/download/${NW_VERSION}/${NW_VERSION}-linux-x64.zip | grep 404
+          curl -s -o /dev/null -w "%{http_code}" https://github.com/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/releases/download/${NW_VERSION}/${NW_VERSION}-linux-x64.zip | grep 404
 
           CHROMIUM=$(curl -s https://nwjs.io/versions.json | jq -r ".versions[] | select(.version==\"v$NW_VERSION\") | .components.chromium")
           echo "chromium=$CHROMIUM" >> $GITHUB_OUTPUT
