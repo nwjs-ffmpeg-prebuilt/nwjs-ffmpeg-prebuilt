@@ -19,6 +19,9 @@ Prebuilt binaries are avaiable at [here](https://github.com/nwjs-ffmpeg-prebuilt
 - gcc-mingw-w64-i686 (for Windows ia32 target)
 - curl jq tar
 
+MSYS2 shell us recommended for building on Windows.
+(Cross-built on Ubuntu is used at here currently).
+
 #### Usage:
 
 You need major soname of libavcodec suitable for Chromium version:
@@ -52,10 +55,6 @@ For more information about the license of the source code, check [here](https://
 #### macOS
 
 Chromium supports decoding H.264 via macOS's API. We remove H.264 decoder by the reason.
-
-#### Windows
-
-Building binary on Windows host might possible by MinGQ, but only tested on Linux host yet. Decoding AAC via OSAPI is also unsupported yet.
 
 #### Linux
 
