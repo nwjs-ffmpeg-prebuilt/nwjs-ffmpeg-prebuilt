@@ -107,7 +107,7 @@ jobs:
   #build-msys2:
   #  needs: is-latest
   #  name: "Build for ${{ matrix.target }}"
-  #  runs-on: windows-layest
+  #  runs-on: windows-latest # windows-11-arm might low-cost
   #  strategy:
   #    matrix:
   #      include:
