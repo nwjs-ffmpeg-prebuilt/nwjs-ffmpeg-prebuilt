@@ -10,10 +10,10 @@ on:
       version:
         description: 'Version number to build'
         required: true
-        default: '0.100.1' # has sonames of libavcodec's with latest Opera 
+        default: '0.104.1'
 concurrency:
-  group: ${{ github.ref }}-make # fix after reviewed
-  cancel-in-progress: false # true
+  group: ${{ github.ref }}-make
+  cancel-in-progress: false
 
 jobs:
   is-latest:
@@ -60,10 +60,13 @@ jobs:
     runs-on: ${{ matrix.host }}
     strategy:
       matrix:
-        target: [linux-x64, linux-ia32]
         include:
           - target: linux-x64
             host: ubuntu-latest
+            setupcmd: sudo apt-get update && sudo apt-get install -y nasm
+            soname: libffmpeg.so
+          - target: linux-arm64
+            host: ubuntu-24.04-arm
             setupcmd: sudo apt-get update && sudo apt-get install -y nasm
             soname: libffmpeg.so
           - target: linux-ia32
@@ -113,7 +116,6 @@ jobs:
     steps:
       - uses: actions/download-artifact@v5.0.0
         with:
-          # all: true
           path: release/
 
       - name: Display structure of downloaded files
