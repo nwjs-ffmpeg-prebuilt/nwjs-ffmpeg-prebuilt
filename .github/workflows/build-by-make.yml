@@ -108,7 +108,7 @@ jobs:
   build-msys2:
     needs: is-latest
     name: "Build for ${{ matrix.target }}"
-    runs-on: windows-latest # windows-11-arm might low-cost
+    runs-on: windows-11-arm # gcc package also build for x64. So cross-gcc is used.
     strategy:
       matrix:
         include:
