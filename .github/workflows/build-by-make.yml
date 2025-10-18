@@ -123,7 +123,7 @@ jobs:
         with: 
           update: true
           install: >-
-            make nasm diffutils mingw-w64-x86_64-gcc
+            mingw-w64-clang-aarch64-make mingw-w64-clang-aarch64-nasm mingw-w64-clang-aarch64-diffutils mingw-w64-x86_64-gcc
       - name: Checkout code
         uses: actions/checkout@v5.0.0
       - name: Setup build tools

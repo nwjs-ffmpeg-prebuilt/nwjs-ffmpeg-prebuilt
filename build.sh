@@ -62,7 +62,7 @@ diff libavcodec/opus/dec.c{.bak,} || :
   --enable-{pic,asm,hardcoded-tables} \
   --libdir=/
 
-  make DESTDIR=. install
+  $(commad -v mingw32-make.exe||make) DESTDIR=. install
 _symbols=$(sed 's/^/-Wl,-u,/' sigs.txt | paste -sd " " -)
 case $1 in
 linux-*) ccunify="${_symbols} -Wl,--version-script=export.map -lm -Wl,-Bsymbolic" ;;
