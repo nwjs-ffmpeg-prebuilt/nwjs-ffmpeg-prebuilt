@@ -47,7 +47,7 @@ jobs:
         shell: powershell
     steps:
       - name: Setup Node
-        uses: actions/setup-node@v5.0.0
+        uses: actions/setup-node@v6.0.0
         with:
           node-version: 20
       - name: Checkout code
@@ -67,7 +67,7 @@ jobs:
           node build --arch x64 --version ${{ needs.is-latest.outputs.nw }}
           node build --arch ia32 --version ${{ needs.is-latest.outputs.nw }}
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v5.0.0
         with:
           name: win
           path: 'c:/a/**/build/out/*.zip'
@@ -78,7 +78,7 @@ jobs:
     runs-on: macos-15
     steps:
       - name: Setup Node
-        uses: actions/setup-node@v5.0.0
+        uses: actions/setup-node@v6.0.0
         with:
           node-version: 20
       - name: Delete unused SDKs
@@ -96,7 +96,7 @@ jobs:
           node build --arch x64 --version ${{ needs.is-latest.outputs.nw }}
           node build --arch arm64 --version ${{ needs.is-latest.outputs.nw }}
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v5.0.0
         with:
           name: mac
           path: 'build/out/*.zip'
@@ -107,7 +107,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Node
-        uses: actions/setup-node@v5.0.0
+        uses: actions/setup-node@v6.0.0
         with:
           node-version: 20
       - name: Checkout code
@@ -133,7 +133,7 @@ jobs:
           node build --arch x64 -v ${{ needs.is-latest.outputs.nw }}
           node build --arch ia32 -v ${{ needs.is-latest.outputs.nw }}
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v5.0.0
         with:
           name: linux
           path: 'build/out/*.zip'
@@ -151,15 +151,15 @@ jobs:
             echo "NW=$(curl -s https://nwjs.io/versions.json | jq -r '.latest' | sed 's/v//')" >> $GITHUB_ENV
           fi
 
-      - uses: actions/download-artifact@v5.0.0
+      - uses: actions/download-artifact@v6.0.0
         with:
           name: win
           path: release/win
-      - uses: actions/download-artifact@v5.0.0
+      - uses: actions/download-artifact@v6.0.0
         with:
           name: linux
           path: release/linux
-      - uses: actions/download-artifact@v5.0.0
+      - uses: actions/download-artifact@v6.0.0
         with:
           name: mac
           path: release/mac
