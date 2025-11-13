@@ -60,7 +60,6 @@ jobs:
     runs-on: ${{ matrix.host }}
     strategy:
       matrix:
-        target: [linux-x64, linux-ia32]
         include:
           - target: linux-x64
             host: ubuntu-latest
