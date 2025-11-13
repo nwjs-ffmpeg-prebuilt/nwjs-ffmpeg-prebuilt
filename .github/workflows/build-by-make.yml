@@ -10,7 +10,7 @@ on:
       version:
         description: 'Version number to build'
         required: true
-        default: '0.104.1'
+        default: '0.105.0'
 concurrency:
   group: ${{ github.ref }}-make
   cancel-in-progress: false
@@ -104,7 +104,7 @@ jobs:
           MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh ${{ matrix.target }}
           zip -9 ${{ needs.is-latest.outputs.nw }}-${{ matrix.target }}.zip ${{ matrix.soname }}
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v5.0.0
         with:
           name: ${{ matrix.target }}
           path: '/tmp/ff/*.zip'
@@ -114,7 +114,7 @@ jobs:
     name: "Build Release"
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/download-artifact@v5.0.0
+      - uses: actions/download-artifact@v6.0.0
         with:
           path: release/
 
