@@ -10,10 +10,10 @@ on:
       version:
         description: 'Version number to build'
         required: true
-        default: '0.100.1' # has sonames of libavcodec's with latest Opera 
+        default: '0.105.0'
 concurrency:
-  group: ${{ github.ref }}-make # fix after reviewed
-  cancel-in-progress: false # true
+  group: ${{ github.ref }}-make
+  cancel-in-progress: false
 
 jobs:
   is-latest:
@@ -113,7 +113,6 @@ jobs:
     steps:
       - uses: actions/download-artifact@v6.0.0
         with:
-          # all: true
           path: release/
 
       - name: Display structure of downloaded files
