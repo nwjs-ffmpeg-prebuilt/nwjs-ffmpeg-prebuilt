@@ -65,6 +65,10 @@ jobs:
             host: ubuntu-latest
             setupcmd: sudo apt-get update && sudo apt-get install -y nasm
             soname: libffmpeg.so
+          - target: linux-arm64
+            host: ubuntu-24.04-arm
+            setupcmd: sudo apt-get update && sudo apt-get install -y nasm
+            soname: libffmpeg.so
           - target: linux-ia32
             host: ubuntu-latest
             setupcmd: sudo apt-get update && sudo apt-get install -y nasm gcc-multilib
