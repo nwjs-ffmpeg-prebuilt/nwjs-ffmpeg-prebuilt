@@ -47,25 +47,11 @@ Using AAC and H.264 codecs requires you to pay attention to the patent royalties
 Consult a lawyer if you do not understand the licensing constraints and using patented media formats in your application.
 For more information about the license of the source code, check [here](https://chromium.googlesource.com/chromium/third_party/ffmpeg.git/+/master/CREDITS.chromium).
 
-### Platform specific notes
-
-#### macOS
-
-Chromium supports decoding H.264 via macOS's API. We remove H.264 decoder by the reason.
-
-#### Windows
-
-Building binary on Windows host might possible by MinGQ, but only tested on Linux host yet. Decoding AAC via OSAPI is also unsupported yet.
-
-#### Linux
-
-User of Gentoo Linux or Arch Linux (AUR) is advised to use [ebuild](https://packages.gentoo.org/packages/media-video/ffmpeg-chromium) or [PKGBUILD](https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=chromium-ffmpeg) instead of this project.
-
 ##### Opera Browser issue
 
 Opera needs to care more than libavcodec version to use our binary.
 
-It is recommended to install our binary at
+It is recommended to install our binary to
 `/usr/lib/x86_64-linux-gnu/opera/lib_extra/libffmpeg.so` and remove or drop read permission from default
 
 ``/usr/lib/x86_64-linux-gnu/opera/libffmpeg.so``
