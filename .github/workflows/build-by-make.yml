@@ -28,7 +28,7 @@ jobs:
       avutil: ${{ steps.set_nw.outputs.avutil }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.0
       - name: Write NW version to env and set output
         id: set_nw
         run: |
@@ -87,7 +87,7 @@ jobs:
             soname: libffmpeg.dylib
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.0
       - name: Setup build tools
         run: ${{ matrix.setupcmd }}
       - name: Build
