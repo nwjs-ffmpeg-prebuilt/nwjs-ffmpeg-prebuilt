@@ -28,7 +28,7 @@ jobs:
       avutil: ${{ steps.set_nw.outputs.avutil }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.1
       - name: Write NW version to env and set output
         id: set_nw
         run: |
@@ -87,7 +87,7 @@ jobs:
             soname: libffmpeg.dylib
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.1
       - name: Setup build tools
         run: ${{ matrix.setupcmd }}
       - name: Build
@@ -100,7 +100,7 @@ jobs:
           MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh ${{ matrix.target }}
           zip -9 ${{ needs.is-latest.outputs.nw }}-${{ matrix.target }}.zip ${{ matrix.soname }}
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v5.0.0
+        uses: actions/upload-artifact@v6.0.0
         with:
           name: ${{ matrix.target }}
           path: '/tmp/ff/*.zip'
@@ -110,7 +110,7 @@ jobs:
     name: "Build Release"
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/download-artifact@v6.0.0
+      - uses: actions/download-artifact@v7.0.0
         with:
           path: release/
 
