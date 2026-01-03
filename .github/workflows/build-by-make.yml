@@ -10,10 +10,14 @@ on:
       version:
         description: 'Version number to build'
         required: true
-        default: '0.105.0'
+        default: '0.106.1'
 concurrency:
   group: ${{ github.ref }}-make
   cancel-in-progress: false
+
+permissions:
+  contents: read
+  pull-requests: write
 
 jobs:
   is-latest:
@@ -69,6 +73,9 @@ jobs:
             host: ubuntu-latest
             setupcmd: sudo apt-get update && sudo apt-get install -y nasm gcc-multilib
             soname: libffmpeg.so
+          - target: win-arm64
+            host: ubuntu-latest
+            setupcmd: sudo apt-get update && sudo apt-get install -y nasm gcc-mingw-w64-aarch64
           - target: win-x64
             host: ubuntu-latest
             setupcmd: sudo apt-get update && sudo apt-get install -y nasm gcc-mingw-w64-x86-64
