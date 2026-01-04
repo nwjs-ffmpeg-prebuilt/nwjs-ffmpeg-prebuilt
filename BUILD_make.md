@@ -53,14 +53,6 @@ For more information about the license of the source code, check [here](https://
 
 Chromium supports decoding H.264 via macOS's API. We remove H.264 decoder by the reason.
 
-#### Windows
-
-Building binary on Windows host might possible by MinGQ, but only tested on Linux host yet. Decoding AAC via OSAPI is also unsupported yet.
-
-#### Linux
-
-User of Gentoo Linux or Arch Linux (AUR) is advised to use [ebuild](https://packages.gentoo.org/packages/media-video/ffmpeg-chromium) or [PKGBUILD](https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=chromium-ffmpeg) instead of this project.
-
 ##### Opera Browser issue
 
 Opera needs to care more than libavcodec version to use our binary.
@@ -70,4 +62,4 @@ It is recommended to install our binary at
 
 ``/usr/lib/x86_64-linux-gnu/opera/libffmpeg.so``
 
-since Opera has bug that `LD_PRELOAD` buldled `.so` binary which breaks ABI compability.
+since Opera has bug that `LD_PRELOAD` bundled `.so` binary which breaks ABI compability.
