@@ -73,9 +73,10 @@ jobs:
             host: ubuntu-latest
             setupcmd: sudo apt-get update && sudo apt-get install -y nasm gcc-multilib
             soname: libffmpeg.so
-          - target: win-arm64
-            host: ubuntu-latest
-            setupcmd: sudo apt-get update && sudo apt-get install -y nasm gcc-mingw-w64-aarch64
+          #- target: win-arm64
+            #host: ubuntu-latest # Ubuntu repo does not have the cross-gcc yet. But we should switch to cross-build since it would faster than native
+            #setupcmd: sudo apt-get update && sudo apt-get install -y gcc-mingw-w64-aarch64
+            #soname: libffmpeg.so
           - target: win-x64
             host: ubuntu-latest
             setupcmd: sudo apt-get update && sudo apt-get install -y nasm gcc-mingw-w64-x86-64
