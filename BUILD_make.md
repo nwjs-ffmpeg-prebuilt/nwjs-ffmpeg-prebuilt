@@ -56,4 +56,6 @@ It is recommended to install our binary to
 
 ``/usr/lib/x86_64-linux-gnu/opera/libffmpeg.so``
 
-since Opera has bug that `LD_PRELOAD` buldled `.so` binary which breaks ABI compability.
+
+since Opera has bug that `LD_PRELOAD` bundled `.so` binary which breaks ABI compability.
+
