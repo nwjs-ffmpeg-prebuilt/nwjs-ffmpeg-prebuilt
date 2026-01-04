@@ -91,7 +91,7 @@ jobs:
             soname: ffmpeg.dll
           - target: osx-arm64
             host: macos-latest
-            setupcmd: brew update && brew install nasm
+            setupcmd: true # ARM does not use nasm
             soname: libffmpeg.dylib
           - target: osx-x64
             host: macos-latest
