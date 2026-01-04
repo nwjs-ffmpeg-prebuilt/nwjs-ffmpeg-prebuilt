@@ -10,10 +10,14 @@ on:
       version:
         description: 'Version number to build'
         required: true
-        default: '0.105.0'
+        default: '0.106.1'
 concurrency:
   group: ${{ github.ref }}-make
   cancel-in-progress: false
+
+permissions:
+  contents: read
+  pull-requests: write
 
 jobs:
   is-latest:
@@ -28,7 +32,7 @@ jobs:
       avutil: ${{ steps.set_nw.outputs.avutil }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.1
       - name: Write NW version to env and set output
         id: set_nw
         run: |
@@ -38,9 +42,9 @@ jobs:
           else
             NW_VERSION=$(curl -s https://nwjs.io/versions.json | jq -r '.latest' | sed 's/v//')
             echo "nw=$NW_VERSION" >> $GITHUB_OUTPUT
+            # Fail for already released ver
+            curl -s -o /dev/null -w "%{http_code}" https://github.com/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/releases/download/${NW_VERSION}/${NW_VERSION}-linux-x64.zip | grep 404
           fi
-          # Fail for already released ver
-          curl -s -o /dev/null -w "%{http_code}" https://github.com/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/releases/download/${NW_VERSION}/${NW_VERSION}-linux-x64.zip | grep 404
 
           CHROMIUM=$(curl -s https://nwjs.io/versions.json | jq -r ".versions[] | select(.version==\"v$NW_VERSION\") | .components.chromium")
           echo "chromium=$CHROMIUM" >> $GITHUB_OUTPUT
@@ -69,6 +73,10 @@ jobs:
             host: ubuntu-latest
             setupcmd: sudo apt-get update && sudo apt-get install -y nasm gcc-multilib
             soname: libffmpeg.so
+          #- target: win-arm64
+            #host: ubuntu-latest # Ubuntu repo does not have the cross-gcc yet. But we should switch to cross-build since it would faster than native
+            #setupcmd: sudo apt-get update && sudo apt-get install -y gcc-mingw-w64-aarch64
+            #soname: libffmpeg.so
           - target: win-x64
             host: ubuntu-latest
             setupcmd: sudo apt-get update && sudo apt-get install -y nasm gcc-mingw-w64-x86-64
@@ -87,7 +95,7 @@ jobs:
             soname: libffmpeg.dylib
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.1
       - name: Setup build tools
         run: ${{ matrix.setupcmd }}
       - name: Build
@@ -100,7 +108,7 @@ jobs:
           MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh ${{ matrix.target }}
           zip -9 ${{ needs.is-latest.outputs.nw }}-${{ matrix.target }}.zip ${{ matrix.soname }}
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v5.0.0
+        uses: actions/upload-artifact@v6.0.0
         with:
           name: ${{ matrix.target }}
           path: '/tmp/ff/*.zip'
@@ -110,7 +118,7 @@ jobs:
     name: "Build Release"
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/download-artifact@v6.0.0
+      - uses: actions/download-artifact@v7.0.0
         with:
           path: release/
 
