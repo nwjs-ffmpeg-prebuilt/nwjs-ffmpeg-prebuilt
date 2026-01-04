@@ -109,7 +109,7 @@ jobs:
           cd /tmp/ff
           curl https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/${{ needs.is-latest.outputs.commit }}.tar.gz -o ff.tar.gz
           tar -xf ff.tar.gz
-          MAKEFLAGS=-j3 bash ${{ github.workspace }}/build.sh ${{ matrix.target }}
+          MAKEFLAGS=-j4 bash ${{ github.workspace }}/build.sh ${{ matrix.target }}
           zip -9 ${{ needs.is-latest.outputs.nw }}-${{ matrix.target }}.zip ${{ matrix.soname }}
       - name: Upload the artifacts
         uses: actions/upload-artifact@v6.0.0
@@ -117,8 +117,50 @@ jobs:
           name: ${{ matrix.target }}
           path: '/tmp/ff/*.zip'
 
+  # Should have this as a different CI to avoid stopping Ubuntu CI
+  # x86_64-gcc is a stange dep. But needed
+  # Use mingw-w64-cross-mingwarm64-gcc instead of mingw-w64-clang-aarch64-gcc-compat
+  # Use Cygwin make instead of native make
+  # Install tools works on win11-arm host 1st and install tools for arm target
+  build-msys2:
+    needs: is-latest
+    name: "Build for ${{ matrix.target }}"
+    runs-on: windows-11-arm
+    strategy:
+      matrix:
+        include:
+  #        - target: win-x64
+  #          setupcmd: pacman -S --noconfirm mingw-w64-cross-mingw64-binutils
+          - target: win-arm64 # Should switch to cross-build on Ubuntu
+            setupcmd: pacman -S --noconfirm mingw-w64-cross-mingwarm64-gcc mingw-w64-cross-mingwarm64-binutils
+  #        - target: win-ia32
+  #          setupcmd: pacman -S --noconfirm mingw-w64-i686-gcc mingw-w64-i686-binutils mingw-w64-cross-mingw32-binutils
+    steps:
+      - uses: msys2/setup-msys2@v2
+        with: 
+          update: true
+          install: >-
+            make mingw-w64-clang-aarch64-diffutils mingw-w64-x86_64-gcc
+      - name: Checkout code
+        uses: actions/checkout@v5.0.0
+      - name: Setup build tools
+        shell: msys2 {0}
+        run: ${{ matrix.setupcmd }}
+      - name: Build
+        shell: msys2 {0}
+        working-directory: ${{ github.workspace }}
+        run: |
+          curl https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/${{ needs.is-latest.outputs.commit }}.tar.gz -o - | tar xzf -
+          MAKEFLAGS=-j4 bash ./build.sh ${{ matrix.target }}
+          bsdtar caf ${{ needs.is-latest.outputs.nw }}-${{ matrix.target }}.zip ffmpeg.dll
+      - name: Upload the artifacts
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: ${{ matrix.target }}
+          path: '*.zip'
+
   build-release:
-    needs: [ is-latest, build ]
+    needs: [ is-latest, build, build-msys2 ]
     name: "Build Release"
     runs-on: "ubuntu-latest"
     steps:
