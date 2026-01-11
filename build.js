@@ -76,7 +76,7 @@ async function main() {
         console.error('Platform not supported');
         process.exit(1);
     }
-    const downloadUrl = `https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/${version.version.slice(1)}/${zipName}`;
+    const downloadUrl = `https://github.com/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/releases/download/${version.version.slice(1)}/${zipName}`;
     if (program.getDownloadUrl) {
         process.stdout.write(downloadUrl);
         process.exit(0);

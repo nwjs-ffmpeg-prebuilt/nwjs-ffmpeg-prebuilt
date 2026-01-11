@@ -3,12 +3,13 @@
 
 FFmpeg prebuilt binaries with proprietary codecs and build script by `make` faster than official `gn` build. We also have some optimization not used by Chromium e.g. swapping decoders.
 
-### Downloads
+## Downloads
+
 Prebuilt binaries are avaiable at [here](https://github.com/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/releases)
 
-### Build
+## Build
 
-#### Required build tools
+### Required build tools
 
 - Linux 64bit host (for Linux and Windows target)
 - Xcode (for macOS target)
@@ -19,11 +20,11 @@ Prebuilt binaries are avaiable at [here](https://github.com/nwjs-ffmpeg-prebuilt
 - gcc-mingw-w64-i686 (for Windows ia32 target)
 - curl jq tar
 
-#### Usage:
+### Usage
 
 You need major soname of libavcodec suitable for Chromium version:
 
-```
+```shell
 NW_VERSION=0.101.2
 CHROMIUM=$(curl -s https://nwjs.io/versions.json | jq -r ".versions[] | select(.version==\"v$NW_VERSION\") | .components.chromium")
 _commit=$(curl -sL https://chromium.googlesource.com/chromium/src.git/+/refs/tags/${CHROMIUM}/DEPS?format=TEXT | base64 -d | grep -oP "'ffmpeg_revision': '\K[0-9a-f]{40}'" | tr -d \')
@@ -40,12 +41,10 @@ Run build script with suitable `MAKEFLAGS`:
 
 where `$TARGET` is one of linux-x64, linux-ia32, win-x64, win-ia32, osx-arm64 or osx-x64.
 
-### License and Patent Fee
+## License and Patent Fee
 
-#### License
-Using AAC and H.264 codecs requires you to pay attention to the patent royalties and the license of the source code.
-Consult a lawyer if you do not understand the licensing constraints and using patented media formats in your application.
-For more information about the license of the source code, check [here](https://chromium.googlesource.com/chromium/third_party/ffmpeg.git/+/master/CREDITS.chromium).
+> Using AAC and H.264 codecs requires you to pay attention to the patent royalties and the license of the source code.
+Consult a lawyer if you do not understand the licensing constraints and using patented media formats in your application. For more information about the license of the source code, check [here](https://chromium.googlesource.com/chromium/third_party/ffmpeg.git/+/master/CREDITS.chromium).
 
 ### Platform specific notes
 

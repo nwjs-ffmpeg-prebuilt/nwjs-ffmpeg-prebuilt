@@ -36,7 +36,7 @@
 
 This is the default behaviour, does not require additional steps, just run it and tadaaaa :tada:...
 
-	git clone https://github.com/iteufel/nwjs-ffmpeg-prebuilt.git
+	git clone https://github.com/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt.git
 	cd nwjs-ffmpeg-prebuilt
 
 	//Build ffmpeg ia32

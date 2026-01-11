@@ -16,7 +16,7 @@
 	brew update && brew install git python node
 
 ## Build libffmpeg
-	git clone https://github.com/iteufel/nwjs-ffmpeg-prebuilt.git
+	git clone https://github.com/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt.git
 	cd nwjs-ffmpeg-prebuilt
 	npm i
 	node build
