@@ -14,10 +14,11 @@ Prebuilt binaries are avaiable at [here](https://github.com/nwjs-ffmpeg-prebuilt
 - Linux 64bit host (for Linux and Windows target)
 - Xcode (for macOS target)
 - make
-- nasm
+- nasm (for x86 or x86_64 target)
 - gcc-multilib (for Linux ia32 target)
-- gcc-mingw-w64-x86-64 (for WIndows x64 target)
+- gcc-mingw-w64-x86-64 (for Windows x64 target)
 - gcc-mingw-w64-i686 (for Windows ia32 target)
+- gcc-mingw-w64-aarch64 (for Windows arm64 target)
 - curl jq tar
 
 ### Usage
