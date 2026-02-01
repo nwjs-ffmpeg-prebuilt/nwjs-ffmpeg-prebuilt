@@ -32,7 +32,7 @@ jobs:
       avutil: ${{ steps.set_nw.outputs.avutil }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6.0.1
+        uses: actions/checkout@v6.0.2
       - name: Write NW version to env and set output
         id: set_nw
         run: |
@@ -95,7 +95,7 @@ jobs:
             soname: libffmpeg.dylib
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6.0.1
+        uses: actions/checkout@v6.0.2
       - name: Setup build tools
         run: ${{ matrix.setupcmd }}
       - name: Build
@@ -138,7 +138,7 @@ jobs:
           install: >-
             make mingw-w64-clang-aarch64-diffutils mingw-w64-x86_64-gcc
       - name: Checkout code
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.2
       - name: Setup build tools
         shell: msys2 {0}
         run: ${{ matrix.setupcmd }}
@@ -150,7 +150,7 @@ jobs:
           MAKEFLAGS=-j4 bash ./build.sh ${{ matrix.target }}
           bsdtar caf ${{ needs.is-latest.outputs.nw }}-${{ matrix.target }}.zip ffmpeg.dll
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v6.0.0
         with:
           name: ${{ matrix.target }}
           path: '*.zip'
