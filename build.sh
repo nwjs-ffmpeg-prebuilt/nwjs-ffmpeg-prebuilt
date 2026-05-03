@@ -2,6 +2,14 @@
 # For MSYS2. Doubtful setting. MinGW shell should care about it.
 PATH+=":/mingw64/bin:/mingw32/bin:/opt/bin:/clangarm64/bin"
 # Do not use declare -A for old bash on macOS
+
+case $1 in
+linux-arm*)
+test $(uname -m) = aarch64 || { echo cross-build is not supported;  exit 1; };;
+"")
+echo platform is empty; exit 1;;
+esac
+
 case $1 in
 linux-ia32) ffbuild="--arch=x86 --enable-cross-compile" ;;
 osx-x64) ffbuild="--arch=x86_64 --enable-cross-compile --disable-decoder=h264" ;;
@@ -12,14 +20,14 @@ win-ia32) ffbuild="--arch=x86 --target-os=mingw32 --cross-prefix=i686-w64-mingw3
 esac
 
 case $1 in
-linux-x64) cflags="-fno-math-errno -fno-signed-zeros" ;;
+linux-x64|linux-arm64) cflags="-fno-math-errno -fno-signed-zeros" ;;
 linux-ia32) cflags="-m32 -fno-math-errno -fno-signed-zeros" ;;
 osx-x64) cflags="-arch x86_64 --target=x86_64-apple-macosx" ;;
 win-*) cflags="-ffat-lto-objects" ;; # for -flto on MSYS2
 esac
 
 case $1 in
-linux-x64) ldflags="-Wl,-O1 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now -Wl,-z,pack-relative-relocs" ;;
+linux-x64|linux-arm64) ldflags="-Wl,-O1 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now -Wl,-z,pack-relative-relocs" ;;
 linux-ia32) ldflags="-m32 -Wl,-O1 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now -Wl,-z,pack-relative-relocs" ;;
 win-*) ldflags="-Wl,-O1 -Wl,--sort-common -Wl,--as-needed -Wl,--nxcompat -Wl,--dynamicbase" ;;
 esac
