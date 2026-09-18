@@ -6,12 +6,11 @@ PATH+=":/mingw64/bin:/mingw32/bin:/opt/bin:/clangarm64/bin"
 case $1 in
 linux-arm*)
 test $(uname -m) = aarch64 || { echo cross-build is not supported;  exit 1; };;
-"")
-echo platform is empty; exit 1;;
+""|linux-ia32)
+echo platform is not supported; exit 1;;
 esac
 
 case $1 in
-linux-ia32) ffbuild="--arch=x86 --enable-cross-compile" ;;
 osx-x64) ffbuild="--arch=x86_64 --enable-cross-compile --disable-decoder=h264" ;;
 osx-arm64) ffbuild="--arch=arm64 --disable-decoder=h264" ;; # Chromium decodes H264 via videotoolbox
 win-x64) ffbuild="--arch=x86_64 --target-os=mingw32 --cross-prefix=x86_64-w64-mingw32-" ;;
@@ -21,21 +20,18 @@ esac
 
 case $1 in
 linux-x64|linux-arm64) cflags="-fno-math-errno -fno-signed-zeros" ;;
-linux-ia32) cflags="-m32 -fno-math-errno -fno-signed-zeros" ;;
 osx-x64) cflags="-arch x86_64 --target=x86_64-apple-macosx" ;;
 win-*) cflags="-ffat-lto-objects" ;; # for -flto on MSYS2
 esac
 
 case $1 in
 linux-x64|linux-arm64) ldflags="-Wl,-O1 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now -Wl,-z,pack-relative-relocs" ;;
-linux-ia32) ldflags="-m32 -Wl,-O1 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now -Wl,-z,pack-relative-relocs" ;;
 win-*) ldflags="-Wl,-O1 -Wl,--sort-common -Wl,--as-needed -Wl,--nxcompat -Wl,--dynamicbase" ;;
 esac
 
 case $1 in
 linux-*|osx-arm64) cc=gcc ;; # symlink to clang at macOS
 osx-x64) cc="clang -arch x86_64";;
-linux-ia32) cc="gcc -m32" ;;
 win-x64) cc=x86_64-w64-mingw32-gcc ;;
 win-arm64) cc=aarch64-w64-mingw32-gcc ;;
 win-ia32) cc=i686-w64-mingw32-gcc ;;
