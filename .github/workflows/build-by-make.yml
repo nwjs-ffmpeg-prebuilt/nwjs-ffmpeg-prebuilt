@@ -126,25 +126,21 @@ jobs:
       matrix:
         include:
   #        - target: win-x64
-  #          setupcmd: pacman -S --noconfirm mingw-w64-cross-mingw64-binutils
+  #          pkgs: mingw-w64-cross-mingw64-binutils
           - target: win-arm64 # Should switch to cross-build on Ubuntu
-            setupcmd: pacman -S --noconfirm mingw-w64-cross-mingwarm64-gcc mingw-w64-cross-mingwarm64-binutils
+            pkgs: mingw-w64-cross-mingwarm64-gcc mingw-w64-cross-mingwarm64-binutils
   #        - target: win-ia32
-  #          setupcmd: pacman -S --noconfirm mingw-w64-i686-gcc mingw-w64-i686-binutils mingw-w64-cross-mingw32-binutils
+  #          pkgs: mingw-w64-i686-gcc mingw-w64-i686-binutils mingw-w64-cross-mingw32-binutils
     steps:
-      - uses: msys2/setup-msys2@v2
-        with: 
-          update: true
-          install: >-
-            make mingw-w64-clang-aarch64-diffutils mingw-w64-x86_64-gcc
       - name: Checkout code
         uses: actions/checkout@v5.0.0
       - name: Setup build tools
-        shell: msys2 {0}
-        run: ${{ matrix.setupcmd }}
+        shell: 'C:\msys64\usr\bin\bash.exe --login -eo pipefail {0}'
+        run: pacman -S --noconfirm ${{ matrix.pkgs }} make mingw-w64-clang-aarch64-diffutils mingw-w64-x86_64-gcc
       - name: Build
-        shell: msys2 {0}
-        working-directory: ${{ github.workspace }}
+        shell: 'C:\msys64\usr\bin\bash.exe --login -eo pipefail {0}'
+        env:
+          CHERE_INVOKING: 1
         run: |
           curl https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/${{ needs.is-latest.outputs.commit }}.tar.gz -o - | tar xzf -
           MAKEFLAGS=-j4 bash ./build.sh ${{ matrix.target }}
