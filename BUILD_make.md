@@ -11,14 +11,13 @@ Prebuilt binaries are avaiable at [here](https://github.com/nwjs-ffmpeg-prebuilt
 
 ### Required build tools
 
-- Linux 64bit host (for Linux and Windows target)
+- Linux 64bit host (for Linux target)
+- MSYS2 (to build on Windows for Windows)
 - Xcode (for macOS target)
-- make
-- nasm
-- gcc-multilib (for Linux ia32 target)
-- gcc-mingw-w64-x86-64 (for WIndows x64 target)
+- nasm (for x86_64 specific optimization)
+- gcc-mingw-w64-x86-64 (for Windows x64 target)
 - gcc-mingw-w64-i686 (for Windows ia32 target)
-- curl jq tar
+- curl make jq tar
 
 ### Usage
 
@@ -39,7 +38,7 @@ Run build script with suitable `MAKEFLAGS`:
 
 `MAKEFLAGS=-j7 bash ./build.sh $TARGET`
 
-where `$TARGET` is one of linux-x64, linux-ia32, win-x64, win-ia32, osx-arm64 or osx-x64.
+where `$TARGET` is one of linux-x64, win-x64, win-ia32, osx-arm64 or osx-x64.
 
 ## License and Patent Fee
 
